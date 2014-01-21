@@ -1,7 +1,7 @@
 class Scene
 {
   private Camera m_camera;
-  private ObjectManager m_objectManager;
+  private SceneManager m_sceneManager;
 
   Scene()
   {

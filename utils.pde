@@ -9,8 +9,17 @@ class Point
     m_x = x;
     m_y = y;
     m_z = z;
-  } 
+  }
+  
+  Point(Point other)
+  {
+    m_x = other.m_x;
+    m_y = other.m_y;
+    m_z = other.m_z;
+  }
 }
+
+Point clone(Point other) { return new Point(other); }
 
 class Vector
 {
