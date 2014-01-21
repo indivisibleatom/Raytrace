@@ -1,6 +1,5 @@
 interface Shape
 {
-  public void draw();
 }
 
 class Sphere implements Shape
@@ -27,3 +26,4 @@ class Triangle implements Shape
     }
   }
 }
+
