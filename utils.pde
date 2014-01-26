@@ -20,6 +20,7 @@ class Point
 }
 
 Point clone(Point other) { return new Point(other); }
+final Point c_origin = new Point(0,0,0);
 
 class Vector
 {
@@ -33,6 +34,36 @@ class Vector
     m_y = y;
     m_z = z;
   } 
+  
+  Vector(Point pA, Point pB)
+  {
+    m_x = pB.m_x - pA.m_x;
+    m_y = pB.m_y - pA.m_y;
+    m_z = pB.m_z - pA.m_z;
+  }
+  
+  public float dot( Vector other )
+  {
+    return m_x * other.m_x + m_y * other.m_y + m_z + other.m_z;
+  }
+  
+  public void getMagnitude()
+  {
+    return sqrt( getMagnitudeSquare );
+  }
+  
+  public void getMagnitudeSquare()
+  {
+    return dot( this );
+  }
+
+  public void normalize()
+  {
+    float denom = getMagnitude();
+    m_x = m_x / denom;
+    m_y = m_y / denom;
+    m_z = m_z / denom;   
+  }
 }
 
 Vector clone(Vector other) { return new Vector(other); }
@@ -46,7 +77,10 @@ class Ray
   {
     m_orig  = clone(orig);
     m_dir = clone(dir);
+    m_dir.normalize();
   }
+  
+  void getOrigin() { return m_orig; }
 }
 
 Ray clone(Ray other) { return new Ray(other); }
