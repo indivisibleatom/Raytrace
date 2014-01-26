@@ -35,6 +35,24 @@ class Vector
   } 
 }
 
+Vector clone(Vector other) { return new Vector(other); }
+
+class Ray
+{
+  private Point m_orig;
+  private Vector m_dir;
+  
+  Ray(Point orig, Vector dir)
+  {
+    m_orig  = clone(orig);
+    m_dir = clone(dir);
+  }
+}
+
+Ray clone(Ray other) { return new Ray(other); }
+
+Vector clone(Vector other) { return new Vector(other); }
+
 class Color
 {
   private float m_r;
@@ -52,4 +70,6 @@ class Color
   public float G() { return m_g; }
   public float B() { return m_b; }
 }
+
+Color clone(Color other) { return new Color(other); }
 

@@ -1,5 +1,7 @@
 interface Shape
 {
+  public boolean intersects( Ray ray );
+  public IntersectionInfo getIntersectionInfo( Ray ray );
 }
 
 class Sphere implements Shape
@@ -11,7 +13,7 @@ class Sphere implements Shape
   {
     m_radius = radius;
     m_center = center;
-  } 
+  }
 }
 
 class Triangle implements Shape

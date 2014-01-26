@@ -13,3 +13,4 @@ class InstancePrimitive implements Primitive
   private Primitive m_primitive;
   private Transform m_worldTransform;
 }
+
