@@ -21,6 +21,10 @@ void setup() {
   interpreter();
 }
 
+void draw() {
+  scene.draw();
+}
+
 // Press key 1 to 9 and 0 to run different test cases.
 
 void keyPressed() {

@@ -24,8 +24,19 @@ class Film
     m_screenDim = screenDim;
   }
   
-  void setRadiance( Sample sample, Color color )
+  void setRadiance( Sample sample, Color col )
   {
-    m_screenColor[sample.getPixelY()][sample.getPixelX()] = color;
+    m_screenColor[sample.getPixelY()][sample.getPixelX()].add( col );
+  }
+  
+  void draw()
+  {
+    for ( int i = screenDim.Y(); i < screenDim.Y() + screenDim.height(); i++ )
+    {
+      for ( int j = screenDim.X(); j < screenDim.X() + screenDim.width(); j++ )
+      {
+        put( i, j, getIntColor(m_screenColor[i][j]) );
+      }
+    }
   }
 }

@@ -100,6 +100,8 @@ class Color
     m_b = b;
   }
   
+  int getIntColor() { return ((m_r&0x0ff)<<16)|((m_g&0x0ff)<<8)|(m_b&0x0ff); }
+
   public float R() { return m_r; }
   public float G() { return m_g; }
   public float B() { return m_b; }
@@ -121,5 +123,10 @@ class Rect
     m_width = width;
     m_height = height;
   }
+  
+  public int X() { return m_x; }
+  public int Y() { return m_y; }
+  public int width() { return m_width; }
+  public int height() { return m_height; }
 }
 
