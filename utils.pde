@@ -40,6 +40,11 @@ class Point
     m_y /= scaleY;
     m_z /= scaleZ;
   }
+  
+  void debugPrint()
+  {
+    print( "Point : " + m_x + " " + m_y + " " + m_z + "\n" );
+  }
 }
 
 Point clonePt(Point other) { return new Point(other); }
