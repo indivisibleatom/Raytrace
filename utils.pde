@@ -145,23 +145,30 @@ class Color
     m_b = b;
   }
   
-  private toInt( float f )
+  Color(Color other)
+  {
+    m_r = other.m_r;
+    m_g = other.m_g;
+    m_b = other.m_b;
+  }
+  
+  private int toInt( float f )
   {
     int retVal;
-    if ( retVal >= 1.0 )
+    retVal = (int) (f*256.0);
+    if ( retVal >= 255 )
     {
       retVal = 255;
     }
-    else
-    {
-      retVal = f*256.0;
-    }
+    return retVal;
   }
   
   int getIntColor() 
   {
-    F2B(f) ((f) >= 1.0 ? 255 : (int)((f)*256.0))
-    return ((m_r&0x0ff)<<16)|((m_g&0x0ff)<<8)|(m_b&0x0ff); 
+    int r = toInt(m_r);
+    int g = toInt(m_g);
+    int b = toInt(m_b);
+    return ((r&0x0ff)<<16)|((g&0x0ff)<<8)|(b&0x0ff); 
   }
 
   public float R() { return m_r; }
