@@ -1,5 +1,5 @@
 # one white triangle
 
 fov 60
-sphere 5 0 0 -10
+sphere 2 0 0 -10
 write test.png

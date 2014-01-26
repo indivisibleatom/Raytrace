@@ -1,4 +1,4 @@
-/*interface Task extends Runnable
+interface Task extends Runnable
 {
 }
 
@@ -19,14 +19,19 @@ class SamplerRenderingTask implements Task
     if ( m_scene.intersects( ray ) )
     {
       return new Color(1.0,1.0,1.0);
-    }
-    return Color(0.0, 0.0, 0.0);
+    }   
+    print("Gere");
+    return new Color(0.0, 0.0, 0.0);   
   }
   
   public void run()
   {
     Sample sample = m_sampler.getNextSample();
-    Ray ray = m_scene.getCamera().getRay(sample);
-    m_scene.getCamera().getFilm().setRadiance(sample, computeRadiance(ray));
+    do
+    {
+      Ray ray = m_scene.getCamera().getRay(sample);
+      m_scene.getCamera().getFilm().setRadiance(sample, computeRadiance(ray));
+      sample = m_sampler.getNextSample();
+    } while ( sample != null );
   }
-}*/
+}

@@ -176,7 +176,7 @@ class Color
   public float B() { return m_b; }
 }
 
-Color clone(Color other) { return new Color(other); }
+Color cloneCol(Color other) { return new Color(other); }
 
 class Rect
 {

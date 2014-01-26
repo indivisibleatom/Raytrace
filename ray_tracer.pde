@@ -8,7 +8,7 @@ int screen_width = 300;
 int screen_height = 300;
 
 // the current active file name
-SceneBuilder gCurrentFile = new SceneBuilder("test.cli");
+SceneBuilder gCurrentFile;
 
 
 // Some initializations for the scene.
@@ -28,6 +28,7 @@ void setup() {
 
 void keyPressed() {
   switch(key) {
+    case '0':  gCurrentFile = new SceneBuilder("test.cli"); gCurrentFile.buildScene(); break;
     case '1':  gCurrentFile = new SceneBuilder("t0.cli"); gCurrentFile.buildScene(); break;
     case '2':  gCurrentFile = new SceneBuilder("t1.cli"); gCurrentFile.buildScene(); break;
     case '3':  gCurrentFile = new SceneBuilder("c0.cli"); gCurrentFile.buildScene(); break;

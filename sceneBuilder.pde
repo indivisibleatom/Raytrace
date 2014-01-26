@@ -5,6 +5,7 @@ class SceneBuilder
   
   SceneBuilder( String fileName )
   {
+    m_scene = new Scene();
     m_fileName = fileName;
   }
   

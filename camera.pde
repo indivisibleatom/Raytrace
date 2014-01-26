@@ -29,12 +29,11 @@ class Camera
     return p;
   }
   
-  public Ray getRay( /*Sample sample*/ )
+  public Ray getRay( Sample sample )
   {
-    return null;
-    /*Point p = toCamera( sample.getX(), sample.getX(), 0 );
+    Point p = toCamera( new Point(sample.getX(), sample.getX(), 0) );
     Ray r = new Ray( c_origin, p );
-    return r;*/
+    return r;
   }
 }
 
@@ -46,14 +45,18 @@ class Film
   Film( Rect screenDim )
   {
     m_screenDim = screenDim;
+    m_screenColor = new Color[ m_screenDim.width() ][ m_screenDim.height() ];
   }
 
   public Rect getDim() { return m_screenDim; }
   
-  public void setRadiance( /*Sample sample,*/ Color col )
+  public void setRadiance( Sample sample, Color col )
   {
     //TODO msati3: Remove hardcoding of single color being equated
-    //m_screenColor[sample.getPixelY()][sample.getPixelX()] = col;
-    //put( i, j, m_screenColor[i][j].getIntColor() );
+    m_screenColor[sample.getX()][sample.getY()] = col;
+    color colProcessing = color( col.R(), col.G(), col.B() );
+    //int colInt = m_screenColor[sample.getX()][sample.getY()].getIntColor();
+    stroke( colProcessing  );
+    point( sample.getX(), sample.getY() );
   }
 }

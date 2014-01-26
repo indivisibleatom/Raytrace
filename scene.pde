@@ -11,7 +11,7 @@ class Scene
     m_fRayTraced = false;
     m_sceneManager = new SceneManager();
     m_camera = new Camera( 0, -1, new Rect(0, 0, width, height) );
-    m_renderer = new SamplerRenderer();
+    m_renderer = new SamplerRenderer( this );
   }
   
   void draw()
@@ -22,7 +22,12 @@ class Scene
     //}
   }
   
-  boolean intersects( Ray ray )
+  public Camera getCamera()
+  {
+    return m_camera;
+  }
+  
+  public boolean intersects( Ray ray )
   {
     return m_sceneManager.intersects(ray);
   }
