@@ -107,3 +107,19 @@ class Color
 
 Color clone(Color other) { return new Color(other); }
 
+class Rect
+{
+  private int m_x;
+  private int m_y;
+  private int m_width;
+  private int m_height;
+  
+  Rect(int x, int y, int width, int height)
+  {
+    m_x = x;
+    m_y = y;
+    m_width = width;
+    m_height = height;
+  }
+}
+
