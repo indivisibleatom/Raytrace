@@ -5,12 +5,24 @@ class Camera
   
   Camera( float fov, int zNear, Rect screenDim )
   {
+    m_fov = fov * (PI / 180);
     m_film = new Film( screenDim );
   }
   
-  void getFilm()
+  public void getFilm()
   {
     return m_film;
+  }
+  
+  public Point toCamera( Point point )
+  {
+    Rect dimension = m_file.getDim();
+    
+  }
+  
+  public void getRay( Sample sample )
+  {
+    toCamera( sample.getX(), sample.getX(), -1 );
   }
 }
 
@@ -24,12 +36,17 @@ class Film
     m_screenDim = screenDim;
   }
   
-  void setRadiance( Sample sample, Color col )
+  public Rect getDim() { return m_screenDim; }
+  
+  public void setRadiance( Sample sample, Color col )
   {
-    m_screenColor[sample.getPixelY()][sample.getPixelX()].add( col );
+    //TODO msati3: Remove hardcoding of single color being equated
+    m_screenColor[sample.getPixelY()][sample.getPixelX()] = col;  
+
+    put( i, j, getIntColor(m_screenColor[i][j]) );
   }
   
-  void draw()
+  /*void draw()
   {
     for ( int i = screenDim.Y(); i < screenDim.Y() + screenDim.height(); i++ )
     {
@@ -38,5 +55,5 @@ class Film
         put( i, j, getIntColor(m_screenColor[i][j]) );
       }
     }
-  }
+  }*/
 }

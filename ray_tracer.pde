@@ -8,7 +8,7 @@ int screen_width = 300;
 int screen_height = 300;
 
 // the current active file name
-String gCurrentFile = new String("rect_test.cli");   
+String gCurrentFile = new String("test.cli");
 
 
 // Some initializations for the scene.
@@ -21,9 +21,9 @@ void setup() {
   interpreter();
 }
 
-void draw() {
+/*void draw() {
   scene.draw();
-}
+}*/
 
 // Press key 1 to 9 and 0 to run different test cases.
 

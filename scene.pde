@@ -13,15 +13,15 @@ class Scene
   
   void draw()
   {
-    if (m_fRayTraced)
+    /*if (m_fRayTraced)
     {
       m_camera.getFilm().draw();
-    }
+    }*/
   }
   
   public setCameraFov()
   {
-    //TODO
+    
   }
   
   public setBackgroundColor()
