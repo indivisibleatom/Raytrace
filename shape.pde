@@ -1,16 +1,16 @@
 interface Shape
 {
   public boolean intersects( Ray ray );
-  public IntersectionInfo getIntersectionInfo( Ray ray );
+  //public IntersectionInfo getIntersectionInfo( Ray ray );
 }
 
 class Sphere implements Shape
 {
-  Transformation m_transformation;
+  //Transformation m_transformation;
 
-  Sphere( Transformation transformation )
+  Sphere( /*Transformation transformation*/ )
   {
-    m_transformation = transformation;
+    //m_transformation = transformation;
   }
   
   private boolean intersectsCanonical( Ray ray )
@@ -26,15 +26,16 @@ class Sphere implements Shape
   
   public boolean intersects( Ray ray )
   {
-    Ray rayObject = getObjectRay( ray, m_transformation );
+    //Ray rayObject = getObjectRay( ray, m_transformation );
     return intersectsCanonical( ray );
   }
   
-  public IntersectionInfo getIntersectionInfo( Ray ray )
+  /*public IntersectionInfo getIntersectionInfo( Ray ray )
   {
     return null;
-  }
+  }*/
 }
+
 
 /*class Triangle implements Shape
 {

@@ -6,9 +6,7 @@ class Point
   
   Point(float x, float y, float z)
   {
-    m_x = x;
-    m_y = y;
-    m_z = z;
+    set(x, y, z);
   }
   
   Point(Point other)
@@ -17,9 +15,34 @@ class Point
     m_y = other.m_y;
     m_z = other.m_z;
   }
+  
+  public float X() { return m_x; }
+  public float Y() { return m_y; }
+  public float Z() { return m_z; }
+  
+  void subtract(Point other)
+  {
+    m_x -= other.m_x;
+    m_y -= other.m_y;
+    m_z -= other.m_z;
+  }
+  
+  void set( float x, float y, float z )
+  {
+    m_x = x;
+    m_y = y;
+    m_z = z;
+  }
+  
+  void toNormalizedCoordinates(float scaleX, float scaleY, float scaleZ)
+  {
+    m_x /= scaleX;
+    m_y /= scaleY;
+    m_z /= scaleZ;
+  }
 }
 
-Point clone(Point other) { return new Point(other); }
+Point clonePt(Point other) { return new Point(other); }
 final Point c_origin = new Point(0,0,0);
 
 class Vector
@@ -35,6 +58,13 @@ class Vector
     m_z = z;
   } 
   
+  Vector(Vector other)
+  {
+    m_x = other.m_x;
+    m_y = other.m_y;
+    m_z = other.m_z;
+  }
+  
   Vector(Point pA, Point pB)
   {
     m_x = pB.m_x - pA.m_x;
@@ -47,12 +77,12 @@ class Vector
     return m_x * other.m_x + m_y * other.m_y + m_z + other.m_z;
   }
   
-  public void getMagnitude()
+  public float getMagnitude()
   {
-    return sqrt( getMagnitudeSquare );
+    return sqrt( getMagnitudeSquare() );
   }
   
-  public void getMagnitudeSquare()
+  public float getMagnitudeSquare()
   {
     return dot( this );
   }
@@ -66,7 +96,7 @@ class Vector
   }
 }
 
-Vector clone(Vector other) { return new Vector(other); }
+Vector cloneVec(Vector other) { return new Vector(other); }
 
 class Ray
 {
@@ -75,12 +105,27 @@ class Ray
   
   Ray(Point orig, Vector dir)
   {
-    m_orig  = clone(orig);
-    m_dir = clone(dir);
+    m_orig  = clonePt(orig);
+    m_dir = cloneVec(dir);
     m_dir.normalize();
   }
   
-  void getOrigin() { return m_orig; }
+  Ray(Ray other)
+  {
+    m_orig  = clonePt(other.m_orig);
+    m_dir = cloneVec(other.m_dir);
+  }
+  
+  Ray(Point orig, Point other)
+  {
+    m_orig = orig;
+    m_dir = new Vector(orig, other);
+    m_dir.normalize();
+  }
+  
+  Point getOrigin() { return m_orig; }
+  
+  Vector getDirection() { return m_dir; }
 }
 
 Ray clone(Ray other) { return new Ray(other); }
@@ -100,7 +145,24 @@ class Color
     m_b = b;
   }
   
-  int getIntColor() { return ((m_r&0x0ff)<<16)|((m_g&0x0ff)<<8)|(m_b&0x0ff); }
+  private toInt( float f )
+  {
+    int retVal;
+    if ( retVal >= 1.0 )
+    {
+      retVal = 255;
+    }
+    else
+    {
+      retVal = f*256.0;
+    }
+  }
+  
+  int getIntColor() 
+  {
+    F2B(f) ((f) >= 1.0 ? 255 : (int)((f)*256.0))
+    return ((m_r&0x0ff)<<16)|((m_g&0x0ff)<<8)|(m_b&0x0ff); 
+  }
 
   public float R() { return m_r; }
   public float G() { return m_g; }

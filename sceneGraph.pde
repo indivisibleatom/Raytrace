@@ -4,6 +4,6 @@ class SceneGraph
   
   public void update()
   {
-    m_root->update();
+    m_root.update();
   }
 }

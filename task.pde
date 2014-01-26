@@ -1,4 +1,4 @@
-interface Task implements Runnable
+/*interface Task extends Runnable
 {
 }
 
@@ -29,4 +29,4 @@ class SamplerRenderingTask implements Task
     Ray ray = m_scene.getCamera().getRay(sample);
     m_scene.getCamera().getFilm().setRadiance(sample, computeRadiance(ray));
   }
-}
+}*/

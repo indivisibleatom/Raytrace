@@ -8,7 +8,7 @@ int screen_width = 300;
 int screen_height = 300;
 
 // the current active file name
-String gCurrentFile = new String("test.cli");
+SceneBuilder gCurrentFile = new SceneBuilder("test.cli");
 
 
 // Some initializations for the scene.
@@ -18,7 +18,6 @@ void setup() {
   noStroke();
   colorMode (RGB, 1.0);
   background (0, 0, 0);
-  interpreter();
 }
 
 /*void draw() {
@@ -29,12 +28,12 @@ void setup() {
 
 void keyPressed() {
   switch(key) {
-    case '1':  gCurrentFile = new String("t0.cli"); interpreter(); break;
-    case '2':  gCurrentFile = new String("t1.cli"); interpreter(); break;
-    case '3':  gCurrentFile = new String("c0.cli"); interpreter(); break;
-    case '4':  gCurrentFile = new String("c1.cli"); interpreter(); break;
-    case '5':  gCurrentFile = new String("c2.cli"); interpreter(); break;
-    case '6':  gCurrentFile = new String("c3.cli"); interpreter(); break;
+    case '1':  gCurrentFile = new SceneBuilder("t0.cli"); gCurrentFile.buildScene(); break;
+    case '2':  gCurrentFile = new SceneBuilder("t1.cli"); gCurrentFile.buildScene(); break;
+    case '3':  gCurrentFile = new SceneBuilder("c0.cli"); gCurrentFile.buildScene(); break;
+    case '4':  gCurrentFile = new SceneBuilder("c1.cli"); gCurrentFile.buildScene(); break;
+    case '5':  gCurrentFile = new SceneBuilder("c2.cli"); gCurrentFile.buildScene(); break;
+    case '6':  gCurrentFile = new SceneBuilder("c3.cli"); gCurrentFile.buildScene(); break;
   }
 }
 

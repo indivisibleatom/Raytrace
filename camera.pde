@@ -9,20 +9,32 @@ class Camera
     m_film = new Film( screenDim );
   }
   
-  public void getFilm()
+  public void setFov( float fov )
+  {
+    m_fov = fov;
+  }
+  
+  public Film getFilm()
   {
     return m_film;
   }
   
-  public Point toCamera( Point point )
+  public Point toCamera( Point pt )
   {
-    Rect dimension = m_file.getDim();
-    
+    Point p = clonePt(pt);
+    Rect dimension = m_film.getDim();
+    p.subtract(new Point(dimension.width()/2, dimension.height()/2, 0));
+    p.toNormalizedCoordinates(dimension.width()/2, dimension.height()/2, 0);
+    p.set( p.X() *tan(m_fov/2), p.Y() * tan(m_fov/2), -1 );
+    return p;
   }
   
-  public void getRay( Sample sample )
+  public Ray getRay( /*Sample sample*/ )
   {
-    toCamera( sample.getX(), sample.getX(), -1 );
+    return null;
+    /*Point p = toCamera( sample.getX(), sample.getX(), 0 );
+    Ray r = new Ray( c_origin, p );
+    return r;*/
   }
 }
 
@@ -35,25 +47,13 @@ class Film
   {
     m_screenDim = screenDim;
   }
-  
+
   public Rect getDim() { return m_screenDim; }
   
-  public void setRadiance( Sample sample, Color col )
+  public void setRadiance( /*Sample sample,*/ Color col )
   {
     //TODO msati3: Remove hardcoding of single color being equated
-    m_screenColor[sample.getPixelY()][sample.getPixelX()] = col;  
-
-    put( i, j, getIntColor(m_screenColor[i][j]) );
+    //m_screenColor[sample.getPixelY()][sample.getPixelX()] = col;
+    //put( i, j, m_screenColor[i][j].getIntColor() );
   }
-  
-  /*void draw()
-  {
-    for ( int i = screenDim.Y(); i < screenDim.Y() + screenDim.height(); i++ )
-    {
-      for ( int j = screenDim.X(); j < screenDim.X() + screenDim.width(); j++ )
-      {
-        put( i, j, getIntColor(m_screenColor[i][j]) );
-      }
-    }
-  }*/
 }

@@ -1,4 +1,4 @@
-class Sampler
+/*class Sampler
 {
   private Rect m_sampleBox;
   
@@ -7,5 +7,7 @@ class Sampler
     m_sampleBox = sampleBox;
   }
   
-  void getSubsampler(
-}
+  void getSubsampler() 
+  {
+  }
+}*/

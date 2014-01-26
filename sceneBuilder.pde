@@ -1,9 +1,9 @@
 class SceneBuilder
 {
-  private string m_fileName;
+  private String m_fileName;
   Scene m_scene;
   
-  SceneBuilder( string fileName )
+  SceneBuilder( String fileName )
   {
     m_fileName = fileName;
   }
@@ -18,14 +18,21 @@ class SceneBuilder
     m_scene.setBackgroundColor(bgColor);
   }
   
-  private void addPointLight(Point location, Color color)
+  private void addPointLight(Point location, Color col)
   {
-    m_scene.addPointLight(locatio, color);
+    m_scene.addPointLight(location, col);
   }
   
   private void raytrace()
   {
     m_scene.raytrace();
+  }
+  
+  private void addSphere( float radius, Point center )
+  {
+    //TODO msati3: Add radius and center into the transformation of the object
+    Sphere s = new Sphere();
+    m_scene.addObject( new GeometricPrimitive( s ) );
   }
   
   void buildScene()
@@ -49,28 +56,28 @@ class SceneBuilder
       else if (token[0].equals("background")) 
       {
         //TODO msati3: Create functions for parsing such tuples?
-        Color bgColor = new Color( Float.parseFloat(token[1]), Float.parseFloat(token[2]), Float.parseFloat(token[3]));
+        Color bgColor = new Color( Float.parseFloat(token[1]), Float.parseFloat(token[2]), Float.parseFloat(token[3]) );
         setBackgroundColor(bgColor);
       }
       else if (token[0].equals("point_light")) 
       {
         Point location = new Point( Float.parseFloat(token[1]), Float.parseFloat(token[2]), Float.parseFloat(token[3]) );
-        Color color = new Color( Float.parseFloat(token[4]), Float.parseFloat(token[5]), Float.parseFloat(token[6]) );
-        addPointLight(location, color);
+        Color col = new Color( Float.parseFloat(token[4]), Float.parseFloat(token[5]), Float.parseFloat(token[6]) );
+        addPointLight(location, col);
       }
       else if (token[0].equals("diffuse"))
       {
         // TODO
-      }    
+      } 
       else if (token[0].equals("sphere")) 
       {
         float radius = Float.parseFloat(token[1]);
-        Point center = new Point( Float.parseFloat(token[2], Float.parseFloat(token[3]), Float.parseFloat(token[4]));
+        Point center = new Point( Float.parseFloat(token[2]), Float.parseFloat(token[3]), Float.parseFloat(token[4]) );
         addSphere(radius, center);
       }
       else if (token[0].equals("begin")) 
       {
-        Point vertex = new Point( Float.parseFloat(token[1], Float.parseFloat(token[2]), Float.parseFloat(token[3]));
+        Point vertex = new Point( Float.parseFloat(token[1]), Float.parseFloat(token[2]), Float.parseFloat(token[3]) );
         // TODO
       }
       else if (token[0].equals("vertex")) {
@@ -84,19 +91,19 @@ class SceneBuilder
       {
         //TODO
       }
-      else if (tokens[0].equals("pop"))
+      else if (token[0].equals("pop"))
       {
         //TODO
       }
-      else if (tolens[0].equals("translate"))
+      else if (token[0].equals("translate"))
       {
-        Vector translate = new Vector( Float.parseFloat(token[1], Float.parseFloat(token[2]), Float.parseFloat(token[3]));
+        Vector translate = new Vector( Float.parseFloat(token[1]), Float.parseFloat(token[2]), Float.parseFloat(token[3]) );
       }
-      else if (tokens[0].equals("scale"))
+      else if (token[0].equals("scale"))
       {
-        Vector scaleFactor = new Vector( Float.parseFloat(token[1], Float.parseFloat(token[2]), Float.parseFloat(token[3]));
+        Vector scaleFactor = new Vector( Float.parseFloat(token[1]), Float.parseFloat(token[2]), Float.parseFloat(token[3]) );
       }
-      else if (tokens[0].equals("rotate"))
+      else if (token[0].equals("rotate"))
       {
         //TODO
       }  
@@ -110,8 +117,8 @@ class SceneBuilder
       //Debug parser debug code
       else if (token[0].equals("color")) 
       {
-        Color color = new Color( Float.parseFloat(token[1]), Float.parseFloat(token[2]), Float.parseFloat(token[3]) );
-        fill(color.R(), color.G(), color.B());
+        Color col = new Color( Float.parseFloat(token[1]), Float.parseFloat(token[2]), Float.parseFloat(token[3]) );
+        fill(col.R(), col.G(), col.B());
       }
       else if (token[0].equals("rect")) 
       {

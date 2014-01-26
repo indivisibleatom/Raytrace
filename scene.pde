@@ -2,33 +2,46 @@ class Scene
 {
   private Camera m_camera;
   private SceneManager m_sceneManager;
-  private ArrayList<Lights> m_lights;
+  private ArrayList<Light> m_lights;
   private Renderer m_renderer;
   private boolean m_fRayTraced;
 
   Scene()
   {
     m_fRayTraced = false;
+    m_sceneManager = new SceneManager();
+    m_camera = new Camera( 0, -1, new Rect(0, 0, width, height) );
+    m_renderer = new SamplerRenderer();
   }
   
   void draw()
   {
-    /*if (m_fRayTraced)
-    {
-      m_camera.getFilm().draw();
-    }*/
+    //if (m_fRayTraced)
+    //{
+    //  m_camera.getFilm().draw();
+    //}
   }
   
-  public setCameraFov()
+  boolean intersects( Ray ray )
   {
-    
+    return m_sceneManager.intersects(ray);
   }
   
-  public setBackgroundColor()
+  public void setCameraFov( float fov )
+  {
+    m_camera.setFov( fov );
+  }
+  
+  public void addObject(Primitive obj)
+  {
+    m_sceneManager.addPrimitive(obj);
+  }
+  
+  public void setBackgroundColor( Color bgColor )
   {
   }
   
-  public addPointLight()
+  public void addPointLight( Point pt, Color col )
   {
   }
   
