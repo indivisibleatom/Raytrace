@@ -14,7 +14,7 @@ class ShapeNode implements SceneNode
 
 class TransformationNode implements SceneNode
 {
-  //private Transformation m_transform;
+  private Transformation m_transform;
   
   public void update()
   {

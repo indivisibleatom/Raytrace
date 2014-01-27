@@ -16,12 +16,15 @@ class SamplerRenderer implements Renderer
   public void render( Scene scene )
   {
     int cores = Runtime.getRuntime().availableProcessors();
-    int numTasks = 100;
+    int numTasks = 30;
     for (int i = 0; i < numTasks; i++)
     {
-      SamplerRenderingTask task = new SamplerRenderingTask( scene, m_sampler, numTasks, i );
-      Thread t = new Thread(task);
-      t.start();
+      if ( i == 0 )
+      {
+        SamplerRenderingTask task = new SamplerRenderingTask( scene, m_sampler, numTasks, i );
+        Thread t = new Thread(task);
+        t.start();
+      }
     }
   }
 }

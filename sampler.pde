@@ -41,4 +41,11 @@ class Sampler
     }
     return m_currentSample;
   }
+  
+  public void debugPrint()
+  {
+    print("Begin Sampler: \n");
+    m_sampleRect.debugPrint();
+    print("End Sampler \n");
+  }
 }
