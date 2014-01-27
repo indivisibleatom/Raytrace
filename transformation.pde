@@ -35,13 +35,28 @@ class Transformation
   public void scale( float scale )
   {
     m_transformation.scale( scale );
-  }  
+  }
+
+  private PVector localToWorld( PVector local )
+  {
+    PVector world = new PVector();
+    m_transformation.mult( local, world );
+    return world;
+  }
+
+  private PVector worldToLocal ( PVector world )
+  {
+    PVector local = new PVector();
+    PMatrix inverse = m_transformation.get();
+    inverse.invert();
+    inverse.mult( world, local );
+    return local;
+  }
   
   public Point localToWorld( Point pointLocal )
   {
     PVector local = new PVector( pointLocal.X(), pointLocal.Y(), pointLocal.Z() );
-    PVector world = new PVector();
-    m_transformation.mult( local, world );
+    PVector world = localToWorld( local );
     Point worldPoint = new Point( world.x, world.y, world.z );
     return worldPoint;
   }
@@ -49,19 +64,24 @@ class Transformation
   public Point worldToLocal( Point pointWorld )
   {
     PVector world = new PVector( pointWorld.X(), pointWorld.Y(), pointWorld.Z() );
-    PVector local = new PVector();
-    PMatrix inverse = m_transformation.get();
-    inverse.invert();
-    inverse.mult( world, local );
+    PVector local = worldToLocal( world );  
     Point localPoint = new Point( local.x, local.y, local.z );
     return localPoint;
   }
   
+  public Vector worldToLocal( Vector vectorWorld )
+  {
+    PVector world = new PVector( vectorWorld.X(), vectorWorld.Y(), vectorWorld.Z() );
+    PVector local = worldToLocal( world );
+    Vector localVector = new Vector( local.x, local.y, local.z );
+    return localVector;
+  }
+
   public Ray worldToLocal( Ray rayLocal )
   {
     Point originPoint = worldToLocal( rayLocal.getOrigin() );
-    Point directionPoint = worldToLocal( rayLocal.getDirection() );
-    Vector direction = new Vector( directionPoint.X(), directionPoint.Y(), directionPoint.Z() );
-    Ray worldRay = new Ray( originPoint, direction );
+    Vector directionVector = worldToLocal( rayLocal.getDirection() );
+    Ray worldRay = new Ray( originPoint, directionVector );
+    return worldRay;
   }
 }

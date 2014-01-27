@@ -117,13 +117,6 @@ class Ray
   private Point m_orig;
   private Vector m_dir;
   
-  Ray(Point orig, Vector dir)
-  {
-    m_orig  = clonePt(orig);
-    m_dir = cloneVec(dir);
-    m_dir.normalize();
-  }
-  
   Ray(Ray other)
   {
     m_orig  = clonePt(other.m_orig);
