@@ -17,7 +17,7 @@ class PrimitiveManager
   {
     for (int i = 0; i < m_primitives.size(); i++)
     {
-      if ( m_primitives.get(i).getShape().intersects( ray ) == true )
+      if ( m_primitives.get(i).intersects( ray ) == true )
       {
         return true;
       }

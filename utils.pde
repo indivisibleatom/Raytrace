@@ -77,6 +77,10 @@ class Vector
     m_z = pB.m_z - pA.m_z;
   }
   
+  public float X() { return m_x; }
+  public float Y() { return m_y; }
+  public float Z() { return m_z; }
+  
   public float dot( Vector other )
   {
     return m_x * other.m_x + m_y * other.m_y + m_z + other.m_z;
@@ -98,6 +102,11 @@ class Vector
     m_x = m_x / denom;
     m_y = m_y / denom;
     m_z = m_z / denom;   
+  }
+  
+  void debugPrint()
+  {
+    print( "Vector : " + m_x + " " + m_y + " " + m_z + "\n" );
   }
 }
 
@@ -128,9 +137,24 @@ class Ray
     m_dir.normalize();
   }
   
+  Ray(Point orig, Vector direction)
+  {
+    m_orig = orig;
+    m_dir = direction;
+    m_dir.normalize();
+  }
+  
   Point getOrigin() { return m_orig; }
   
   Vector getDirection() { return m_dir; }
+  
+  void debugPrint()
+  {
+    print("Begin Ray : ");
+    print("Origin "); m_orig.debugPrint();
+    print("Direction "); m_dir.debugPrint();
+    print("End Ray");
+  }
 }
 
 Ray clone(Ray other) { return new Ray(other); }
@@ -202,5 +226,10 @@ class Rect
   public int Y() { return m_y; }
   public int width() { return m_width; }
   public int height() { return m_height; }
+  
+  void debugPrint()
+  {
+    print( "Rect : " + m_x + " " + m_y + " " + m_width + " " + m_height + "\n" );
+  }
 }
 

@@ -32,7 +32,7 @@ class SceneBuilder
   private void addSphere( float radius, Point center )
   {
     //TODO msati3: Add radius and center into the transformation of the object
-    Sphere s = new Sphere();
+    Sphere s = new Sphere( radius, center );
     m_scene.addObject( new GeometricPrimitive( s ) );
   }
   

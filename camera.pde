@@ -25,7 +25,7 @@ class Camera
     Rect dimension = m_film.getDim();
     p.subtract(new Point(dimension.width()/2, dimension.height()/2, 0));
     p.toNormalizedCoordinates(dimension.width()/2, dimension.height()/2, 0);
-    p.set( p.X() *tan(m_fov/2), p.Y() * tan(m_fov/2), -1 );
+    p.set( p.X() * tan(m_fov/2), p.Y() * tan(m_fov/2), -1 );
     return p;
   }
   

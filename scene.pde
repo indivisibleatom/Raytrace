@@ -4,22 +4,12 @@ class Scene
   private SceneManager m_sceneManager;
   private ArrayList<Light> m_lights;
   private Renderer m_renderer;
-  private boolean m_fRayTraced;
 
   Scene()
   {
-    m_fRayTraced = false;
     m_sceneManager = new SceneManager();
     m_camera = new Camera( 0, -1, new Rect(0, 0, width, height) );
     m_renderer = new SamplerRenderer( this );
-  }
-  
-  void draw()
-  {
-    //if (m_fRayTraced)
-    //{
-    //  m_camera.getFilm().draw();
-    //}
   }
   
   public Camera getCamera()
@@ -53,7 +43,6 @@ class Scene
   public void raytrace()
   {
     m_renderer.render( this );
-    m_fRayTraced = true;
   }  
 }
 

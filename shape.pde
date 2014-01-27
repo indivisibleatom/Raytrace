@@ -6,11 +6,18 @@ interface Shape
 
 class Sphere implements Shape
 {
-  //Transformation m_transformation;
+  Transformation m_transformation;
 
-  Sphere( /*Transformation transformation*/ )
+  Sphere( Transformation transformation )
   {
-    //m_transformation = transformation;
+    m_transformation = transformation;
+  }
+  
+  Sphere( float radius, Point center )
+  {
+    m_transformation = new Transformation();
+    m_transformation.translate( center );
+    m_transformation.scale( radius );
   }
   
   private boolean intersectsCanonical( Ray ray )
@@ -26,7 +33,7 @@ class Sphere implements Shape
   
   public boolean intersects( Ray ray )
   {
-    //Ray rayObject = getObjectRay( ray, m_transformation );
+    Ray rayObject = m_transformation.worldToLocal( ray );
     return intersectsCanonical( ray );
   }
   

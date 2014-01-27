@@ -20,7 +20,6 @@ class SamplerRenderingTask implements Task
     {
       return new Color(1.0,1.0,1.0);
     }   
-    print("Gere");
     return new Color(0.0, 0.0, 0.0);   
   }
   

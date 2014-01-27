@@ -1,6 +1,7 @@
 interface Primitive
 {
-  public Shape getShape();
+  public boolean intersects( Ray ray );
+
 }
 
 class GeometricPrimitive implements Primitive
@@ -12,14 +13,17 @@ class GeometricPrimitive implements Primitive
     m_shape = shape;
   }
   
-  public Shape getShape() { return m_shape; }
+  public boolean intersects( Ray ray )
+  {
+    return m_shape.intersects( ray );
+  }
 }
 
 //Stores a reference to the actual primitive and a reference to a transform to take
 class InstancePrimitive implements Primitive
 {
   private Primitive m_primitive;
-  //private Transform m_worldTransform;
+  private Transformation m_transform;
   
-  public Shape getShape() { return m_primitive.getShape(); }
+  public boolean intersects( Ray ray ) { return m_primitive.intersects( ray ); }
 }
