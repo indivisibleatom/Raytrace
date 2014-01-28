@@ -17,20 +17,27 @@ class SamplerRenderer implements Renderer
   {
     int cores = Runtime.getRuntime().availableProcessors();
     int numTasks = 25;
+    ArrayList<Thread> workerThreads = new ArrayList<Thread>();
     for (int i = 0; i < numTasks; i++)
     {
-      if ( i == 1  )
+      //if ( i == 1  )
       {
         SamplerRenderingTask task = new SamplerRenderingTask( scene, m_sampler, numTasks, i );
         Thread t = new Thread(task);
-        try
-        {
-          t.join();
-        } catch ( InterruptedException ex )
-        {
-        }
+        workerThreads.add(t);
         t.start();
       }
     }
+    for (int i = 0; i < workerThreads.size(); i++)
+    {
+        try
+        {
+          workerThreads.get(i).join();
+        } catch ( InterruptedException ex )
+        {
+          print("Here");
+        }
+    }
+    scene.getCamera().getFilm().draw();
   }
 }

@@ -1,3 +1,5 @@
+int count = 0;
+
 class Camera
 {
   private Film m_film;
@@ -45,18 +47,32 @@ class Film
   Film( Rect screenDim )
   {
     m_screenDim = screenDim;
-    m_screenColor = new Color[ m_screenDim.width() ][ m_screenDim.height() ];
+    m_screenColor = new Color[ m_screenDim.height() ][ m_screenDim.width() ];
   }
 
   public Rect getDim() { return m_screenDim; }
   
   public void setRadiance( Sample sample, Color col )
   {
+    count++;
     //TODO msati3: Remove hardcoding of single color being equated
-    m_screenColor[sample.getX()][sample.getY()] = col;
-    color colProcessing = color( col.R(), col.G(), col.B() );
-    //int colInt = m_screenColor[sample.getX()][sample.getY()].getIntColor();
-    stroke( colProcessing  );
-    point( sample.getX(), sample.getY() );
+    m_screenColor[sample.getY()][sample.getX()] = cloneCol(col);
+  }
+  
+  public void draw()
+  {
+    for (int i = 0; i < m_screenDim.height(); i++)
+    {
+      for (int j = 0; j < m_screenDim.width(); j++)
+      {  
+        Color col = m_screenColor[i][j];
+        if ( col != null )
+        {
+          color colProcessing = color( col.R(), col.G(), col.B() );
+          stroke( colProcessing  );
+          point( i, j );
+        }
+      }
+    }
   }
 }
