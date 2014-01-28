@@ -11,7 +11,6 @@ class SamplerRenderingTask implements Task
   {
     m_scene = scene;
     m_sampler = sampler.getSubsampler( numTasks, taskNum );
-    m_sampler.debugPrint();
   }
   
   //TODO msati3: Change this to correct algorithm
@@ -23,7 +22,6 @@ class SamplerRenderingTask implements Task
     }
     else
     {
-      print("Here");
       return new Color(0.0, 0.0, 0.0);   
     }
   }

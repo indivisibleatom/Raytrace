@@ -38,26 +38,36 @@ class Transformation
     m_transformation.scale( scale );
   }
 
-  private PVector localToWorld( PVector local )
+  private PVector localToWorld( PVector local, boolean fIsVector )
   {
-    PVector world = new PVector();
-    m_transformation.mult( local, world );
-    return world;
+    float[] localArray = { local.x, local.y, local.z, 1 };
+    if ( fIsVector )
+    {
+      localArray[3] = 0;
+    }
+    float[] retVal = new float[4];
+    m_transformation.mult( localArray, retVal );
+    return new PVector( retVal[0], retVal[1], retVal[2] );
   }
 
-  private PVector worldToLocal ( PVector world )
+  private PVector worldToLocal ( PVector world, boolean fIsVector )
   {
-    PVector local = new PVector();
     PMatrix inverse = m_transformation.get();
     inverse.invert();
-    inverse.mult( world, local );
-    return local;
+    float[] worldArray = { world.x, world.y, world.z, 1 };
+    if ( fIsVector )
+    {
+      worldArray[3] = 0;
+    }   
+    float[] retVal = new float[4];
+    inverse.mult( worldArray, retVal );
+    return new PVector( retVal[0], retVal[1], retVal[2] );
   }
   
   public Point localToWorld( Point pointLocal )
   {
     PVector local = new PVector( pointLocal.X(), pointLocal.Y(), pointLocal.Z() );
-    PVector world = localToWorld( local );
+    PVector world = localToWorld( local, false );
     Point worldPoint = new Point( world.x, world.y, world.z );
     return worldPoint;
   }
@@ -65,7 +75,7 @@ class Transformation
   public Point worldToLocal( Point pointWorld )
   {
     PVector world = new PVector( pointWorld.X(), pointWorld.Y(), pointWorld.Z() );
-    PVector local = worldToLocal( world );  
+    PVector local = worldToLocal( world, false );  
     Point localPoint = new Point( local.x, local.y, local.z );
     return localPoint;
   }
@@ -73,7 +83,7 @@ class Transformation
   public Vector worldToLocal( Vector vectorWorld )
   {
     PVector world = new PVector( vectorWorld.X(), vectorWorld.Y(), vectorWorld.Z() );
-    PVector local = worldToLocal( world );
+    PVector local = worldToLocal( world, true );
     Vector localVector = new Vector( local.x, local.y, local.z );
     return localVector;
   }

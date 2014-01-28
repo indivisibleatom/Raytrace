@@ -19,7 +19,7 @@ class Sampler
     int widthPerSubSample = m_sampleRect.width() / tasksPerCol;
     int heightPerSubSample = m_sampleRect.height() / tasksPerRow;
     int rowForTask = taskNum / tasksPerRow;
-    int colForTask = taskNum - rowForTask * tasksPerRow;
+    int colForTask = taskNum - (rowForTask * tasksPerRow);
     Rect subSampleRect = new Rect( colForTask * widthPerSubSample, rowForTask * heightPerSubSample, widthPerSubSample, heightPerSubSample );
     return new Sampler( subSampleRect );
   }
