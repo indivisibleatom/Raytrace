@@ -56,7 +56,7 @@ class Film
   {
     count++;
     //TODO msati3: Remove hardcoding of single color being equated
-    m_screenColor[sample.getY()][sample.getX()] = cloneCol(col);
+    m_screenColor[sample.getY()][sample.getX()] = col;
   }
   
   public void draw()
