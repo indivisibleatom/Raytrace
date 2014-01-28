@@ -21,6 +21,11 @@ class Sample
     return m_fHasMoreSamples;
   }
   
+  public void debugPrint()
+  {
+    print("Sample x: " + m_x + " y: " + m_y + "\n");
+  }
+  
   public void advance()
   {
     if (m_fHasMoreSamples)

@@ -17,7 +17,7 @@ class Sphere implements Shape
   {
     m_transformation = new Transformation();
     m_transformation.translate( center );
-    m_transformation.scale( radius );
+    //m_transformation.scale( radius );
   }
   
   private boolean intersectsCanonical( Ray ray )
@@ -33,7 +33,11 @@ class Sphere implements Shape
   
   public boolean intersects( Ray ray )
   {
-    Ray rayObject = m_transformation.worldToLocal( ray );
+    print("Original Ray : ");
+    ray.debugPrint();
+    Ray rayLocal = m_transformation.worldToLocal( ray );
+    print("Local ray : ");
+    rayLocal.debugPrint();
     return intersectsCanonical( ray );
   }
   

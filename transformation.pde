@@ -5,6 +5,7 @@ class Transformation
   Transformation()
   {
     m_transformation = new PMatrix3D();
+    m_transformation.set( 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 );
   }
   
   public void translate( Point pt )

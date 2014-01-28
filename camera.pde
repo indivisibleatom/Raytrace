@@ -11,7 +11,7 @@ class Camera
   
   public void setFov( float fov )
   {
-    m_fov = fov;
+    m_fov = fov * (PI / 180);
   }
   
   public Film getFilm()
@@ -19,19 +19,19 @@ class Camera
     return m_film;
   }
   
-  public Point toCamera( Point pt )
+  public Point toCamera( Point screenPoint )
   {
-    Point p = clonePt(pt);
+    Point p = clonePt(screenPoint);
     Rect dimension = m_film.getDim();
     p.subtract(new Point(dimension.width()/2, dimension.height()/2, 0));
-    p.toNormalizedCoordinates(dimension.width()/2, dimension.height()/2, 0);
+    p.toNormalizedCoordinates(dimension.width()/2, dimension.height()/2, 1);
     p.set( p.X() * tan(m_fov/2), p.Y() * tan(m_fov/2), -1 );
     return p;
   }
   
   public Ray getRay( Sample sample )
   {
-    Point p = toCamera( new Point(sample.getX(), sample.getX(), 0) );
+    Point p = toCamera( new Point(sample.getX(), sample.getY(), 0) );
     Ray r = new Ray( c_origin, p );
     return r;
   }

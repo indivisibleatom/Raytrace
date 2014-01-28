@@ -83,7 +83,7 @@ class Vector
   
   public float dot( Vector other )
   {
-    return m_x * other.m_x + m_y * other.m_y + m_z + other.m_z;
+    return m_x * other.m_x + m_y * other.m_y + m_z * other.m_z;
   }
   
   public float getMagnitude()
@@ -99,9 +99,12 @@ class Vector
   public void normalize()
   {
     float denom = getMagnitude();
-    m_x = m_x / denom;
-    m_y = m_y / denom;
-    m_z = m_z / denom;   
+    if ( denom != 0 )
+    {
+      m_x = m_x / denom;
+      m_y = m_y / denom;
+      m_z = m_z / denom;   
+    }
   }
   
   void debugPrint()
@@ -143,16 +146,14 @@ class Ray
   
   void debugPrint()
   {
-    print("Begin Ray : ");
+    print("Begin Ray : \n");
     print("Origin "); m_orig.debugPrint();
     print("Direction "); m_dir.debugPrint();
-    print("End Ray");
+    print("End Ray \n");
   }
 }
 
 Ray clone(Ray other) { return new Ray(other); }
-
-Vector clone(Vector other) { return new Vector(other); }
 
 class Color
 {
