@@ -18,11 +18,11 @@ class SamplerRenderingTask implements Task
   {
     if ( m_scene.intersects( ray ) )
     {
-      return new Color(1.0,1.0,1.0);
+      return new Color(1,1,1);
     }
     else
     {
-      return new Color(0.0, 0.0, 0.0);   
+      return m_scene.getBackgroundColor();
     }
   }
   

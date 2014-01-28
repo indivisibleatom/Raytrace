@@ -8,9 +8,9 @@ class Transformation
     m_transformation.set( 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 );
   }
   
-  public void translate( Point pt )
+  public void translate( Vector v )
   {
-    m_transformation.translate( pt.X(), pt.Y(), pt.Z() );
+    m_transformation.translate( v.X(), v.Y(), v.Z() );
   }
   
   public void rotate( float angle, Vector v )
@@ -37,6 +37,16 @@ class Transformation
   {
     m_transformation.scale( scale );
   }
+  
+  public void scale( Vector scale )
+  {
+    m_transformation.scale( scale.X(), scale.Y(), scale.Z() );
+  }
+
+  public void apply( Transformation other )
+  {
+    m_transformation.apply( other.m_transformation );
+  } 
 
   private PVector localToWorld( PVector local, boolean fIsVector )
   {

@@ -10,5 +10,8 @@ class PointLight implements Light
   {
     return false;
   }
+
+  public float[] getDiffuseCoeffs() { return null; }
+  public float[] getAmbientCoeffs() { return null; }
 }
 

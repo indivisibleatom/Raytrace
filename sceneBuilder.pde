@@ -32,10 +32,20 @@ class SceneBuilder
   private void addSphere( float radius, Point center )
   {
     //TODO msati3: Add radius and center into the transformation of the object
-    Sphere s = new Sphere( radius, center );
-    m_scene.addObject( new GeometricPrimitive( s ) );
+    Sphere s = new Sphere( radius, center, m_scene.getCurrentTransformation() );
+    m_scene.addObject( new GeometricPrimitive( s, null ) );
   }
   
+  private void setTranslate( Vector translation )
+  {
+    m_scene.translate( translation );
+  }
+  
+  private void setScale( Vector scale )
+  {
+    m_scene.scale( scale );
+  }
+ 
   void buildScene()
   { 
     String str[] = loadStrings(m_fileName);
@@ -68,7 +78,10 @@ class SceneBuilder
       }
       else if (token[0].equals("diffuse"))
       {
-        // TODO
+        float[] diffuseCoeffs = {Float.parseFloat(token[1]), Float.parseFloat(token[2]), Float.parseFloat(token[3])};
+        float[] ambientCoeffs = {Float.parseFloat(token[4]), Float.parseFloat(token[5]), Float.parseFloat(token[6])};
+        //setDiffuseCoeffs( diffuseCoeffs );
+        //setAmbientCoeffs( ambientCoeffs );
       } 
       else if (token[0].equals("sphere")) 
       {
@@ -90,19 +103,21 @@ class SceneBuilder
       }
       else if (token[0].equals("push"))
       {
-        //TODO
+        //m_scene.onPush();
       }
       else if (token[0].equals("pop"))
       {
-        //TODO
+        //m_scene.onPop();
       }
       else if (token[0].equals("translate"))
       {
         Vector translate = new Vector( Float.parseFloat(token[1]), Float.parseFloat(token[2]), Float.parseFloat(token[3]) );
+        setTranslate( translate );
       }
       else if (token[0].equals("scale"))
       {
         Vector scaleFactor = new Vector( Float.parseFloat(token[1]), Float.parseFloat(token[2]), Float.parseFloat(token[3]) );
+        setScale( scaleFactor );
       }
       else if (token[0].equals("rotate"))
       {

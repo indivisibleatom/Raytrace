@@ -20,13 +20,10 @@ class SamplerRenderer implements Renderer
     ArrayList<Thread> workerThreads = new ArrayList<Thread>();
     for (int i = 0; i < numTasks; i++)
     {
-      //if ( i == 1  )
-      {
-        SamplerRenderingTask task = new SamplerRenderingTask( scene, m_sampler, numTasks, i );
-        Thread t = new Thread(task);
-        workerThreads.add(t);
-        t.start();
-      }
+      SamplerRenderingTask task = new SamplerRenderingTask( scene, m_sampler, numTasks, i );
+      Thread t = new Thread(task);
+      workerThreads.add(t);
+      t.start();
     }
     for (int i = 0; i < workerThreads.size(); i++)
     {
@@ -35,7 +32,6 @@ class SamplerRenderer implements Renderer
           workerThreads.get(i).join();
         } catch ( InterruptedException ex )
         {
-          print("Here");
         }
     }
     scene.getCamera().getFilm().draw();
