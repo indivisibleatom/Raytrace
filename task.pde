@@ -19,7 +19,11 @@ class SamplerRenderingTask implements Task
     {
       IntersectionInfo info = m_scene.getIntersectionInfo( ray );
       LightManager lightManager = m_scene.getLightManager();
-      Color pixelColor = Color.combine( info.primitive().getAmbientCoeffs(), lightManager.getAmbient() );
+      if ( info == null )
+        return m_scene.getBackgroundColor();
+      else
+        print(info.t());
+      Color pixelColor = combineColor( info.primitive().getAmbientCoeffs(), lightManager.getAmbient() );
       for (int i = 0; i < lightManager.getNumLights(); i++)
       {
         Light light = lightManager.getLight(i);
@@ -27,11 +31,13 @@ class SamplerRenderingTask implements Task
         if ( !m_scene.intersects( r ) )
         {
           float cosine = info.normal().dot( r.getDirection() );
-          Color lightColor = Color.combine( info.primitive().getDiffuseCoeffs(), light.getColor() );
+          Color lightColor = combineColor( info.primitive().getDiffuseCoeffs(), light.getColor() );
           lightColor.scale( cosine );
-          pixelColor.append( lightColor );
+          pixelColor.add( lightColor );
         }
       }
+      
+      return pixelColor;
     }
     else
     {

@@ -28,7 +28,12 @@ class GeometricPrimitive implements LightedPrimitive
 
   public IntersectionInfo getIntersectionInfo( Ray ray )
   {
-    return new IntersectionInfo( this, m_shape.getIntersectionInfo( ray ) );
+    ShapeIntersectionInfo shapeInfo =  m_shape.getIntersectionInfo( ray );
+    if ( shapeInfo == null )
+    {
+      return null;
+    }
+    return new IntersectionInfo( this, shapeInfo );
   }
   
   public Color getDiffuseCoeffs() { return m_material.getDiffuse(); }

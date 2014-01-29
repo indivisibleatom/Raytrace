@@ -10,10 +10,10 @@ class PointLight implements Light
   private Point m_position;
   private Color m_color;
   
-  PointLight( Point position, Color color )
+  PointLight( Point position, Color col )
   {
     m_position = position;
-    m_color = color;
+    m_color = col;
   }
 
   public boolean intersects( Ray ray )

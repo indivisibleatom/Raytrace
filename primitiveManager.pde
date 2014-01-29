@@ -27,7 +27,7 @@ class PrimitiveManager
   
   public IntersectionInfo getIntersectionInfo( Ray ray )
   {
-    float minT = -Float.MAX_VALUE;   
+    float minT = Float.MAX_VALUE;   
     IntersectionInfo minIntersectionInfo = null;
     for (int i = 0; i < m_primitives.size(); i++)
     {

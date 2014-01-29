@@ -49,9 +49,19 @@ class Sphere implements Shape
     {
       float root1 = -b + sqrt( delta ) / ( 2 * a );
       float root2 = -b - sqrt( delta ) / ( 2 * a );
+      float minT;
       if ( root1 < 0 && root2 < 0 )
+      {
         return null;
-      float minT = root1 < root2 ? root1 : root2;
+      }
+      if ( root1 > 0 && ( root1 < root2 || root2 < 0 ) )
+      {
+        minT = root1;
+      }
+      else
+      {
+        minT = root2;
+      } 
       Point intersectionPoint = new Point( ray, minT );
       Vector normal = new Vector( m_center, intersectionPoint );
       normal.normalize();

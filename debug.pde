@@ -1,4 +1,4 @@
-int DEBUG = 1;
+boolean DEBUG = true;
 
 int LOW = 1;
 int MEDIUM = 2;

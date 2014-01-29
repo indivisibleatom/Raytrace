@@ -8,7 +8,7 @@ class SceneManager
   {
     //TODO msati3: See if we need to implement a scenegraph
     m_primitiveManager = new PrimitiveManager();
-    m_currentMaterial = null;
+    m_currentMaterial = new Material( new Color(0,0,0), new Color(0,0,0) );
   }
   
   public void addPrimitive(LightedPrimitive p)

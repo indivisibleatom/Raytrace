@@ -18,14 +18,14 @@ class Point
   
   Point(Point init, Vector direction, float t)
   {
-    m_x = init.x + t * direction.X();
-    m_y = init.y + t * direction.Y();
-    m_z = init.z + t * direction.Z();
+    m_x = init.X() + t * direction.X();
+    m_y = init.Y() + t * direction.Y();
+    m_z = init.Z() + t * direction.Z();
   }
   
   Point(Ray r, float t)
   {
-    Point(r.getOrigin(), r.getDirection(), t);
+    this(r.getOrigin(), r.getDirection(), t);
   }
   
   public float X() { return m_x; }
@@ -220,6 +220,13 @@ class Color
     return ((r&0x0ff)<<16)|((g&0x0ff)<<8)|(b&0x0ff); 
   }
   
+  public void add(Color other)
+  {
+    m_r += other.m_r;
+    m_g += other.m_g;
+    m_b += other.m_b;
+  }
+  
   public void scale(float scale)
   {
     m_r *= scale;
@@ -229,12 +236,12 @@ class Color
 
   public float R() { return m_r; }
   public float G() { return m_g; }
-  public float B() { return m_b; }
-  
-  public static Color combine(Color c1, Color c2)
-  { 
-    return new Color( c1.R() * c2.R(), c1.G() * c2.G(), c1.B() * c2.B() );
-  }
+  public float B() { return m_b; } 
+}
+
+public Color combineColor(Color c1, Color c2)
+{
+  return new Color( c1.R() * c2.R(), c1.G() * c2.G(), c1.B() * c2.B() );
 }
 
 Color cloneCol(Color other) { return new Color(other); }
