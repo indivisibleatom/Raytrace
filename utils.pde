@@ -1,3 +1,5 @@
+float c_epsilon = 0.05;
+
 class Point
 {
   private float m_x;
@@ -32,6 +34,13 @@ class Point
   public float Y() { return m_y; }
   public float Z() { return m_z; }
   
+  void add( Vector direction, float t )
+  {
+    m_x += t * direction.X();
+    m_y += t * direction.Y();
+    m_z += t * direction.Z();
+  }
+    
   void subtract(Point other)
   {
     m_x -= other.m_x;
@@ -163,6 +172,11 @@ class Ray
     print("Direction "); m_dir.debugPrint();
     print("End Ray \n");
   }
+  
+  public void advanceEpsilon()
+  {
+    m_orig.add( m_dir, c_epsilon );
+  } 
 }
 
 Ray clone(Ray other) { return new Ray(other); }

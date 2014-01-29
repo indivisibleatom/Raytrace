@@ -5,7 +5,7 @@ class LightManager
   
   LightManager()
   {
-    m_ambientLight = new Color(0,0,0);
+    m_ambientLight = new Color(0.2,0.2,0.2);
     m_lights = new ArrayList<Light>();
   }
   

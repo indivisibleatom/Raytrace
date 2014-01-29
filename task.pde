@@ -28,16 +28,15 @@ class SamplerRenderingTask implements Task
       {
         Light light = lightManager.getLight(i);
         Ray r = light.getRay( info.point() );
+        r.advanceEpsilon();
         if ( !m_scene.intersects( r ) )
         {
-          print("Here");
           float cosine = info.normal().dot( r.getDirection() );
           Color lightColor = combineColor( info.primitive().getDiffuseCoeffs(), light.getColor() );
           lightColor.scale( cosine );
           pixelColor.add( lightColor );
         }
       }
-      
       return pixelColor;
     }
     else

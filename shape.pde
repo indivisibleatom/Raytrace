@@ -31,8 +31,9 @@ class Sphere implements Shape
     if ( delta < 0 )
       return false;
 
-    float root1 = -b + sqrt( delta ) / ( 2 * a );
-    float root2 = -b - sqrt( delta ) / ( 2 * a );
+    float sqrtDelta = sqrt( delta );
+    float root1 = -b + sqrtDelta / ( 2 * a );
+    float root2 = -b - sqrtDelta / ( 2 * a );
     if (root1 < 0 && root2 < 0)
       return false;
     return true;    
@@ -52,8 +53,13 @@ class Sphere implements Shape
     }
     else
     {
-      float root1 = -b + sqrt( delta ) / ( 2 * a );
-      float root2 = -b - sqrt( delta ) / ( 2 * a );
+      float sqrtDelta = sqrt( delta );
+      float root1 = -b + sqrtDelta / ( 2 * a );
+      float root2 = -b - sqrtDelta / ( 2 * a );
+      if (root1 < 0 && root2 < 0)
+      {
+        return null;
+      }
       float minT;
       if ( root1 > 0 && ( root1 < root2 || root2 < 0 ) )
       {
