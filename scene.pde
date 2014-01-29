@@ -2,7 +2,7 @@ class Scene
 {
   private Camera m_camera;
   private SceneManager m_sceneManager;
-  private ArrayList<Light> m_lights;
+  private LightManager m_lightManager;
   private Renderer m_renderer;
   private Color m_ambient;
   Transformation m_currentTransformation;
@@ -11,11 +11,13 @@ class Scene
   Scene()
   {
     m_sceneManager = new SceneManager();
+    m_lightManager = new LightManager();
     m_camera = new Camera( 0, -1, new Rect(0, 0, width, height) );
     m_renderer = new SamplerRenderer( this );
     
     m_currentTransformation = new Transformation();
     m_matrixStack = new Stack<Transformation>();
+    m_ambient = new Color(0,0,0);
   }
   
   public Camera getCamera()
@@ -25,7 +27,12 @@ class Scene
   
   public boolean intersects( Ray ray )
   {
-    return m_sceneManager.intersects(ray);
+    return m_sceneManager.intersects( ray );
+  }
+  
+  public IntersectionInfo getIntersectionInfo( Ray ray )
+  {
+    return m_sceneManager.getIntersectionInfo( ray );
   }
   
   public void setCameraFov( float fov )
@@ -33,7 +40,7 @@ class Scene
     m_camera.setFov( fov );
   }
   
-  public void addObject(Primitive obj)
+  public void addObject(LightedPrimitive obj)
   {
     m_sceneManager.addPrimitive(obj);
   }
@@ -47,6 +54,11 @@ class Scene
   {
   }
   
+  public LightManager getLightManager()
+  {
+    return m_lightManager;
+  }
+  
   public void raytrace()
   {
     m_renderer.render( this );
@@ -55,6 +67,22 @@ class Scene
   public Color getBackgroundColor()
   {
     return m_ambient;
+  }
+  
+  //Material handling commands
+  public void setDiffuseCoeffs( Color diffuse )
+  {
+    m_sceneManager.setDiffuseCoeffs( diffuse );
+  }
+  
+  public void setAmbientCoeffs( Color ambient )
+  {
+    m_sceneManager.setAmbientCoeffs( ambient );
+  }
+  
+  public Material getCurrentMaterial()
+  {
+    return m_sceneManager.getCurrentMaterial();
   }
   
   //Matrix stack commands

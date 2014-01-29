@@ -13,12 +13,25 @@ class SamplerRenderingTask implements Task
     m_sampler = sampler.getSubsampler( numTasks, taskNum );
   }
   
-  //TODO msati3: Change this to correct algorithm
   private Color computeRadiance( Ray ray )
   {
     if ( m_scene.intersects( ray ) )
     {
-      return new Color(1,1,1);
+      IntersectionInfo info = m_scene.getIntersectionInfo( ray );
+      LightManager lightManager = m_scene.getLightManager();
+      Color pixelColor = Color.combine( info.primitive().getAmbientCoeffs(), lightManager.getAmbient() );
+      for (int i = 0; i < lightManager.getNumLights(); i++)
+      {
+        Light light = lightManager.getLight(i);
+        Ray r = light.getRay( info.point() );
+        if ( !m_scene.intersects( r ) )
+        {
+          float cosine = info.normal().dot( r.getDirection() );
+          Color lightColor = Color.combine( info.primitive().getDiffuseCoeffs(), light.getColor() );
+          lightColor.scale( cosine );
+          pixelColor.append( lightColor );
+        }
+      }
     }
     else
     {

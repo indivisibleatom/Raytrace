@@ -1,14 +1,14 @@
 class Material
 {
-  private float[] m_ambient;
-  private float[] m_diffuse;
+  private Color m_ambient;
+  private Color m_diffuse;
 
-  Material( float[] amb, float[] diffuse )
+  Material( Color ambient, Color diffuse )
   {
-    m_ambient = amb;
+    m_ambient = ambient;
     m_diffuse = diffuse;
   }
   
-  public float[] getDiffuse() { return m_diffuse; }
-  public float[] getAmbient() { return m_ambient; } 
+  public Color getDiffuse() { return m_diffuse; }
+  public Color getAmbient() { return m_ambient; } 
 }

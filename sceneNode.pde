@@ -5,8 +5,8 @@ interface SceneNode
 
 class ShapeNode implements SceneNode
 {
-  //private Shape m_shape;
-  
+  private Shape m_shape;
+
   public void update()
   {
   }

@@ -1,35 +1,62 @@
 interface Shape
 {
   public boolean intersects( Ray ray );
-  //public IntersectionInfo getIntersectionInfo( Ray ray );
+  public ShapeIntersectionInfo getIntersectionInfo( Ray ray );
 }
 
 class Sphere implements Shape
 {
   Transformation m_transformation;
+  Point m_center;
+  float m_radius;
 
-  Sphere( Transformation transformation )
-  {
-    m_transformation = transformation;
-  }
-  
   Sphere( float radius, Point center, Transformation transformation )
   {
     m_transformation = new Transformation();
     m_transformation.apply( transformation );
     m_transformation.translate( new Vector( c_origin, center ) );
     m_transformation.scale( radius );
+    m_radius = radius;
+    m_center = center;
   }
   
   private boolean intersectsCanonical( Ray ray )
   {
     Vector OA = new Vector( c_origin, ray.getOrigin() );    
     Vector dir = ray.getDirection();
-    float dot = OA.dot(dir);
-    float delta = dot * dot - OA.getMagnitudeSquare() + 1;
+    float b = 2*OA.dot(dir);
+    float a = 1;
+    float c = OA.getMagnitudeSquare() - 1;
+    float delta = b*b - 4*a*c;
     if ( delta < 0 )
       return false;
     return true;    
+  }
+  
+  private ShapeIntersectionInfo intersectionInfoCanonical( Ray ray )
+  {
+    Vector OA = new Vector( c_origin, ray.getOrigin() );    
+    Vector dir = ray.getDirection();
+    float b = 2*OA.dot(dir);
+    float a = 1;
+    float c = OA.getMagnitudeSquare() - 1;
+    float delta = b*b - 4*a*c;
+    if ( delta < 0 )
+    {
+      return null;
+    }
+    else
+    {
+      float root1 = -b + sqrt( delta ) / ( 2 * a );
+      float root2 = -b - sqrt( delta ) / ( 2 * a );
+      if ( root1 < 0 && root2 < 0 )
+        return null;
+      float minT = root1 < root2 ? root1 : root2;
+      Point intersectionPoint = new Point( ray, minT );
+      Vector normal = new Vector( m_center, intersectionPoint );
+      normal.normalize();
+      return new ShapeIntersectionInfo( intersectionPoint, normal, minT );
+    }
   }
   
   public boolean intersects( Ray ray )
@@ -38,10 +65,11 @@ class Sphere implements Shape
     return intersectsCanonical( rayLocal );
   }
   
-  /*public IntersectionInfo getIntersectionInfo( Ray ray )
+  public ShapeIntersectionInfo getIntersectionInfo( Ray ray )
   {
-    return null;
-  }*/
+    Ray rayLocal = m_transformation.worldToLocal( ray );
+    return intersectionInfoCanonical( rayLocal );
+  }
 }
 
 

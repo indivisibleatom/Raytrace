@@ -33,7 +33,7 @@ class SceneBuilder
   {
     //TODO msati3: Add radius and center into the transformation of the object
     Sphere s = new Sphere( radius, center, m_scene.getCurrentTransformation() );
-    m_scene.addObject( new GeometricPrimitive( s, null ) );
+    m_scene.addObject( new GeometricPrimitive( s, m_scene.getCurrentMaterial() ) );
   }
   
   private void setTranslate( Vector translation )
@@ -44,6 +44,16 @@ class SceneBuilder
   private void setScale( Vector scale )
   {
     m_scene.scale( scale );
+  }
+ 
+  private void setAmbientCoeffs( float[] ambientCoeffs )
+  {
+    m_scene.setAmbientCoeffs( new Color( ambientCoeffs ) );
+  }
+  
+  private void setDiffuseCoeffs( float[] diffuseCoeffs )
+  {
+    m_scene.setDiffuseCoeffs( new Color( diffuseCoeffs ) );
   }
  
   void buildScene()
@@ -80,8 +90,8 @@ class SceneBuilder
       {
         float[] diffuseCoeffs = {Float.parseFloat(token[1]), Float.parseFloat(token[2]), Float.parseFloat(token[3])};
         float[] ambientCoeffs = {Float.parseFloat(token[4]), Float.parseFloat(token[5]), Float.parseFloat(token[6])};
-        //setDiffuseCoeffs( diffuseCoeffs );
-        //setAmbientCoeffs( ambientCoeffs );
+        setDiffuseCoeffs( diffuseCoeffs );
+        setAmbientCoeffs( ambientCoeffs );
       } 
       else if (token[0].equals("sphere")) 
       {

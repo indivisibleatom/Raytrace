@@ -16,6 +16,18 @@ class Point
     m_z = other.m_z;
   }
   
+  Point(Point init, Vector direction, float t)
+  {
+    m_x = init.x + t * direction.X();
+    m_y = init.y + t * direction.Y();
+    m_z = init.z + t * direction.Z();
+  }
+  
+  Point(Ray r, float t)
+  {
+    Point(r.getOrigin(), r.getDirection(), t);
+  }
+  
   public float X() { return m_x; }
   public float Y() { return m_y; }
   public float Z() { return m_z; }
@@ -175,6 +187,20 @@ class Color
     m_b = other.m_b;
   }
   
+  Color( float[] colors )
+  {
+    if ( colors.length != 3 )
+    {
+      if ( DEBUG && DEBUG_MODE >= LOW )
+      {
+        print ("Constructing colors from a coefficient array that is not size 4!!");
+      }
+    }
+    m_r = colors[0];
+    m_g = colors[1];
+    m_b = colors[2];
+  }
+  
   private int toInt( float f )
   {
     int retVal;
@@ -186,17 +212,29 @@ class Color
     return retVal;
   }
   
-  int getIntColor() 
+  public int getIntColor() 
   {
     int r = toInt(m_r);
     int g = toInt(m_g);
     int b = toInt(m_b);
     return ((r&0x0ff)<<16)|((g&0x0ff)<<8)|(b&0x0ff); 
   }
+  
+  public void scale(float scale)
+  {
+    m_r *= scale;
+    m_g *= scale;
+    m_b *= scale;
+  }
 
   public float R() { return m_r; }
   public float G() { return m_g; }
   public float B() { return m_b; }
+  
+  public static Color combine(Color c1, Color c2)
+  { 
+    return new Color( c1.R() * c2.R(), c1.G() * c2.G(), c1.B() * c2.B() );
+  }
 }
 
 Color cloneCol(Color other) { return new Color(other); }

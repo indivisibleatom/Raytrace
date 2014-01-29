@@ -1,13 +1,16 @@
 interface Primitive
 {
-  public boolean intersects( Ray ray );
-  
-  //TODO msati3: Are these to be placed here?
-  public float[] getDiffuseCoeffs();
-  public float[] getAmbientCoeffs();
+  public boolean intersects( Ray ray ); 
+  public IntersectionInfo getIntersectionInfo( Ray ray );
 }
 
-class GeometricPrimitive implements Primitive
+interface LightedPrimitive extends Primitive
+{
+  public Color getDiffuseCoeffs();
+  public Color getAmbientCoeffs();
+}
+
+class GeometricPrimitive implements LightedPrimitive
 {
   private Shape m_shape;
   private Material m_material;
@@ -22,18 +25,24 @@ class GeometricPrimitive implements Primitive
   {
     return m_shape.intersects( ray );
   }
+
+  public IntersectionInfo getIntersectionInfo( Ray ray )
+  {
+    return new IntersectionInfo( this, m_shape.getIntersectionInfo( ray ) );
+  }
   
-  public float[] getDiffuseCoeffs() { return m_material.getDiffuse(); }
-  public float[] getAmbientCoeffs() { return m_material.getAmbient(); }
+  public Color getDiffuseCoeffs() { return m_material.getDiffuse(); }
+  public Color getAmbientCoeffs() { return m_material.getAmbient(); }
 }
 
 //Stores a reference to the actual primitive and a reference to a transform to take
-class InstancePrimitive implements Primitive
+class InstancePrimitive implements LightedPrimitive
 {
-  private Primitive m_primitive;
+  private LightedPrimitive m_primitive;
   private Transformation m_transform;
   
   public boolean intersects( Ray ray ) { return m_primitive.intersects( ray ); }
-  public float[] getDiffuseCoeffs() { return m_primitive.getDiffuseCoeffs(); }
-  public float[] getAmbientCoeffs() { return m_primitive.getAmbientCoeffs(); }
+  public IntersectionInfo getIntersectionInfo( Ray ray ) { return m_primitive.getIntersectionInfo( ray ); }
+  public Color getDiffuseCoeffs() { return m_primitive.getDiffuseCoeffs(); }
+  public Color getAmbientCoeffs() { return m_primitive.getAmbientCoeffs(); }
 }
