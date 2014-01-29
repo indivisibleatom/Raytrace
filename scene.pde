@@ -4,7 +4,6 @@ class Scene
   private SceneManager m_sceneManager;
   private LightManager m_lightManager;
   private Renderer m_renderer;
-  private Color m_ambient;
   Transformation m_currentTransformation;
   Stack<Transformation> m_matrixStack;
 
@@ -17,7 +16,6 @@ class Scene
     
     m_currentTransformation = new Transformation();
     m_matrixStack = new Stack<Transformation>();
-    m_ambient = new Color(0,0,0);
   }
   
   public Camera getCamera()
@@ -44,40 +42,32 @@ class Scene
   {
     m_sceneManager.addPrimitive(obj);
   }
-  
-  public void setBackgroundColor( Color bgColor )
+
+  public void raytrace()
   {
-    m_ambient = bgColor;  
+    m_renderer.render( this );
   }
   
-  public void addPointLight( Point pt, Color col )
-  {
-  }
-  
+  //Light commands
   public LightManager getLightManager()
   {
     return m_lightManager;
   }
   
-  public void raytrace()
+  public void setBackgroundColor( Color bgColor )
   {
-    m_renderer.render( this );
+    m_lightManager.setAmbient( bgColor );  
   }
 
-  public Color getBackgroundColor()
+  public void addPointLight( Point pt, Color col )
   {
-    return m_ambient;
+    m_lightManager.addLight( new PointLight(pt, col) );
   }
-  
+   
   //Material handling commands
-  public void setDiffuseCoeffs( Color diffuse )
+  public void setCoeffs( Color ambient, Color diffuse )
   {
-    m_sceneManager.setDiffuseCoeffs( diffuse );
-  }
-  
-  public void setAmbientCoeffs( Color ambient )
-  {
-    m_sceneManager.setAmbientCoeffs( ambient );
+    m_sceneManager.setMaterial( ambient, diffuse );
   }
   
   public Material getCurrentMaterial()

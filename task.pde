@@ -15,14 +15,14 @@ class SamplerRenderingTask implements Task
   
   private Color computeRadiance( Ray ray )
   {
+    LightManager lightManager = m_scene.getLightManager();
     if ( m_scene.intersects( ray ) )
     {
       IntersectionInfo info = m_scene.getIntersectionInfo( ray );
-      LightManager lightManager = m_scene.getLightManager();
-      if ( info == null )
-        return m_scene.getBackgroundColor();
-      else
-        print(info.t());
+      if ( info == null ) // Can be the case when the t value is negative
+      {
+        return lightManager.getAmbient();
+      }
       Color pixelColor = combineColor( info.primitive().getAmbientCoeffs(), lightManager.getAmbient() );
       for (int i = 0; i < lightManager.getNumLights(); i++)
       {
@@ -30,6 +30,7 @@ class SamplerRenderingTask implements Task
         Ray r = light.getRay( info.point() );
         if ( !m_scene.intersects( r ) )
         {
+          print("Here");
           float cosine = info.normal().dot( r.getDirection() );
           Color lightColor = combineColor( info.primitive().getDiffuseCoeffs(), light.getColor() );
           lightColor.scale( cosine );
@@ -41,7 +42,7 @@ class SamplerRenderingTask implements Task
     }
     else
     {
-      return m_scene.getBackgroundColor();
+      return lightManager.getAmbient();
     }
   }
   

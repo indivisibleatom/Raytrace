@@ -46,16 +46,11 @@ class SceneBuilder
     m_scene.scale( scale );
   }
  
-  private void setAmbientCoeffs( float[] ambientCoeffs )
+  private void setCoeffs( float[] ambientCoeffs, float[] diffuse )
   {
-    m_scene.setAmbientCoeffs( new Color( ambientCoeffs ) );
+    m_scene.setCoeffs( new Color( ambientCoeffs ), new Color( diffuse ) );
   }
   
-  private void setDiffuseCoeffs( float[] diffuseCoeffs )
-  {
-    m_scene.setDiffuseCoeffs( new Color( diffuseCoeffs ) );
-  }
- 
   void buildScene()
   { 
     String str[] = loadStrings(m_fileName);
@@ -90,8 +85,7 @@ class SceneBuilder
       {
         float[] diffuseCoeffs = {Float.parseFloat(token[1]), Float.parseFloat(token[2]), Float.parseFloat(token[3])};
         float[] ambientCoeffs = {Float.parseFloat(token[4]), Float.parseFloat(token[5]), Float.parseFloat(token[6])};
-        setDiffuseCoeffs( diffuseCoeffs );
-        setAmbientCoeffs( ambientCoeffs );
+        setCoeffs( ambientCoeffs, diffuseCoeffs );
       } 
       else if (token[0].equals("sphere")) 
       {

@@ -16,15 +16,8 @@ class SceneManager
     m_primitiveManager.addPrimitive(p);
   }
   
-  public void setAmbientCoeffs( Color ambient )
+  public void setMaterial( Color ambient, Color diffuse )
   {
-    Color diffuse = m_currentMaterial.getDiffuse();
-    m_currentMaterial = new Material( ambient, diffuse );
-  }
-  
-  public void setDiffuseCoeffs( Color diffuse )
-  {
-    Color ambient = m_currentMaterial.getAmbient();
     m_currentMaterial = new Material( ambient, diffuse );
   }
   
