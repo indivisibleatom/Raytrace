@@ -56,7 +56,7 @@ class Film
   {
     count++;
     //TODO msati3: Remove hardcoding of single color being equated
-    m_screenColor[sample.getY()][sample.getX()] = col;
+    m_screenColor[m_screenDim.height() - sample.getY() - 1][sample.getX()] = col;
   }
   
   public void draw()
@@ -70,7 +70,7 @@ class Film
         {
           color colProcessing = color( col.R(), col.G(), col.B() );
           stroke( colProcessing  );
-          point( i, j );
+          point( j, i );
         }
       }
     }
