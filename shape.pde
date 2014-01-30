@@ -117,13 +117,14 @@ class Triangle implements Shape
     m_normal = AB.cross(AC);
     m_normal.normalize();
     
-    if ( m_normal.X() >= m_normal.Y() && m_normal.X() >= m_normal.Z() )
+    if ( abs(m_normal.X()) >= abs(m_normal.Y()) && abs(m_normal.X()) >= abs(m_normal.Z()) )
     {
+      m_normal.debugPrint();
       m_projectedVertices[0].set( 0, m_projectedVertices[0].Y(), m_projectedVertices[0].Z() );
       m_projectedVertices[1].set( 0, m_projectedVertices[1].Y(), m_projectedVertices[1].Z() );
       m_projectedVertices[2].set( 0, m_projectedVertices[2].Y(), m_projectedVertices[2].Z() );
     }
-    else if ( m_normal.Y() >= m_normal.Z() )
+    else if ( abs(m_normal.Y()) >= abs(m_normal.Z()) )
     {
       m_projectedVertices[0].set( m_projectedVertices[0].X(), 0, m_projectedVertices[0].Z() );
       m_projectedVertices[1].set( m_projectedVertices[0].X(), 0, m_projectedVertices[1].Z() );
@@ -149,11 +150,11 @@ class Triangle implements Shape
     float t = planeToRayOrig.dot( m_normal ) / denominator;
     Point inPlane = new Point( ray, t );
 
-    if ( m_normal.X() >= m_normal.Y() && m_normal.X() >= m_normal.Z() )
+    if ( abs(m_normal.X()) >= abs(m_normal.Y()) && abs(m_normal.X()) >= abs(m_normal.Z()) )
     {
       inPlane.set( 0, inPlane.Y(), inPlane.Z() );
     }
-    else if ( m_normal.Y() >= m_normal.Z() )
+    else if ( abs(m_normal.Y()) >= abs(m_normal.Z()) )
     {
       inPlane.set( inPlane.X(), 0, inPlane.Z() );
     }
@@ -173,12 +174,7 @@ class Triangle implements Shape
     Vector v2 = BC.cross( BP );
     Vector v3 = CA.cross( CP );
     
-    boolean retVal = ( v1.dot(v2) >= 0 && v1.dot(v3) >= 0 && v2.dot(v3) >= 0 );
-    if ( retVal )
-    {
-      return true;
-    }
-    return retVal;
+    return ( v1.dot(v2) >= 0 && v1.dot(v3) >= 0 && v2.dot(v3) >= 0 );
   }
   
   
