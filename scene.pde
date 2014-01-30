@@ -91,12 +91,17 @@ class Scene
     m_currentTransformation.scale( scale );
   }
   
-  public void push()
+  public void rotate( float angle, Vector axis )
+  {
+    m_currentTransformation.rotate( angle, axis );
+  }
+  
+  public void onPush()
   {
     m_matrixStack.push( m_currentTransformation ); 
   }
   
-  public void pop()
+  public void onPop()
   {
     m_matrixStack.pop();
   }

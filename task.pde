@@ -23,7 +23,8 @@ class SamplerRenderingTask implements Task
       {
         return lightManager.getAmbient();
       }
-      Color pixelColor = combineColor( info.primitive().getAmbientCoeffs(), lightManager.getAmbient() );
+      Color pixelColor = cloneCol( info.primitive().getAmbientCoeffs() );
+      //Color pixelColor = combineColor( info.primitive().getAmbientCoeffs(), lightManager.getAmbient() );
       for (int i = 0; i < lightManager.getNumLights(); i++)
       {
         Light light = lightManager.getLight(i);
@@ -33,14 +34,9 @@ class SamplerRenderingTask implements Task
         {
           float cosine = info.normal().dot( r.getDirection() );
           float mag = r.getDirection().getMagnitude();
-          if ( cosine < 0 )
-          {
-            //print( cosine + " ");
-          }
           Color lightColor = combineColor( info.primitive().getDiffuseCoeffs(), light.getColor() );
           lightColor.scale( cosine );
-          pixelColor = new Color(1,1,1);
-          //pixelColor.add( lightColor );
+          pixelColor.add( lightColor );
         }
       }
       return pixelColor;

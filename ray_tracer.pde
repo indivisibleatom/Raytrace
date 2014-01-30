@@ -24,13 +24,17 @@ void setup() {
 
 void keyPressed() {
   switch(key) {
-    case '0':  gCurrentFile = new SceneBuilder("test.cli"); gCurrentFile.buildScene(); break;
-    case '1':  gCurrentFile = new SceneBuilder("t01.cli"); gCurrentFile.buildScene(); break;
-    case '2':  gCurrentFile = new SceneBuilder("t02.cli"); gCurrentFile.buildScene(); break;
-    case '3':  gCurrentFile = new SceneBuilder("c0.cli"); gCurrentFile.buildScene(); break;
-    case '4':  gCurrentFile = new SceneBuilder("c1.cli"); gCurrentFile.buildScene(); break;
-    case '5':  gCurrentFile = new SceneBuilder("c2.cli"); gCurrentFile.buildScene(); break;
-    case '6':  gCurrentFile = new SceneBuilder("c3.cli"); gCurrentFile.buildScene(); break;
+    case '0':  gCurrentFile = new SceneBuilder(); gCurrentFile.buildScene("t10.cli"); break;
+    case '1':  gCurrentFile = new SceneBuilder(); gCurrentFile.buildScene("t01.cli"); break;
+    case '2':  gCurrentFile = new SceneBuilder(); gCurrentFile.buildScene("t02.cli"); break;
+    case '3':  gCurrentFile = new SceneBuilder(); gCurrentFile.buildScene("t03.cli"); break;
+    case '4':  gCurrentFile = new SceneBuilder(); gCurrentFile.buildScene("t04.cli"); break;
+    case '5':  gCurrentFile = new SceneBuilder(); gCurrentFile.buildScene("t05.cli"); break;
+    case '6':  gCurrentFile = new SceneBuilder(); gCurrentFile.buildScene("t06.cli"); break;
+    case '7':  gCurrentFile = new SceneBuilder(); gCurrentFile.buildScene("t07.cli"); break;
+    case '8':  gCurrentFile = new SceneBuilder(); gCurrentFile.buildScene("t08.cli"); break;
+    case '9':  gCurrentFile = new SceneBuilder(); gCurrentFile.buildScene("t09.cli"); break;
+    case 'q':  exit(); break;
   }
 }
 

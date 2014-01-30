@@ -1,12 +1,10 @@
 class SceneBuilder
 {
-  private String m_fileName;
   Scene m_scene;
   
-  SceneBuilder( String fileName )
+  SceneBuilder()
   {
     m_scene = new Scene();
-    m_fileName = fileName;
   }
   
   private void setCameraFov(int angle)
@@ -45,15 +43,21 @@ class SceneBuilder
   {
     m_scene.scale( scale );
   }
+  
+  private void setRotate( float angle, Vector axis )
+  {
+    angle = angle * PI / 180;
+    m_scene.rotate( angle, axis );
+  }
  
   private void setCoeffs( float[] ambientCoeffs, float[] diffuse )
   {
     m_scene.setCoeffs( new Color( ambientCoeffs ), new Color( diffuse ) );
   }
   
-  void buildScene()
-  { 
-    String str[] = loadStrings(m_fileName);
+  void buildScene(String fileName)
+  {
+    String str[] = loadStrings(fileName);
     if (str == null) 
     {
       println("Error! Failed to read the file.");
@@ -87,46 +91,52 @@ class SceneBuilder
         float[] ambientCoeffs = {Float.parseFloat(token[4]), Float.parseFloat(token[5]), Float.parseFloat(token[6])};
         setCoeffs( ambientCoeffs, diffuseCoeffs );
       } 
-      else if (token[0].equals("sphere")) 
-      {
-        float radius = Float.parseFloat(token[1]);
-        Point center = new Point( Float.parseFloat(token[2]), Float.parseFloat(token[3]), Float.parseFloat(token[4]) );
-        addSphere(radius, center);
-      }
       else if (token[0].equals("begin")) 
       {
         Point vertex = new Point( Float.parseFloat(token[1]), Float.parseFloat(token[2]), Float.parseFloat(token[3]) );
-        // TODO
-      }
-      else if (token[0].equals("vertex")) {
         // TODO
       }
       else if (token[0].equals("end")) 
       {
         // TODO
       }
+      else if (token[0].equals("vertex")) {
+        // TODO
+      }
+      else if (token[0].equals("sphere")) 
+      {
+        float radius = Float.parseFloat(token[1]);
+        Point center = new Point( Float.parseFloat(token[2]), Float.parseFloat(token[3]), Float.parseFloat(token[4]) );
+        addSphere(radius, center);
+      }
       else if (token[0].equals("push"))
       {
-        //m_scene.onPush();
+        m_scene.onPush();
       }
       else if (token[0].equals("pop"))
       {
-        //m_scene.onPop();
+        m_scene.onPop();
       }
       else if (token[0].equals("translate"))
       {
         Vector translate = new Vector( Float.parseFloat(token[1]), Float.parseFloat(token[2]), Float.parseFloat(token[3]) );
         setTranslate( translate );
       }
+      else if (token[0].equals("rotate"))
+      {
+        Vector rotateAxis = new Vector( Float.parseFloat(token[2]), Float.parseFloat(token[3]), Float.parseFloat(token[4]) );
+        float rotateAngle = Float.parseFloat(token[1]);
+        setRotate( rotateAngle, rotateAxis );
+      }  
       else if (token[0].equals("scale"))
       {
         Vector scaleFactor = new Vector( Float.parseFloat(token[1]), Float.parseFloat(token[2]), Float.parseFloat(token[3]) );
         setScale( scaleFactor );
       }
-      else if (token[0].equals("rotate"))
+      else if (token[0].equals("read"))
       {
-        //TODO
-      }  
+        buildScene(token[1]);
+      }
       else if (token[0].equals("write")) 
       {
         // save the current image to a .png file

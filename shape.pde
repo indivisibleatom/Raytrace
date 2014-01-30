@@ -28,8 +28,8 @@ class Sphere implements Shape
       return false;
 
     float sqrtDelta = sqrt( delta );
-    float root1 = -b + sqrtDelta / ( 2 * a );
-    float root2 = -b - sqrtDelta / ( 2 * a );
+    float root1 = (-b + sqrtDelta) / ( 2 * a );
+    float root2 = (-b - sqrtDelta) / ( 2 * a );
     if (root1 < 0 && root2 < 0)
       return false;
     return true;    
@@ -50,8 +50,8 @@ class Sphere implements Shape
     else
     {
       float sqrtDelta = sqrt( delta );
-      float root1 = -b + sqrtDelta / ( 2 * a );
-      float root2 = -b - sqrtDelta / ( 2 * a );
+      float root1 = (-b + sqrtDelta) / ( 2 * a );
+      float root2 = (-b - sqrtDelta) / ( 2 * a );
       if (root1 < 0 && root2 < 0)
       {
         return null;
@@ -67,8 +67,6 @@ class Sphere implements Shape
       } 
 
       Point intersectionPointLocal = new Point( ray, minT );
-      if (intersectionPointLocal.Z() > 0)
-        intersectionPointLocal.debugPrint();
       Vector normalLocal = new Vector( c_origin, intersectionPointLocal );
 
       //Now go world space

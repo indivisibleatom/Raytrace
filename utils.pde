@@ -187,11 +187,18 @@ class Color
   private float m_g;
   private float m_b;
   
+  private float clamp( float val )
+  {
+    val = val < 0 ? 0 : val;
+    val = val > 1 ? 1 : val;
+    return val;
+  }
+  
   Color(float r, float g, float b)
   {
-    m_r = r;
-    m_g = g;
-    m_b = b;
+    m_r = clamp(r);
+    m_g = clamp(g);
+    m_b = clamp(b);
   }
   
   Color(Color other)
@@ -203,6 +210,7 @@ class Color
   
   Color( float[] colors )
   {
+    this(colors[0], colors[1], colors[2]);
     if ( colors.length != 3 )
     {
       if ( DEBUG && DEBUG_MODE >= LOW )
@@ -210,9 +218,6 @@ class Color
         print ("Constructing colors from a coefficient array that is not size 4!!");
       }
     }
-    m_r = colors[0];
-    m_g = colors[1];
-    m_b = colors[2];
   }
   
   private int toInt( float f )
@@ -236,16 +241,16 @@ class Color
   
   public void add(Color other)
   {
-    m_r += other.m_r;
-    m_g += other.m_g;
-    m_b += other.m_b;
+    m_r = clamp( m_r + other.m_r );
+    m_g = clamp( m_g + other.m_g );
+    m_b = clamp( m_b + other.m_b );
   }
   
   public void scale(float scale)
   {
-    m_r *= scale;
-    m_g *= scale;
-    m_b *= scale;
+    m_r = clamp( m_r * scale );
+    m_g = clamp( m_g * scale );
+    m_b = clamp( m_b * scale );
   }
 
   public float R() { return m_r; }
