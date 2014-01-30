@@ -1,4 +1,4 @@
-float c_epsilon = 0.05;
+float c_epsilon = 0.1;
 
 class Point
 {
@@ -93,9 +93,9 @@ class Vector
   
   Vector(Point pA, Point pB)
   {
-    m_x = pB.m_x - pA.m_x;
-    m_y = pB.m_y - pA.m_y;
-    m_z = pB.m_z - pA.m_z;
+    m_x = pB.X() - pA.X();
+    m_y = pB.Y() - pA.Y();
+    m_z = pB.Z() - pA.Z();
   }
   
   public float X() { return m_x; }

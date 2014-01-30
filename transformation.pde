@@ -82,6 +82,19 @@ class Transformation
     return worldPoint;
   }
   
+  public Vector localToWorldNormal( Vector normal )
+  {
+    PVector normalLocal = new PVector( normal.X(), normal.Y(), normal.Z() );
+    PMatrix inverse = m_transformation.get();
+    inverse.invert();
+    inverse.transpose();
+    float[] localArray = { normalLocal.x, normalLocal.y, normalLocal.z, 0 };
+    float[] values = new float[4];
+    m_transformation.mult( localArray, values );
+    Vector worlNormal = new Vector( values[0], values[1], values[2] );
+    return worlNormal;
+  }
+  
   public Point worldToLocal( Point pointWorld )
   {
     PVector world = new PVector( pointWorld.X(), pointWorld.Y(), pointWorld.Z() );

@@ -32,9 +32,15 @@ class SamplerRenderingTask implements Task
         if ( !m_scene.intersects( r ) )
         {
           float cosine = info.normal().dot( r.getDirection() );
+          float mag = r.getDirection().getMagnitude();
+          if ( cosine < 0 )
+          {
+            //print( cosine + " ");
+          }
           Color lightColor = combineColor( info.primitive().getDiffuseCoeffs(), light.getColor() );
           lightColor.scale( cosine );
-          pixelColor.add( lightColor );
+          pixelColor = new Color(1,1,1);
+          //pixelColor.add( lightColor );
         }
       }
       return pixelColor;

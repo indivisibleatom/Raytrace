@@ -7,8 +7,6 @@ interface Shape
 class Sphere implements Shape
 {
   Transformation m_transformation;
-  Point m_center;
-  float m_radius;
 
   Sphere( float radius, Point center, Transformation transformation )
   {
@@ -16,8 +14,6 @@ class Sphere implements Shape
     m_transformation.apply( transformation );
     m_transformation.translate( new Vector( c_origin, center ) );
     m_transformation.scale( radius );
-    m_radius = radius;
-    m_center = center;
   }
   
   private boolean intersectsCanonical( Ray ray )
@@ -69,8 +65,15 @@ class Sphere implements Shape
       {
         minT = root2;
       } 
-      Point intersectionPoint = new Point( ray, minT );
-      Vector normal = new Vector( m_center, intersectionPoint );
+
+      Point intersectionPointLocal = new Point( ray, minT );
+      if (intersectionPointLocal.Z() > 0)
+        intersectionPointLocal.debugPrint();
+      Vector normalLocal = new Vector( c_origin, intersectionPointLocal );
+
+      //Now go world space
+      Point intersectionPoint = m_transformation.localToWorld( intersectionPointLocal );
+      Vector normal = m_transformation.localToWorldNormal( normalLocal );
       normal.normalize();
       return new ShapeIntersectionInfo( intersectionPoint, normal, minT );
     }
