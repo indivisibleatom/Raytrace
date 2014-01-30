@@ -107,6 +107,11 @@ class Vector
     return m_x * other.m_x + m_y * other.m_y + m_z * other.m_z;
   }
   
+  public Vector cross( Vector other )
+  {
+    return new Vector( m_y * other.m_z - m_z * other.m_y, m_z * other.m_x - m_x * other.m_z, m_x * other.m_y - m_y * other.m_x );
+  }
+  
   public float getMagnitude()
   {
     return sqrt( getMagnitudeSquare() );
