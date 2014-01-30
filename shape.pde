@@ -91,25 +91,31 @@ class Sphere implements Shape
 }
 
 
-/*class Triangle implements Shape
+class Triangle implements Shape
 {
-  private Point[3] m_vertices;
-  
-  Triangle( Point[3] vertices )
+  Transformation m_transformation;
+  Point[] m_vertices;
+
+  Triangle( Point p1, Point p2, Point p3, Transformation transformation )
   {
-    for (int i = 0; i < 3; i++)
-    {
-      m_vertices[i] = clone(vertices[i]);
-    }
+    m_vertices = new Point[3];
+    m_transformation = new Transformation();
+    m_transformation.apply( transformation );
+    m_vertices[0] = p1;
+    m_vertices[1] = p2;
+    m_vertices[2] = p3;
   }
   
   public boolean intersects( Ray ray )
   {
+    Ray rayLocal = m_transformation.worldToLocal( ray );
+    return false;
   }
   
-  public IntersectionInfo getIntersectionInfo( Ray ray )
+  public ShapeIntersectionInfo getIntersectionInfo( Ray ray )
   {
+    Ray rayLocal = m_transformation.worldToLocal( ray );
     return null;
   }
-}*/
+}
 

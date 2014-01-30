@@ -1,6 +1,7 @@
 class SceneBuilder
 {
   Scene m_scene;
+  ArrayList<Point> m_verticesCached;
   
   SceneBuilder()
   {
@@ -25,6 +26,22 @@ class SceneBuilder
   private void raytrace()
   {
     m_scene.raytrace();
+  }
+  
+  private void startPolygon()
+  {
+    m_verticesCached = new ArrayList<Point>();
+  }
+  
+  private void addVertex( Point vertex )
+  {
+    m_verticesCached.add( vertex );
+  }
+  
+  private void endPolygon()
+  {
+    Triangle t = new Triangle( m_verticesCached.get(0), m_verticesCached.get(1), m_verticesCached.get(2),  m_scene.getCurrentTransformation() );
+    m_scene.addObject( new GeometricPrimitive( t, m_scene.getCurrentMaterial() ) );
   }
   
   private void addSphere( float radius, Point center )
@@ -93,15 +110,15 @@ class SceneBuilder
       } 
       else if (token[0].equals("begin")) 
       {
-        Point vertex = new Point( Float.parseFloat(token[1]), Float.parseFloat(token[2]), Float.parseFloat(token[3]) );
-        // TODO
+        startPolygon();
       }
       else if (token[0].equals("end")) 
       {
-        // TODO
+        endPolygon();
       }
-      else if (token[0].equals("vertex")) {
-        // TODO
+      else if (token[0].equals("vertex")) 
+      {
+        addVertex( new Point( Float.parseFloat(token[1]), Float.parseFloat(token[2]), Float.parseFloat(token[3]) ) );
       }
       else if (token[0].equals("sphere")) 
       {
