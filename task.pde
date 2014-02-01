@@ -24,16 +24,20 @@ class SamplerRenderingTask implements Task
         return lightManager.getAmbient();
       }
       Color pixelColor = cloneCol( info.primitive().getAmbientCoeffs() );
-      //Color pixelColor = combineColor( info.primitive().getAmbientCoeffs(), lightManager.getAmbient() );
       for (int i = 0; i < lightManager.getNumLights(); i++)
       {
         Light light = lightManager.getLight(i);
-        Ray r = light.getRay( info.point() );
-        r.advanceEpsilon();
-        if ( !m_scene.intersects( r ) )
+        Ray shadowRay = light.getRay( info.point() );
+
+        shadowRay.advanceEpsilon();
+        if ( !m_scene.intersects( shadowRay ) )
         {
-          float cosine = info.normal().dot( r.getDirection() );
-          float mag = r.getDirection().getMagnitude();
+          float cosine = info.normal().dot( shadowRay.getDirection() );
+          if ( cosine < 0 )
+          {
+            cosine = -cosine;
+          }
+          float mag = shadowRay.getDirection().getMagnitude();
           Color lightColor = combineColor( info.primitive().getDiffuseCoeffs(), light.getColor() );
           lightColor.scale( cosine );
           pixelColor.add( lightColor );

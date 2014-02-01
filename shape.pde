@@ -114,12 +114,11 @@ class Triangle implements Shape
 
     Vector AB = new Vector( m_vertices[0], m_vertices[1] );
     Vector AC = new Vector( m_vertices[0], m_vertices[2] );
-    m_normal = AB.cross(AC);
+    m_normal = AC.cross(AB);
     m_normal.normalize();
     
     if ( abs(m_normal.X()) >= abs(m_normal.Y()) && abs(m_normal.X()) >= abs(m_normal.Z()) )
     {
-      m_normal.debugPrint();
       m_projectedVertices[0].set( 0, m_projectedVertices[0].Y(), m_projectedVertices[0].Z() );
       m_projectedVertices[1].set( 0, m_projectedVertices[1].Y(), m_projectedVertices[1].Z() );
       m_projectedVertices[2].set( 0, m_projectedVertices[2].Y(), m_projectedVertices[2].Z() );
@@ -127,8 +126,8 @@ class Triangle implements Shape
     else if ( abs(m_normal.Y()) >= abs(m_normal.Z()) )
     {
       m_projectedVertices[0].set( m_projectedVertices[0].X(), 0, m_projectedVertices[0].Z() );
-      m_projectedVertices[1].set( m_projectedVertices[0].X(), 0, m_projectedVertices[1].Z() );
-      m_projectedVertices[2].set( m_projectedVertices[0].X(), 0, m_projectedVertices[2].Z() );
+      m_projectedVertices[1].set( m_projectedVertices[1].X(), 0, m_projectedVertices[1].Z() );
+      m_projectedVertices[2].set( m_projectedVertices[2].X(), 0, m_projectedVertices[2].Z() );
     }
     else
     {
@@ -146,8 +145,12 @@ class Triangle implements Shape
       return false;
     }
 
-    Vector planeToRayOrig = new Vector( m_vertices[0], ray.getOrigin() );
-    float t = planeToRayOrig.dot( m_normal ) / denominator;
+    Vector rayOrigToPlane = new Vector( ray.getOrigin(), m_vertices[0] );
+    float t = rayOrigToPlane.dot( m_normal ) / denominator;
+    if ( t < 0 )
+    {
+      return false;
+    }
     Point inPlane = new Point( ray, t );
 
     if ( abs(m_normal.X()) >= abs(m_normal.Y()) && abs(m_normal.X()) >= abs(m_normal.Z()) )
@@ -186,8 +189,14 @@ class Triangle implements Shape
       return null;
     }
 
-    Vector planeToRayOrig = new Vector( ray.getOrigin(), m_vertices[0] );
-    float t = planeToRayOrig.dot( m_normal ) / denominator;
+    Vector rayOrigToPlane = new Vector( ray.getOrigin(), m_vertices[0] );
+    float t = rayOrigToPlane.dot( m_normal ) / denominator;
+    
+    if ( t < 0 )
+    {
+      return null;
+    }
+    
     Point inPlane = new Point( ray, t );
     return new ShapeIntersectionInfo( inPlane, m_normal, t );
   }

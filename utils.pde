@@ -1,4 +1,4 @@
-float c_epsilon = 0.1;
+float c_epsilon = 0.01;
 
 class Point
 {
