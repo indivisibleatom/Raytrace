@@ -104,6 +104,10 @@ class Scene
   public void onPop()
   {
     m_matrixStack.pop();
+    if ( !m_matrixStack.empty() )
+    {
+      m_currentTransformation = m_matrixStack.peek();
+    }
   }
 }
 
