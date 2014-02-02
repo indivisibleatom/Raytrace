@@ -98,7 +98,9 @@ class Scene
   
   public void onPush()
   {
-    m_matrixStack.push( m_currentTransformation ); 
+    Transformation newTrans = new Transformation();
+    newTrans.clone( m_currentTransformation );
+    m_matrixStack.push( newTrans ); 
   }
   
   public void onPop()

@@ -35,7 +35,7 @@ class Sphere implements Shape
     return true;    
   }
   
-  private ShapeIntersectionInfo intersectionInfoCanonical( Ray ray )
+  private ShapeIntersectionInfo intersectionInfoCanonical( Ray ray, float scaleNormal )
   {
     Vector OA = new Vector( c_origin, ray.getOrigin() );    
     Vector dir = ray.getDirection();
@@ -73,20 +73,22 @@ class Sphere implements Shape
       Point intersectionPoint = m_transformation.localToWorld( intersectionPointLocal );
       Vector normal = m_transformation.localToWorldNormal( normalLocal );
       normal.normalize();
-      return new ShapeIntersectionInfo( intersectionPoint, normal, minT );
+      return new ShapeIntersectionInfo( intersectionPoint, normal, minT * scaleNormal );
     }
   }
   
   public boolean intersects( Ray ray )
   {
-    Ray rayLocal = m_transformation.worldToLocal( ray );
+    RayTransformFeedback feedBack = new RayTransformFeedback();
+    Ray rayLocal = m_transformation.worldToLocal( ray, feedBack );
     return intersectsCanonical( rayLocal );
   }
   
   public ShapeIntersectionInfo getIntersectionInfo( Ray ray )
   {
-    Ray rayLocal = m_transformation.worldToLocal( ray );
-    return intersectionInfoCanonical( rayLocal );
+    RayTransformFeedback feedBack = new RayTransformFeedback();
+    Ray rayLocal = m_transformation.worldToLocal( ray, feedBack );
+    return intersectionInfoCanonical( rayLocal, feedBack.scale() );
   }
 }
 

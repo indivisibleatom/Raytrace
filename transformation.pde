@@ -8,6 +8,11 @@ class Transformation
     m_transformation.set( 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 );
   }
   
+  void clone( Transformation other )
+  {
+    m_transformation.set( other.m_transformation );
+  }
+  
   public void translate( Vector v )
   {
     m_transformation.translate( v.X(), v.Y(), v.Z() );
@@ -111,11 +116,13 @@ class Transformation
     return localVector;
   }
 
-  public Ray worldToLocal( Ray rayLocal )
+  public Ray worldToLocal( Ray rayLocal, RayTransformFeedback feedBack )
   {
     Point originPoint = worldToLocal( rayLocal.getOrigin() );
     Vector directionVector = worldToLocal( rayLocal.getDirection() );
+    feedBack.setScale( 1/directionVector.getMagnitude() );
     Ray worldRay = new Ray( originPoint, directionVector );
     return worldRay;
   }
 }
+

@@ -184,6 +184,26 @@ class Ray
   } 
 }
 
+class RayTransformFeedback
+{
+  private float m_scale;
+  
+  RayTransformFeedback()
+  {
+    m_scale = 1;
+  }
+  
+  void setScale( float scale )
+  {
+    m_scale = scale;
+  }
+  
+  float scale()
+  {
+    return m_scale;
+  }
+}
+
 Ray clone(Ray other) { return new Ray(other); }
 
 class Color
