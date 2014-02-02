@@ -30,9 +30,9 @@ class Sphere implements Shape
     float sqrtDelta = sqrt( delta );
     float root1 = (-b + sqrtDelta) / ( 2 * a );
     float root2 = (-b - sqrtDelta) / ( 2 * a );
-    if (root1 < 0 && root2 < 0)
+    if (root1 < c_epsilon && root2 < c_epsilon)
       return false;
-    return true;    
+    return true;
   }
   
   private ShapeIntersectionInfo intersectionInfoCanonical( Ray ray, float scaleNormal )
@@ -52,12 +52,12 @@ class Sphere implements Shape
       float sqrtDelta = sqrt( delta );
       float root1 = (-b + sqrtDelta) / ( 2 * a );
       float root2 = (-b - sqrtDelta) / ( 2 * a );
-      if (root1 < 0 && root2 < 0)
+      if (root1 < c_epsilon && root2 < c_epsilon)
       {
         return null;
       }
       float minT;
-      if ( root1 > 0 && ( root1 < root2 || root2 < 0 ) )
+      if ( root1 > c_epsilon && ( root1 < root2 || root2 < 0 ) )
       {
         minT = root1;
       }
@@ -149,7 +149,7 @@ class Triangle implements Shape
 
     Vector rayOrigToPlane = new Vector( ray.getOrigin(), m_vertices[0] );
     float t = rayOrigToPlane.dot( m_normal ) / denominator;
-    if ( t < 0 )
+    if ( t < c_epsilon )
     {
       return false;
     }
@@ -194,7 +194,7 @@ class Triangle implements Shape
     Vector rayOrigToPlane = new Vector( ray.getOrigin(), m_vertices[0] );
     float t = rayOrigToPlane.dot( m_normal ) / denominator;
     
-    if ( t < 0 )
+    if ( t < c_epsilon )
     {
       return null;
     }

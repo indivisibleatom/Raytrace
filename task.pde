@@ -29,7 +29,6 @@ class SamplerRenderingTask implements Task
         Light light = lightManager.getLight(i);
         Ray shadowRay = light.getRay( info.point() );
 
-        shadowRay.advanceEpsilon();
         if ( !m_scene.intersects( shadowRay ) )
         {
           float cosine = info.normal().dot( shadowRay.getDirection() );
