@@ -16,6 +16,7 @@ class Scene
     
     m_currentTransformation = new Transformation();
     m_matrixStack = new Stack<Transformation>();
+    m_matrixStack.push( m_currentTransformation );
   }
   
   public Camera getCamera()
@@ -100,16 +101,13 @@ class Scene
   {
     Transformation newTrans = new Transformation();
     newTrans.clone( m_currentTransformation );
-    m_matrixStack.push( newTrans ); 
+    m_matrixStack.push( m_currentTransformation );
+    m_currentTransformation = newTrans;
   }
   
   public void onPop()
   {
-    m_matrixStack.pop();
-    if ( !m_matrixStack.empty() )
-    {
-      m_currentTransformation = m_matrixStack.peek();
-    }
+    m_currentTransformation = m_matrixStack.pop();
   }
 }
 
