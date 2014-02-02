@@ -35,7 +35,14 @@ class SamplerRenderingTask implements Task
           float cosine = info.normal().dot( shadowRay.getDirection() );
           if ( cosine < 0 ) //Dual sided lighting
           {
-            cosine = -cosine;
+            if ( info.fDualSided() )
+            {
+              cosine = -cosine;
+            }
+            else
+            {
+              cosine = 0;
+            }
           }
           float mag = shadowRay.getDirection().getMagnitude();
           Color lightColor = combineColor( info.primitive().getDiffuseCoeffs(), light.getColor() );

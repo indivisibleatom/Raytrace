@@ -73,7 +73,7 @@ class Sphere implements Shape
       Point intersectionPoint = m_transformation.localToWorld( intersectionPointLocal );
       Vector normal = m_transformation.localToWorldNormal( normalLocal );
       normal.normalize();
-      return new ShapeIntersectionInfo( intersectionPoint, normal, minT * scaleNormal );
+      return new ShapeIntersectionInfo( intersectionPoint, normal, minT * scaleNormal, false );
     }
   }
   
@@ -200,7 +200,7 @@ class Triangle implements Shape
     }
     
     Point inPlane = new Point( ray, t );
-    return new ShapeIntersectionInfo( inPlane, m_normal, t );
+    return new ShapeIntersectionInfo( inPlane, m_normal, t, true );
   }
 }
 

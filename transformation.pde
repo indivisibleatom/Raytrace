@@ -1,56 +1,73 @@
 class Transformation
 {
   PMatrix m_transformation;
+  PMatrix m_inverse;
+  
+  private void setInverse()
+  {
+    m_inverse = m_transformation.get();
+    m_inverse.invert();
+  }
   
   Transformation()
   {
     m_transformation = new PMatrix3D();
     m_transformation.set( 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 );
+    setInverse();
   }
   
   void clone( Transformation other )
   {
     m_transformation.set( other.m_transformation );
+    setInverse();
   }
   
   public void translate( Vector v )
   {
     m_transformation.translate( v.X(), v.Y(), v.Z() );
+    setInverse();
   }
   
   public void rotate( float angle, Vector v )
   {
     m_transformation.rotate( angle, v.X(), v.Y(), v.Z() );
+    setInverse();
   }
   
   public void rotateX( float angle )
   {
     m_transformation.rotateX( angle );
+    setInverse();
   }
 
   public void rotateY( float angle )
   {
     m_transformation.rotateY( angle );
+    setInverse();
   }
 
   public void rotateZ( float angle )
   {
     m_transformation.rotateZ( angle );
+    setInverse();
   }
   
   public void scale( float scale )
   {
     m_transformation.scale( scale );
+    setInverse();
   }
   
   public void scale( Vector scale )
   {
     m_transformation.scale( scale.X(), scale.Y(), scale.Z() );
+    setInverse();
   }
 
   public void apply( Transformation other )
   {
     m_transformation.apply( other.m_transformation );
+    setInverse();
   } 
 
   private PVector localToWorld( PVector local, boolean fIsVector )
@@ -67,15 +84,13 @@ class Transformation
 
   private PVector worldToLocal ( PVector world, boolean fIsVector )
   {
-    PMatrix inverse = m_transformation.get();
-    inverse.invert();
     float[] worldArray = { world.x, world.y, world.z, 1 };
     if ( fIsVector )
     {
       worldArray[3] = 0;
     }   
     float[] retVal = new float[4];
-    inverse.mult( worldArray, retVal );
+    m_inverse.mult( worldArray, retVal );
     return new PVector( retVal[0], retVal[1], retVal[2] );
   }
   
@@ -90,8 +105,7 @@ class Transformation
   public Vector localToWorldNormal( Vector normal )
   {
     PVector normalLocal = new PVector( normal.X(), normal.Y(), normal.Z() );
-    PMatrix inverse = m_transformation.get();
-    inverse.invert();
+    PMatrix inverse = m_inverse.get();
     inverse.transpose();
     float[] localArray = { normalLocal.x, normalLocal.y, normalLocal.z, 0 };
     float[] values = new float[4];
