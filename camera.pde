@@ -61,6 +61,7 @@ class Film
   
   public void draw()
   {
+    background (0, 0, 0);
     for (int i = 0; i < m_screenDim.height(); i++)
     {
       for (int j = 0; j < m_screenDim.width(); j++)
