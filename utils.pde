@@ -1,11 +1,14 @@
 float c_epsilon = 0.01;
 
+boolean compare( float n1, float n2 )
+{
+  return (abs(n1 - n2) < c_epsilon);
+}
+
 class Point
 {
-  private float m_x;
-  private float m_y;
-  private float m_z;
-  
+  private float[] m_p = new float[3];
+
   Point(float x, float y, float z)
   {
     set(x, y, z);
@@ -13,16 +16,16 @@ class Point
   
   Point(Point other)
   {
-    m_x = other.m_x;
-    m_y = other.m_y;
-    m_z = other.m_z;
+    m_p[0] = other.X();
+    m_p[1] = other.Y();
+    m_p[2] = other.Z();
   }
   
   Point(Point init, Vector direction, float t)
   {
-    m_x = init.X() + t * direction.X();
-    m_y = init.Y() + t * direction.Y();
-    m_z = init.Z() + t * direction.Z();
+    m_p[0] = init.X() + t * direction.X();
+    m_p[1] = init.Y() + t * direction.Y();
+    m_p[2] = init.Z() + t * direction.Z();
   }
   
   Point(Ray r, float t)
@@ -30,41 +33,45 @@ class Point
     this(r.getOrigin(), r.getDirection(), t);
   }
   
-  public float X() { return m_x; }
-  public float Y() { return m_y; }
-  public float Z() { return m_z; }
+  public float X() { return m_p[0]; }
+  public float Y() { return m_p[1]; }
+  public float Z() { return m_p[2]; }
+  public float get(int index)
+  {
+    return m_p[index];
+  }
   
   void add( Vector direction, float t )
   {
-    m_x += t * direction.X();
-    m_y += t * direction.Y();
-    m_z += t * direction.Z();
+    m_p[0] += t * direction.X();
+    m_p[1] += t * direction.Y();
+    m_p[2] += t * direction.Z();
   }
     
   void subtract(Point other)
   {
-    m_x -= other.m_x;
-    m_y -= other.m_y;
-    m_z -= other.m_z;
+    m_p[0] -= other.X();
+    m_p[1] -= other.Y();
+    m_p[2] -= other.Z();
   }
   
   void set( float x, float y, float z )
   {
-    m_x = x;
-    m_y = y;
-    m_z = z;
+    m_p[0] = x;
+    m_p[1] = y;
+    m_p[2] = z;
   }
   
   void toNormalizedCoordinates(float scaleX, float scaleY, float scaleZ)
   {
-    m_x /= scaleX;
-    m_y /= scaleY;
-    m_z /= scaleZ;
+    m_p[0] /= scaleX;
+    m_p[1] /= scaleY;
+    m_p[2] /= scaleZ;
   }
   
   void debugPrint()
   {
-    print( "Point : " + m_x + " " + m_y + " " + m_z + "\n" );
+    print( "Point : " + m_p[0] + " " + m_p[1] + " " + m_p[2] + "\n" );
   }
 }
 
@@ -73,43 +80,50 @@ final Point c_origin = new Point(0,0,0);
 
 class Vector
 {
-  private float m_x;
-  private float m_y;
-  private float m_z;
+  private float[] m_v = new float[3];
   
   Vector(float x, float y, float z)
   {
-    m_x = x;
-    m_y = y;
-    m_z = z;
+    m_v[0] = x;
+    m_v[1] = y;
+    m_v[2] = z;
   } 
   
   Vector(Vector other)
   {
-    m_x = other.m_x;
-    m_y = other.m_y;
-    m_z = other.m_z;
+    m_v[0] = other.X();
+    m_v[1] = other.Y();
+    m_v[2] = other.Z();
   }
   
   Vector(Point pA, Point pB)
   {
-    m_x = pB.X() - pA.X();
-    m_y = pB.Y() - pA.Y();
-    m_z = pB.Z() - pA.Z();
+    m_v[0] = pB.X() - pA.X();
+    m_v[1] = pB.Y() - pA.Y();
+    m_v[2] = pB.Z() - pA.Z();
   }
   
-  public float X() { return m_x; }
-  public float Y() { return m_y; }
-  public float Z() { return m_z; }
+  public float X() { return m_v[0]; }
+  public float Y() { return m_v[1]; }
+  public float Z() { return m_v[2]; }
+  public float get(int index)
+  {
+    return m_v[index];
+  }
   
   public float dot( Vector other )
   {
-    return m_x * other.m_x + m_y * other.m_y + m_z * other.m_z;
+    float val = 0;
+    for (int i = 0; i < 3; i++)
+    {
+      val += m_v[i] * other.m_v[i];
+    }
+    return val;
   }
   
   public Vector cross( Vector other )
   {
-    return new Vector( m_y * other.m_z - m_z * other.m_y, m_z * other.m_x - m_x * other.m_z, m_x * other.m_y - m_y * other.m_x );
+    return new Vector( Y() * other.Z() - Z() * other.Y(), Z() * other.X() - X() * other.Z(), X() * other.Y() - Y() * other.X() );
   }
   
   public float getMagnitude()
@@ -127,15 +141,16 @@ class Vector
     float denom = getMagnitude();
     if ( denom != 0 )
     {
-      m_x = m_x / denom;
-      m_y = m_y / denom;
-      m_z = m_z / denom;   
+      for (int i = 0; i < 3; i++)
+      {
+        m_v[i] /= denom;
+      }
     }
   }
   
   void debugPrint()
   {
-    print( "Vector : " + m_x + " " + m_y + " " + m_z + "\n" );
+    print( "Vector : " + m_v[0] + " " + m_v[1] + " " + m_v[2] + "\n" );
   }
 }
 

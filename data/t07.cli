@@ -1,4 +1,4 @@
-# colored lights
+# small bunny, in list
 
 fov 60
 
@@ -6,11 +6,10 @@ fov 60
 
 background 0.2 0.2 1
 
-# three light sources (red, green, blue)
+# light sources 
 
-point_light  3 4  0  .8 .2 .2
-point_light -3 4  0  .2 .8 .2
-point_light  0 4 -5  .2 .2 .8
+point_light  3 4  0  .8 .8 .8
+point_light -3 4  0  .2 .2 .2
 
 # these two triangles acts as a ground plane
 
@@ -28,10 +27,17 @@ vertex -100 -1  100
 vertex -100 -1 -100
 end
 
-# shadow-casting sphere
+# the bunny
+
+translate 0 0 -3
 
 diffuse  .8 .8 .8  .2 .2 .2 
-sphere  1  0 0.5 -3
 
+begin_list
+read bun500.cli
+end_list
+
+reset_timer
 write t07.png
+print_timer
 

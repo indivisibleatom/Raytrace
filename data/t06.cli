@@ -1,143 +1,50 @@
-# icosahedron and sphere
+# four overlapping boxes of different colors (shrunk to be small)
+# this uses a list, so it should run faster than t05.clil
 
 fov 60
+point_light 0 0 0 1 1 1
+background 0.6 0.6 0.9
 
-# blue background
+begin_list
 
-background 0.2 0.2 1
+push
 
-# one light
+translate 0 0 -5
+rotate 20 1 0 0
+rotate -20 0 1 0
+scale 0.2 0.2 0.2
 
-point_light 4 4 8  .7 .7 .7
+diffuse 0.8 0.8 0.8  0.2 0.2 0.2
+push
+read box.cli
+pop
 
-# sphere
+diffuse 0.8 0.2 0.2  0.2 0.2 0.2
+push
+scale 0.99 0.99 0.99
+rotate 45 0 0 1
+read box.cli
+pop
 
-diffuse  .8 .2 .2  .3 .1 .1  
-sphere  .87  0 0 -3
+diffuse 0.2 0.8 0.2  0.2 0.2 0.2
+push
+scale 0.99 0.99 0.99
+rotate 45 0 1 0
+read box.cli
+pop
 
-# icosahedron
+diffuse 0.2 0.2 0.8  0.2 0.2 0.2
+push
+scale 0.99 0.99 0.99
+rotate 45 1 0 0
+read box.cli
+pop
 
-diffuse  .8 .8 .8  .2 .2 .2  
+pop
 
-begin
-vertex 0.525731 0.850651 -3
-vertex 0.850651 0 -3.525731
-vertex 0.850651 0 -2.474269
-end
+end_list
 
-begin
-vertex 0.850651 0 -3.525731
-vertex 0.525731 -0.850651 -3
-vertex 0.850651 0 -2.474269
-end
-
-begin
-vertex -0.525731 0.850651 -3
-vertex -0.850651 0 -2.474269
-vertex -0.850651 0 -3.525731
-end
-
-begin
-vertex -0.525731 -0.850651 -3
-vertex -0.850651 0 -3.525731
-vertex -0.850651 0 -2.474269
-end
-
-begin
-vertex 0 0.525731 -2.149349
-vertex -0.525731 0.850651 -3
-vertex 0.525731 0.850651 -3
-end
-
-begin
-vertex 0 0.525731 -3.850651
-vertex 0.525731 0.850651 -3
-vertex -0.525731 0.850651 -3
-end
-
-begin
-vertex 0.850651 0 -3.525731
-vertex 0 0.525731 -3.850651
-vertex 0 -0.525731 -3.850651
-end
-
-begin
-vertex -0.850651 0 -3.525731
-vertex 0 -0.525731 -3.850651
-vertex 0 0.525731 -3.850651
-end
-
-begin
-vertex 0 -0.525731 -3.850651
-vertex -0.525731 -0.850651 -3
-vertex 0.525731 -0.850651 -3
-end
-
-begin
-vertex 0 -0.525731 -2.149349
-vertex 0.525731 -0.850651 -3
-vertex -0.525731 -0.850651 -3
-end
-
-begin
-vertex 0.850651 0 -2.474269
-vertex 0 -0.525731 -2.149349
-vertex 0 0.525731 -2.149349
-end
-
-begin
-vertex -0.850651 0 -2.474269
-vertex 0 0.525731 -2.149349
-vertex 0 -0.525731 -2.149349
-end
-
-begin
-vertex 0 0.525731 -3.850651
-vertex 0.850651 0 -3.525731
-vertex 0.525731 0.850651 -3
-end
-
-begin
-vertex 0 0.525731 -2.149349
-vertex 0.525731 0.850651 -3
-vertex 0.850651 0 -2.474269
-end
-
-begin
-vertex 0 0.525731 -3.850651
-vertex -0.525731 0.850651 -3
-vertex -0.850651 0 -3.525731
-end
-
-begin
-vertex 0 0.525731 -2.149349
-vertex -0.850651 0 -2.474269
-vertex -0.525731 0.850651 -3
-end
-
-begin
-vertex 0 -0.525731 -3.850651
-vertex 0.525731 -0.850651 -3
-vertex 0.850651 0 -3.525731
-end
-
-begin
-vertex 0 -0.525731 -2.149349
-vertex 0.850651 0 -2.474269
-vertex 0.525731 -0.850651 -3
-end
-
-begin
-vertex -0.525731 -0.850651 -3
-vertex 0 -0.525731 -3.850651
-vertex -0.850651 0 -3.525731
-end
-
-begin
-vertex 0 -0.525731 -2.149349
-vertex -0.525731 -0.850651 -3
-vertex -0.850651 0 -2.474269
-end
-
+reset_timer
 write t06.png
+print_timer
 
