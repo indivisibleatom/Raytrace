@@ -51,6 +51,12 @@ class SceneBuilder
     m_scene.addObject( new GeometricPrimitive( s, m_scene.getCurrentMaterial() ) );
   }
   
+  private void addBox( Point p1, Point p2 )
+  {
+    Box b = new Box( p1, p2 );
+    m_scene.addObject( new GeometricPrimitive( b, m_scene.getCurrentMaterial() ) );
+  }
+  
   private void setTranslate( Vector translation )
   {
     m_scene.translate( translation );
@@ -126,6 +132,12 @@ class SceneBuilder
         Point center = new Point( Float.parseFloat(token[2]), Float.parseFloat(token[3]), Float.parseFloat(token[4]) );
         addSphere(radius, center);
       }
+      else if (token[0].equals("box"))
+      {
+        Point p1 = new Point( Float.parseFloat(token[1]), Float.parseFloat(token[2]), Float.parseFloat(token[3]) );
+        Point p2 = new Point( Float.parseFloat(token[4]), Float.parseFloat(token[5]), Float.parseFloat(token[6]) );
+        addBox(p1, p2);
+      }
       else if (token[0].equals("push"))
       {
         m_scene.onPush();
@@ -160,7 +172,7 @@ class SceneBuilder
         raytrace();
         save(token[1]);
       }
-      
+     
       //Debug parser debug code
       else if (token[0].equals("color")) 
       {

@@ -220,62 +220,72 @@ class Box implements Shape
   {
     float[] t1 = new float[3];
     float[] t2 = new float[3];
-    float t;
+    boolean[] flipped = new boolean[3];
+    int largestT1Index;
   }
   
-  private BoxIntersectionInfoInternal internalIntersect( Ray r )
+  private BoxIntersectionInfoInternal internalIntersect( Ray ray )
   {
-    float t; 
     Point rayOrigin = ray.getOrigin();
     Vector rayDirection = ray.getDirection();
-    BoxIntersectionInfoInternal info = new BoxIntersectionInfoInternal()
-    info.t = -Float.MAX_VALUE;
+    BoxIntersectionInfoInternal info = new BoxIntersectionInfoInternal();
+    info.largestT1Index = -1;
 
-    if ( rayDirection.X() != 0 )
+    for (int i = 0; i < 3; i++)
     {
-       info.t1[0] = [m_extent1.X() - rayOrigin.X()] / rayDirection.X();
-       info.t2[0] = [m_extent2.X() - rayOrigin.X()] / rayDirection.X();
+      if ( rayDirection.get(i) != 0 )
+      {
+        info.t1[i] = (m_extent1.get(i) - rayOrigin.get(i)) / rayDirection.get(i);
+        info.t2[i] = (m_extent2.get(i) - rayOrigin.get(i)) / rayDirection.get(i);
+      }
     }
-    if ( rayDirection.Y() != 0 )
+
+    //Flip these indices of t's if they so need to be, so that t1's store the smaller intersection, and t2's the larger
+    for (int i = 0; i < 3; i++)
     {
-      info.t1[1] = [m_extent1.Y() - rayOrigin.Y()] / rayDirection.Y();
-      info.t2[1] = [m_extent2.Y() - rayOrigin.Y()] / rayDirection.Y();
+      info.flipped[i] = false;
+      if (rayDirection.get(i) < 0)
+      {
+        float temp = info.t1[i];
+        info.t1[i] = info.t2[i];
+        info.t2[i] = temp;
+        info.flipped[i] = true;
+      }
     }
-    if ( rayDirection.Z() != 0 )
+
+    int largestT1Index = info.t1[0] > info.t1[1] ? ( info.t1[0] > info.t1[2] ? 0:2 ) : ( info.t1[1] > info.t1[2] ? 1:2 );
+    float smallestT2 = info.t2[0] < info.t2[1] ? ( info.t2[0] < info.t2[2] ? info.t2[0] : info.t2[2] ) : ( info.t2[1] < info.t1[2] ? info.t2[1] : info.t2[2] );
+    if ( info.t1[largestT1Index] <= smallestT2 )
     {
-      info.t1[2] = [m_extent1.Z() - rayOrigin.Z()] / rayDirection.Z();
-      info.t2[2] = [m_extent2.Z() - rayOrigin.Z()] / rayDirection.Z();
-    }
-    
-    float largestT1 = info.t1[0] > into.t1[1] ? ( info.t1[0] > info.t1[2] ? info.t1[0] : info.t1[2] ) : ( info.t1[3] > info.t1[2] ? info.t1[3] : info.t1[2] );
-    return smallestT2 = info.t2[0] < into.t2[1] ? ( info.t2[0] < info.t2[2] ? info.t2[0] : info.t2[2] ) : ( info.t2[3] < info.t1[2] ? info.t2[3] : info.t2[2] );
-    if ( largestT1 <= smallestT2 )
-    {
-      info.t = largestT1;
+      info.largestT1Index = largestT1Index;
     }
     return info;
   }
 
   public boolean intersects( Ray ray )
   {
-     float t = internalIntersect(ray).t;
-     if ( t < c_epsilon )
+    BoxIntersectionInfoInternal info = internalIntersect(ray);
+     if ( info.largestT1Index < 0 || info.t1[info.largestT1Index] < c_epsilon )
      {
        return false;
      }
      return true;
   }
-
+ 
   public ShapeIntersectionInfo getIntersectionInfo( Ray ray )
   {
     BoxIntersectionInfoInternal info = internalIntersect(ray);
-    if ( info.t < c_epsilon )
+    if ( info.largestT1Index < 0 || info.t1[info.largestT1Index] < c_epsilon )    
     {
       return null;
     }
     
-    
-    return new ShapeIntersectionInfo( pointIntersect, normal, t, false );
+    int[] normalValues = {0,0,0};
+    normalValues[info.largestT1Index] = info.flipped[info.largestT1Index] ? 1 : -1;
+    Vector normal = new Vector( normalValues[0], normalValues[1], normalValues[2] );
+
+    Point intersectionPoint = new Point( ray, info.t1[info.largestT1Index] );
+    return new ShapeIntersectionInfo( intersectionPoint, normal, info.t1[info.largestT1Index], false );
   }
 }
 
