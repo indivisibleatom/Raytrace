@@ -210,10 +210,10 @@ class Box implements Shape
   private Point m_extent1; //In world coordinates, m_extent1 < m_extent2 in all x,y and z
   private Point m_extent2;
   
-  Box( Point point1, Point point2 )
+  Box( Point point1, Point point2, Transformation transformation )
   {
-    m_extent1 = point1;
-    m_extent2 = point2;
+    m_extent1 = transformation.localToWorld( point1 );
+    m_extent2 = transformation.localToWorld( point2 );
   }
   
   private class BoxIntersectionInfoInternal
@@ -238,13 +238,18 @@ class Box implements Shape
         info.t1[i] = (m_extent1.get(i) - rayOrigin.get(i)) / rayDirection.get(i);
         info.t2[i] = (m_extent2.get(i) - rayOrigin.get(i)) / rayDirection.get(i);
       }
+      else
+      {
+        info.t1[i] = -Float.MAX_VALUE;
+        info.t2[i] = Float.MAX_VALUE;
+      }
     }
 
     //Flip these indices of t's if they so need to be, so that t1's store the smaller intersection, and t2's the larger
     for (int i = 0; i < 3; i++)
     {
       info.flipped[i] = false;
-      if (rayDirection.get(i) < 0)
+      if (info.t2[i] < info.t1[i])
       {
         float temp = info.t1[i];
         info.t1[i] = info.t2[i];
@@ -254,7 +259,7 @@ class Box implements Shape
     }
 
     int largestT1Index = info.t1[0] > info.t1[1] ? ( info.t1[0] > info.t1[2] ? 0:2 ) : ( info.t1[1] > info.t1[2] ? 1:2 );
-    float smallestT2 = info.t2[0] < info.t2[1] ? ( info.t2[0] < info.t2[2] ? info.t2[0] : info.t2[2] ) : ( info.t2[1] < info.t1[2] ? info.t2[1] : info.t2[2] );
+    float smallestT2 = info.t2[0] < info.t2[1] ? ( info.t2[0] < info.t2[2] ? info.t2[0] : info.t2[2] ) : ( info.t2[1] < info.t2[2] ? info.t2[1] : info.t2[2] );
     if ( info.t1[largestT1Index] <= smallestT2 )
     {
       info.largestT1Index = largestT1Index;
@@ -281,7 +286,7 @@ class Box implements Shape
     }
     
     int[] normalValues = {0,0,0};
-    normalValues[info.largestT1Index] = info.flipped[info.largestT1Index] ? 1 : -1;
+    normalValues[info.largestT1Index] = (ray.getDirection().get(info.largestT1Index) < 0) ? 1 : -1;
     Vector normal = new Vector( normalValues[0], normalValues[1], normalValues[2] );
 
     Point intersectionPoint = new Point( ray, info.t1[info.largestT1Index] );

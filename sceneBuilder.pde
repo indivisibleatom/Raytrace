@@ -53,7 +53,7 @@ class SceneBuilder
   
   private void addBox( Point p1, Point p2 )
   {
-    Box b = new Box( p1, p2 );
+    Box b = new Box( p1, p2, m_scene.getCurrentTransformation() );
     m_scene.addObject( new GeometricPrimitive( b, m_scene.getCurrentMaterial() ) );
   }
   

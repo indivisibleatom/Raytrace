@@ -1,137 +1,44 @@
-# icosahedron
+# four overlapping boxes of different colors
 
 fov 60
+point_light 0 0 0 1 1 1
+background 0.6 0.6 0.9
 
-# blue background
+push
 
-background 0.2 0.2 1
+translate 0 0 -5
+rotate 20 1 0 0
+rotate -20 0 1 0
 
-# one light
+diffuse 0.8 0.8 0.8  0.2 0.2 0.2
+push
+read box.cli
+pop
 
-point_light 4 4 8  .7 .7 .7
+diffuse 0.8 0.2 0.2  0.2 0.2 0.2
+push
+scale 0.99 0.99 0.99
+rotate 45 0 0 1
+read box.cli
+pop
 
-# icosahedron
+diffuse 0.2 0.8 0.2  0.2 0.2 0.2
+push
+scale 0.99 0.99 0.99
+rotate 45 0 1 0
+read box.cli
+pop
 
-diffuse  .8 .8 .8  .2 .2 .2
+diffuse 0.2 0.2 0.8  0.2 0.2 0.2
+push
+scale 0.99 0.99 0.99
+rotate 45 1 0 0
+read box.cli
+pop
 
-begin
-vertex 0.525731 0.850651 -3
-vertex 0.850651 0 -3.525731
-vertex 0.850651 0 -2.474269
-end
+pop
 
-begin
-vertex 0.850651 0 -3.525731
-vertex 0.525731 -0.850651 -3
-vertex 0.850651 0 -2.474269
-end
-
-begin
-vertex -0.525731 0.850651 -3
-vertex -0.850651 0 -2.474269
-vertex -0.850651 0 -3.525731
-end
-
-begin
-vertex -0.525731 -0.850651 -3
-vertex -0.850651 0 -3.525731
-vertex -0.850651 0 -2.474269
-end
-
-begin
-vertex 0 0.525731 -2.149349
-vertex -0.525731 0.850651 -3
-vertex 0.525731 0.850651 -3
-end
-
-begin
-vertex 0 0.525731 -3.850651
-vertex 0.525731 0.850651 -3
-vertex -0.525731 0.850651 -3
-end
-
-begin
-vertex 0.850651 0 -3.525731
-vertex 0 0.525731 -3.850651
-vertex 0 -0.525731 -3.850651
-end
-
-begin
-vertex -0.850651 0 -3.525731
-vertex 0 -0.525731 -3.850651
-vertex 0 0.525731 -3.850651
-end
-
-begin
-vertex 0 -0.525731 -3.850651
-vertex -0.525731 -0.850651 -3
-vertex 0.525731 -0.850651 -3
-end
-
-begin
-vertex 0 -0.525731 -2.149349
-vertex 0.525731 -0.850651 -3
-vertex -0.525731 -0.850651 -3
-end
-
-begin
-vertex 0.850651 0 -2.474269
-vertex 0 -0.525731 -2.149349
-vertex 0 0.525731 -2.149349
-end
-
-begin
-vertex -0.850651 0 -2.474269
-vertex 0 0.525731 -2.149349
-vertex 0 -0.525731 -2.149349
-end
-
-begin
-vertex 0 0.525731 -3.850651
-vertex 0.850651 0 -3.525731
-vertex 0.525731 0.850651 -3
-end
-
-begin
-vertex 0 0.525731 -2.149349
-vertex 0.525731 0.850651 -3
-vertex 0.850651 0 -2.474269
-end
-
-begin
-vertex 0 0.525731 -3.850651
-vertex -0.525731 0.850651 -3
-vertex -0.850651 0 -3.525731
-end
-
-begin
-vertex 0 0.525731 -2.149349
-vertex -0.850651 0 -2.474269
-vertex -0.525731 0.850651 -3
-end
-
-begin
-vertex 0 -0.525731 -3.850651
-vertex 0.525731 -0.850651 -3
-vertex 0.850651 0 -3.525731
-end
-
-begin
-vertex 0 -0.525731 -2.149349
-vertex 0.850651 0 -2.474269
-vertex 0.525731 -0.850651 -3
-end
-
-begin
-vertex -0.525731 -0.850651 -3
-vertex 0 -0.525731 -3.850651
-vertex -0.850651 0 -3.525731
-end
-
-begin
-vertex 0 -0.525731 -2.149349
-vertex -0.525731 -0.850651 -3
-vertex -0.850651 0 -2.474269
-end
-
+reset_timer
 write t05.png
+print_timer
+
