@@ -30,9 +30,9 @@ class Sphere implements Shape
     float sqrtDelta = sqrt( delta );
     float root1 = (-b + sqrtDelta) / ( 2 * a );
     float root2 = (-b - sqrtDelta) / ( 2 * a );
-    if (root1 < 0 && root2 < 0)
+    if (root1 < c_epsilon && root2 < c_epsilon)
       return false;
-    return true;    
+    return true;
   }
   
   private ShapeIntersectionInfo intersectionInfoCanonical( Ray ray, float scaleNormal )
@@ -52,12 +52,12 @@ class Sphere implements Shape
       float sqrtDelta = sqrt( delta );
       float root1 = (-b + sqrtDelta) / ( 2 * a );
       float root2 = (-b - sqrtDelta) / ( 2 * a );
-      if (root1 < 0 && root2 < 0)
+      if (root1 < c_epsilon && root2 < c_epsilon)
       {
         return null;
       }
       float minT;
-      if ( root1 > 0 && ( root1 < root2 || root2 < 0 ) )
+      if ( root1 > c_epsilon && ( root1 < root2 || root2 < 0 ) )
       {
         minT = root1;
       }
@@ -149,7 +149,7 @@ class Triangle implements Shape
 
     Vector rayOrigToPlane = new Vector( ray.getOrigin(), m_vertices[0] );
     float t = rayOrigToPlane.dot( m_normal ) / denominator;
-    if ( t < 0 )
+    if ( t < c_epsilon )
     {
       return false;
     }
@@ -194,13 +194,88 @@ class Triangle implements Shape
     Vector rayOrigToPlane = new Vector( ray.getOrigin(), m_vertices[0] );
     float t = rayOrigToPlane.dot( m_normal ) / denominator;
     
-    if ( t < 0 )
+    if ( t < c_epsilon )
     {
       return null;
     }
     
     Point inPlane = new Point( ray, t );
     return new ShapeIntersectionInfo( inPlane, m_normal, t, true );
+  }
+}
+
+//Class for bounds checking as well as intersection
+class Box implements Shape
+{
+  private Point m_extent1; //In world coordinates, m_extent1 < m_extent2 in all x,y and z
+  private Point m_extent2;
+  
+  Box( Point point1, Point point2 )
+  {
+    m_extent1 = point1;
+    m_extent2 = point2;
+  }
+  
+  private class BoxIntersectionInfoInternal
+  {
+    float[] t1 = new float[3];
+    float[] t2 = new float[3];
+    float t;
+  }
+  
+  private BoxIntersectionInfoInternal internalIntersect( Ray r )
+  {
+    float t; 
+    Point rayOrigin = ray.getOrigin();
+    Vector rayDirection = ray.getDirection();
+    BoxIntersectionInfoInternal info = new BoxIntersectionInfoInternal()
+    info.t = -Float.MAX_VALUE;
+
+    if ( rayDirection.X() != 0 )
+    {
+       info.t1[0] = [m_extent1.X() - rayOrigin.X()] / rayDirection.X();
+       info.t2[0] = [m_extent2.X() - rayOrigin.X()] / rayDirection.X();
+    }
+    if ( rayDirection.Y() != 0 )
+    {
+      info.t1[1] = [m_extent1.Y() - rayOrigin.Y()] / rayDirection.Y();
+      info.t2[1] = [m_extent2.Y() - rayOrigin.Y()] / rayDirection.Y();
+    }
+    if ( rayDirection.Z() != 0 )
+    {
+      info.t1[2] = [m_extent1.Z() - rayOrigin.Z()] / rayDirection.Z();
+      info.t2[2] = [m_extent2.Z() - rayOrigin.Z()] / rayDirection.Z();
+    }
+    
+    float largestT1 = info.t1[0] > into.t1[1] ? ( info.t1[0] > info.t1[2] ? info.t1[0] : info.t1[2] ) : ( info.t1[3] > info.t1[2] ? info.t1[3] : info.t1[2] );
+    return smallestT2 = info.t2[0] < into.t2[1] ? ( info.t2[0] < info.t2[2] ? info.t2[0] : info.t2[2] ) : ( info.t2[3] < info.t1[2] ? info.t2[3] : info.t2[2] );
+    if ( largestT1 <= smallestT2 )
+    {
+      info.t = largestT1;
+    }
+    return info;
+  }
+
+  public boolean intersects( Ray ray )
+  {
+     float t = internalIntersect(ray).t;
+     if ( t < c_epsilon )
+     {
+       return false;
+     }
+     return true;
+  }
+
+  public ShapeIntersectionInfo getIntersectionInfo( Ray ray )
+  {
+    BoxIntersectionInfoInternal info = internalIntersect(ray);
+    if ( info.t < c_epsilon )
+    {
+      return null;
+    }
+    
+    
+    return new ShapeIntersectionInfo( pointIntersect, normal, t, false );
   }
 }
 
