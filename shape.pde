@@ -333,7 +333,6 @@ class Box implements Shape
     }
     
     m_boundingBox = new Box( vertices );
-    setSurfaceArea();
   }
   
   private void setSurfaceArea()
@@ -342,6 +341,10 @@ class Box implements Shape
     for (int i = 0; i < 3; i++)
     {
       length[i] = (m_extent2.get(i) - m_extent1.get(i));     
+      if ( length[i] < 0 )
+      {
+        print("Negative " + m_extent2.get(i) + " " + m_extent1.get(i) + "\n");
+      }
     }
     m_surfaceArea = 2*( length[0]*length[1] + length[1]*length[2] + length[2]*length[0] );
     if ( DEBUG && DEBUG_MODE >= LOW )
@@ -471,11 +474,11 @@ class Box implements Shape
   
   public float getPlaneForFace( int index )
   {
-    if ( index & 1 ) 
+    if ( (index & 1) != 0 ) 
     {
-      return m_extent2[index]; 
+      return m_extent2.get(index); 
     }
-    return m_extent1[index];
+    return m_extent1.get(index);
   }
   
   public float surfaceArea()
@@ -489,14 +492,17 @@ class Box implements Shape
     res.box1 = cloneBox( this );
     res.box2 = cloneBox( this );
     
-    res.box1.m_extent2[faceIndex>>1] = boundingBoxOther.getPlaneForFace( faceIndex );
-    res.box2.m_extent1[faceIndex>>1] = boundingBoxOther.getPlaneForFace( faceIndex );
+    res.box1.m_extent2.set(faceIndex>>1, boundingBoxOther.getPlaneForFace( faceIndex ) );
+    res.box2.m_extent1.set(faceIndex>>1, boundingBoxOther.getPlaneForFace( faceIndex ) );
     return res;
   }
+  
+  public Point extent1() { return m_extent1; }
+  public Point extent2() { return m_extent2; }
 }
 
 Box cloneBox( Box other )
 {
-  Box newBox = new Box( Point( other.extent1 ), Point( other.extent2 ), null );
+  Box newBox = new Box( clonePt( other.extent1() ), clonePt( other.extent2() ), null );
   return newBox;
 }

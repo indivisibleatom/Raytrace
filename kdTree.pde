@@ -1,5 +1,5 @@
-float traversalCost = 20;
-float intersectionCost = 1;
+float traversalCost = 1;
+float intersectionCost = 80;
 
 class KDTreeNode
 {
@@ -130,11 +130,13 @@ class KDTree implements Shape
     {
       m_nodes.add( new KDTreeNode( minSplitPlane, minSplitPlaneDirection ) );
       int indexAdded = m_nodes.size() - 1;
+
       int left = recursiveCreate( minLeftIndices, minSplitResult.box1 );
       if ( minSplitPlaneDirection == -1 )
       {
         minSplitPlaneDirection = 3;
       }
+
       int right = recursiveCreate( minLeftIndices, minSplitResult.box2 );
       int otherChild = right<<2;
       m_nodes.get(indexAdded).setOtherChild( otherChild );
@@ -152,11 +154,42 @@ class KDTree implements Shape
     return m_boundingBox;
   }
   
+  private boolean intersectRecursive( Integer nodeIndex, Ray ray, float tMin, float tMax )
+  {
+    int axis = m_nodes.get(nodeIndex).getType();
+    if ( axis == 3 )
+    {
+      for ( int i = 0; i < m_indices.size(); i++ )
+      {
+        if ( m_objects.get( m_indices.get(i) ).intersects( ray )
+        {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    int intersectionInfo = 
+    int splitPos = m_nodes.get(nodeIndex).getSplitPlane();
+    float tSplit = (split - ray.getPosition().get(axis))/ray.getDirection(axis);
+    if ( axis == 0 ) //x axis
+    {
+      if ( tSplit < 
+      
+    }
+  }
+  
   public boolean intersects( Ray ray )
   {
+    if ( !m_boundingBox.intersects( ray ) )
+    {
+      return false;
+    }
+    intersectRecursive( 
   }
   
   public ShapeIntersectionInfo getIntersectionInfo( Ray ray )
   {
+    return null;
   }
 }

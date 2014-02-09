@@ -61,7 +61,7 @@ class Point
     m_p[1] = y;
     m_p[2] = z;
   }
-  
+  void set( int index, float value ) { m_p[index] = value; }
   void setX( float x ) { m_p[0] = x; }
   void setY( float y ) { m_p[1] = y; }
   void setZ( float z ) { m_p[2] = z; }
