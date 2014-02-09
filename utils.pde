@@ -62,6 +62,10 @@ class Point
     m_p[2] = z;
   }
   
+  void setX( float x ) { m_p[0] = x; }
+  void setY( float y ) { m_p[1] = y; }
+  void setZ( float z ) { m_p[2] = z; }
+  
   void toNormalizedCoordinates(float scaleX, float scaleY, float scaleZ)
   {
     m_p[0] /= scaleX;
