@@ -233,6 +233,12 @@ class Triangle implements Shape
   }
 }
 
+class SplitResult
+{
+  Box box1;
+  Box box2;
+}
+
 //Class for bounds checking as well as intersection. Handles axis aligned bounding boxes
 class Box implements Shape
 {
@@ -240,6 +246,7 @@ class Box implements Shape
   private Point m_extent2;
   Box m_boundingBox;
   Transformation m_transformation;
+  float m_surfaceArea;
   
   Box( Point point1, Point point2, Transformation transformation )
   {
@@ -257,6 +264,7 @@ class Box implements Shape
       m_extent2 = transformation.localToWorld( point2 );
       calculateAxisAligned();
     }
+    setSurfaceArea();
   }
   
   //creates a bounding box from a collection of points
@@ -287,6 +295,7 @@ class Box implements Shape
     m_extent1 = new Point( vertices[minIndex[0]].X(), vertices[minIndex[1]].Y(), vertices[minIndex[2]].Z() );
     m_extent2 = new Point( vertices[maxIndex[0]].X(), vertices[maxIndex[1]].Y(), vertices[maxIndex[2]].Z() );
     m_boundingBox = this;
+    setSurfaceArea();
   }
   
   private void calculateAxisAligned()
@@ -324,6 +333,24 @@ class Box implements Shape
     }
     
     m_boundingBox = new Box( vertices );
+    setSurfaceArea();
+  }
+  
+  private void setSurfaceArea()
+  {
+    float[] length = new float[3];
+    for (int i = 0; i < 3; i++)
+    {
+      length[i] = (m_extent2.get(i) - m_extent1.get(i));     
+    }
+    m_surfaceArea = 2*( length[0]*length[1] + length[1]*length[2] + length[2]*length[0] );
+    if ( DEBUG && DEBUG_MODE >= LOW )
+    {
+      if (m_surfaceArea < 0)
+      {
+        print("Surface area is negative!!\n");
+      }
+    }
   }
   
   private class BoxIntersectionInfoInternal
@@ -410,7 +437,7 @@ class Box implements Shape
 
     return info;
   }
-
+  
   public Box getBoundingBox()
   {
     return m_boundingBox;
@@ -441,5 +468,35 @@ class Box implements Shape
     Point intersectionPoint = new Point( ray, info.t1[info.largestT1Index] );
     return new ShapeIntersectionInfo( intersectionPoint, normal, info.t1[info.largestT1Index], false );
   }
+  
+  public float getPlaneForFace( int index )
+  {
+    if ( index & 1 ) 
+    {
+      return m_extent2[index]; 
+    }
+    return m_extent1[index];
+  }
+  
+  public float surfaceArea()
+  {
+    return m_surfaceArea;
+  }
+  
+  public SplitResult split( Box boundingBoxOther, int faceIndex )
+  {
+    SplitResult res = new SplitResult();
+    res.box1 = cloneBox( this );
+    res.box2 = cloneBox( this );
+    
+    res.box1.m_extent2[faceIndex>>1] = boundingBoxOther.getPlaneForFace( faceIndex );
+    res.box2.m_extent1[faceIndex>>1] = boundingBoxOther.getPlaneForFace( faceIndex );
+    return res;
+  }
 }
 
+Box cloneBox( Box other )
+{
+  Box newBox = new Box( Point( other.extent1 ), Point( other.extent2 ), null );
+  return newBox;
+}

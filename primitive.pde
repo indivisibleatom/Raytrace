@@ -8,6 +8,7 @@ interface LightedPrimitive extends Primitive
 {
   public Color getDiffuseCoeffs();
   public Color getAmbientCoeffs();
+  public Box getBoundingBox();
 }
 
 class GeometricPrimitive implements LightedPrimitive
@@ -20,12 +21,17 @@ class GeometricPrimitive implements LightedPrimitive
     m_shape = shape;
     m_material = material;
   }
-    
+
+  public Box getBoundingBox()
+  {
+    return m_shape.getBoundingBox();
+  }
+   
   public boolean intersects( Ray ray )
   {
     return m_shape.intersects( ray );
   }
-
+  
   public IntersectionInfo getIntersectionInfo( Ray ray )
   {
     ShapeIntersectionInfo shapeInfo =  m_shape.getIntersectionInfo( ray );
@@ -54,4 +60,5 @@ class InstancePrimitive implements LightedPrimitive
   public IntersectionInfo getIntersectionInfo( Ray ray ) { return m_primitive.getIntersectionInfo( ray ); }
   public Color getDiffuseCoeffs() { return m_primitive.getDiffuseCoeffs(); }
   public Color getAmbientCoeffs() { return m_primitive.getAmbientCoeffs(); }
+  public Box getBoundingBox() { return m_primitive.getBoundingBox(); }
 }
