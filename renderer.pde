@@ -1,3 +1,7 @@
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
 interface Renderer
 {
   public void render( Scene scene );
@@ -17,22 +21,19 @@ class SamplerRenderer implements Renderer
   {
     int cores = Runtime.getRuntime().availableProcessors();
     int numTasks = 25;
-    ArrayList<Thread> workerThreads = new ArrayList<Thread>();
+    ExecutorService pool = Executors.newFixedThreadPool(2*cores);
     for (int i = 0; i < numTasks; i++)
     {
       SamplerRenderingTask task = new SamplerRenderingTask( scene, m_sampler, numTasks, i );
       Thread t = new Thread(task);
-      workerThreads.add(t);
-      t.start();
+      pool.submit(t);
     }
-    for (int i = 0; i < workerThreads.size(); i++)
+    pool.shutdown();
+    try
     {
-        try
-        {
-          workerThreads.get(i).join();
-        } catch ( InterruptedException ex )
-        {
-        }
+      pool.awaitTermination(Long.MAX_VALUE, TimeUnit.SECONDS);
+    } catch ( InterruptedException ex )
+    {
     }
     scene.getCamera().getFilm().draw();
   }

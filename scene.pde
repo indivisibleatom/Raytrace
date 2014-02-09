@@ -1,3 +1,6 @@
+import java.util.*;
+
+//Profiling information
 class Scene
 {
   private Camera m_camera;
@@ -46,7 +49,10 @@ class Scene
 
   public void raytrace()
   {
+    long startTime = System.currentTimeMillis();
     m_renderer.render( this );
+    long endTime = System.currentTimeMillis();
+    print( "Time taken " + (endTime - startTime)/1000.0 + "seconds\n");
   }
   
   //Light commands

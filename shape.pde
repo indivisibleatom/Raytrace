@@ -1,5 +1,6 @@
 interface Shape
 {
+  public Box getBoundingBox();
   public boolean intersects( Ray ray );
   public ShapeIntersectionInfo getIntersectionInfo( Ray ray );
 }
@@ -7,6 +8,7 @@ interface Shape
 class Sphere implements Shape
 {
   Transformation m_transformation;
+  Box m_boundingBox;
 
   Sphere( float radius, Point center, Transformation transformation )
   {
@@ -14,6 +16,9 @@ class Sphere implements Shape
     m_transformation.apply( transformation );
     m_transformation.translate( new Vector( c_origin, center ) );
     m_transformation.scale( radius );
+    
+    m_boundingBox = new Box( new Point(-1,-1,-1), new Point(1,1,1), m_transformation );
+    m_boundingBox = m_boundingBox.getBoundingBox();
   }
   
   private boolean intersectsCanonical( Ray ray )
@@ -76,9 +81,19 @@ class Sphere implements Shape
       return new ShapeIntersectionInfo( intersectionPoint, normal, minT * scaleNormal, false );
     }
   }
-  
+
+  public Box getBoundingBox()
+  {
+    return m_boundingBox;
+  }
+    
   public boolean intersects( Ray ray )
   {
+    if ( !m_boundingBox.intersects( ray ) )
+    {
+      return false;
+    }
+
     RayTransformFeedback feedBack = new RayTransformFeedback();
     Ray rayLocal = m_transformation.worldToLocal( ray, feedBack );
     return intersectsCanonical( rayLocal );
@@ -99,6 +114,7 @@ class Triangle implements Shape
   Point[] m_vertices;
   Point[] m_projectedVertices;
   Vector m_normal;
+  Box m_boundingBox;
 
   Triangle( Point p1, Point p2, Point p3, Transformation transformation )
   {
@@ -137,10 +153,22 @@ class Triangle implements Shape
       m_projectedVertices[1].set( m_projectedVertices[1].X(), m_projectedVertices[1].Y(), 0 );
       m_projectedVertices[2].set( m_projectedVertices[2].X(), m_projectedVertices[2].Y(), 0 );
     }
+    
+    m_boundingBox = new Box( m_vertices ).getBoundingBox();
+  }
+  
+  public Box getBoundingBox()
+  {
+    return m_boundingBox;
   }
   
   public boolean intersects( Ray ray )
   {
+    if ( !m_boundingBox.intersects( ray ) )
+    {
+      return false;
+    }
+
     float denominator = ray.getDirection().dot( m_normal );
     if ( denominator == 0 )
     {
@@ -204,16 +232,97 @@ class Triangle implements Shape
   }
 }
 
-//Class for bounds checking as well as intersection
+//Class for bounds checking as well as intersection. Handles axis aligned bounding boxes
 class Box implements Shape
 {
   private Point m_extent1; //In world coordinates, m_extent1 < m_extent2 in all x,y and z
   private Point m_extent2;
+  Box m_boundingBox;
+  Transformation m_transformation;
   
   Box( Point point1, Point point2, Transformation transformation )
   {
-    m_extent1 = transformation.localToWorld( point1 );
-    m_extent2 = transformation.localToWorld( point2 );
+    if ( transformation == null ) //If no transformation, treat this as an untransformed box.
+    {     
+      m_extent1 = point1;
+      m_extent2 = point2;
+      m_boundingBox = this;
+    }
+    else
+    {
+      m_transformation = new Transformation();
+      m_transformation.apply(transformation);
+      m_extent1 = transformation.localToWorld( point1 );
+      m_extent2 = transformation.localToWorld( point2 );
+      calculateAxisAligned();
+    }
+  }
+  
+  //creates a bounding box from a collection of points
+  Box( Point[] vertices )
+  {
+    int[] minIndex = new int[3]; //An index of min for each coordinate
+    int[] maxIndex = new int[3]; //An index of max for each coordinate
+ 
+    //Fill with init values -- perhaps they work out to be good?
+    Arrays.fill( minIndex, 0 );
+    Arrays.fill( maxIndex, 0 );
+ 
+    for ( int i = 1; i < vertices.length; i++ )
+    {
+      for (int j = 0; j < 3; j++)
+      {
+        if ( vertices[i].get(j) < vertices[minIndex[j]].get(j) )
+        {
+          minIndex[j] = i;
+        }
+        if ( vertices[i].get(j) > vertices[maxIndex[j]].get(j) )
+        {
+          maxIndex[j] = i;
+        }
+      }
+    }
+    
+    m_extent1 = new Point( vertices[minIndex[0]].X(), vertices[minIndex[1]].Y(), vertices[minIndex[2]].Z() );
+    m_extent2 = new Point( vertices[maxIndex[0]].X(), vertices[maxIndex[1]].Y(), vertices[maxIndex[2]].Z() );
+    m_boundingBox = this;
+  }
+  
+  private void calculateAxisAligned()
+  {
+    Point[] vertices = new Point[8];
+    for (int i = 0; i < vertices.length; i++)
+    {
+      vertices[i] = new Point(0, 0, 0);
+      if ( i < 4 )
+      {
+        vertices[i].setX( m_extent1.X() );
+      }
+      else
+      {
+        vertices[i].setX( m_extent2.X() );
+      }
+      
+      if ( i < 2 || i > 5 )
+      {
+        vertices[i].setY( m_extent1.Y() );
+      }
+      else
+      {
+        vertices[i].setY( m_extent2.Y() );
+      }
+      
+      if ( (i & 1) == 0 )
+      {
+        vertices[i].setZ( m_extent1.Z() );
+      }
+      else
+      {
+        vertices[i].setZ( m_extent2.Z() );
+      }
+    }
+    
+    m_boundingBox = new Box( vertices );
   }
   
   private class BoxIntersectionInfoInternal
@@ -235,8 +344,8 @@ class Box implements Shape
     {
       if ( rayDirection.get(i) != 0 )
       {
-        info.t1[i] = (m_extent1.get(i) - rayOrigin.get(i)) / rayDirection.get(i);
-        info.t2[i] = (m_extent2.get(i) - rayOrigin.get(i)) / rayDirection.get(i);
+        info.t1[i] = (m_boundingBox.m_extent1.get(i) - rayOrigin.get(i)) / rayDirection.get(i);
+        info.t2[i] = (m_boundingBox.m_extent2.get(i) - rayOrigin.get(i)) / rayDirection.get(i);
       }
       else
       {
@@ -265,6 +374,11 @@ class Box implements Shape
       info.largestT1Index = largestT1Index;
     }
     return info;
+  }
+
+  public Box getBoundingBox()
+  {
+    return m_boundingBox;
   }
 
   public boolean intersects( Ray ray )
