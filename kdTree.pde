@@ -69,8 +69,11 @@ class KDTree implements Primitive
   {
     m_objects = objects;
     ArrayList<Integer> indices = new ArrayList<Integer>();
+
     //Init with first bounding box
     m_boundingBox = cloneBox( objects.get(0).getBoundingBox() );
+    indices.add(0);
+
     for (int i = 1; i < objects.size(); i++)
     {
       indices.add(i);

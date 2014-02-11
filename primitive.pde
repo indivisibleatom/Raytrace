@@ -37,7 +37,7 @@ class GeometricPrimitive implements LightedPrimitive
     ShapeIntersectionInfo shapeInfo =  m_shape.getIntersectionInfo( ray );
     if ( shapeInfo == null )
     {
-      if (DEBUG && DEBUG_MODE >= LOW)
+      if (DEBUG && DEBUG_MODE >= VERBOSE)
       {
         print("ShapeInfo is null. This should not happen\n");
       }

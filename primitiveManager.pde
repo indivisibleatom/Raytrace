@@ -27,6 +27,6 @@ class PrimitiveManager
   
   public IntersectionInfo getIntersectionInfo( Ray ray )
   {
-    return m_kdTree.getIntersectionInfo( ray );
+    return m_kdTree.getIntersectionInfo( ray );   
   }
 }

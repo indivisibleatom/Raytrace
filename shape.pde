@@ -214,6 +214,10 @@ class Triangle implements Shape
   
   public ShapeIntersectionInfo getIntersectionInfo( Ray ray )
   {
+    if ( !intersects( ray ) )
+    {
+      return null;
+    }
     float denominator = ray.getDirection().dot( m_normal );
     if ( denominator == 0 )
     {
@@ -463,7 +467,7 @@ class Box implements Shape
 
   public boolean intersects( Ray ray )
   {
-    BoxIntersectionInfoInternal info = internalIntersect(ray);
+     BoxIntersectionInfoInternal info = internalIntersect(ray);
      if ( info.largestT1Index < 0 || info.t1[info.largestT1Index] < c_epsilon )
      {
        return false;
