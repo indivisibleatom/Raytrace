@@ -50,6 +50,7 @@ class Scene
   public void raytrace()
   {
     long startTime = System.currentTimeMillis();
+    m_sceneManager.buildScene();    
     m_renderer.render( this );
     long endTime = System.currentTimeMillis();
     print( "Time taken " + (endTime - startTime)/1000.0 + "seconds\n");

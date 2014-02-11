@@ -2,10 +2,12 @@
 class PrimitiveManager
 {
   private ArrayList<LightedPrimitive> m_primitives;
+  private KDTree m_kdTree;
   
   PrimitiveManager()
   {
     m_primitives = new ArrayList<LightedPrimitive>();
+    m_kdTree = new KDTree();
   }
   
   public void addPrimitive( LightedPrimitive primitive )
@@ -13,37 +15,18 @@ class PrimitiveManager
     m_primitives.add(primitive);
   }
   
+  public void buildScene()
+  {
+    m_kdTree.create( m_primitives );
+  }
+  
   public boolean intersects( Ray ray )
   {
-    for (int i = 0; i < m_primitives.size(); i++)
-    {
-      if ( m_primitives.get(i).intersects( ray ) == true )
-      {
-        return true;
-      }
-    }
-    return false;
+    return m_kdTree.intersects( ray );
   }
   
   public IntersectionInfo getIntersectionInfo( Ray ray )
   {
-    float minT = Float.MAX_VALUE;   
-    IntersectionInfo minIntersectionInfo = null;
-    for (int i = 0; i < m_primitives.size(); i++)
-    {
-      if ( m_primitives.get(i).intersects( ray ) == true )
-      {
-        IntersectionInfo info = m_primitives.get(i).getIntersectionInfo( ray );
-        if ( info != null )
-        {
-          if ( info.t() < minT )
-          {
-            minIntersectionInfo = info;
-            minT = info.t();
-          }
-        }
-      }
-    }
-    return minIntersectionInfo;
+    return m_kdTree.getIntersectionInfo( ray );
   }
 }

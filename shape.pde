@@ -445,6 +445,21 @@ class Box implements Shape
   {
     return m_boundingBox;
   }
+  
+  public void grow( Box other )
+  {
+    for (int i = 0; i < 3; i++)
+    {
+      if ( m_extent1.get(i) > other.m_extent1.get(i) )
+      {
+        m_extent1.set( i, other.m_extent1.get(i) );
+      }
+      if ( m_extent2.get(i) < other.m_extent2.get(i) )
+      {
+        m_extent2.set( i, other.m_extent2.get(i) );
+      }
+    }
+  }
 
   public boolean intersects( Ray ray )
   {
@@ -499,6 +514,14 @@ class Box implements Shape
   
   public Point extent1() { return m_extent1; }
   public Point extent2() { return m_extent2; }
+  
+  public void debugPrint()
+  {
+    print("Begin Box :\n");
+    m_extent1.debugPrint();
+    m_extent2.debugPrint();
+    print("End Box :\n");
+  }
 }
 
 Box cloneBox( Box other )

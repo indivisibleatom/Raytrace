@@ -16,45 +16,38 @@ class SamplerRenderingTask implements Task
   private Color computeRadiance( Ray ray )
   {
     LightManager lightManager = m_scene.getLightManager();
-    if ( m_scene.intersects( ray ) )
-    {
-      IntersectionInfo info = m_scene.getIntersectionInfo( ray );
-      if ( info == null ) // Can be the case when the t value is negative
-      {
-        return lightManager.getAmbient();
-      }
-      Color pixelColor = cloneCol( info.primitive().getAmbientCoeffs() );
-      for (int i = 0; i < lightManager.getNumLights(); i++)
-      {
-        Light light = lightManager.getLight(i);
-        Ray shadowRay = light.getRay( info.point() );
-
-        if ( !m_scene.intersects( shadowRay ) )
-        {
-          float cosine = info.normal().dot( shadowRay.getDirection() );
-          if ( cosine < 0 ) //Dual sided lighting
-          {
-            if ( info.fDualSided() )
-            {
-              cosine = -cosine;
-            }
-            else
-            {
-              cosine = 0;
-            }
-          }
-          float mag = shadowRay.getDirection().getMagnitude();
-          Color lightColor = combineColor( info.primitive().getDiffuseCoeffs(), light.getColor() );
-          lightColor.scale( cosine );
-          pixelColor.add( lightColor );
-        }
-      }
-      return pixelColor;
-    }
-    else
+    IntersectionInfo info = m_scene.getIntersectionInfo( ray );
+    if ( info == null ) // Can be the case when the t value is negative
     {
       return lightManager.getAmbient();
     }
+    Color pixelColor = cloneCol( info.primitive().getAmbientCoeffs() );
+    for (int i = 0; i < lightManager.getNumLights(); i++)
+    {
+      Light light = lightManager.getLight(i);
+      Ray shadowRay = light.getRay( info.point() );
+
+      if ( !m_scene.intersects( shadowRay ) )
+      {
+        float cosine = info.normal().dot( shadowRay.getDirection() );
+        if ( cosine < 0 ) //Dual sided lighting
+        {
+          if ( info.fDualSided() )
+          {
+            cosine = -cosine;
+          }
+          else
+          {
+            cosine = 0;
+          }
+        }
+        float mag = shadowRay.getDirection().getMagnitude();
+        Color lightColor = combineColor( info.primitive().getDiffuseCoeffs(), light.getColor() );
+        lightColor.scale( cosine );
+        pixelColor.add( lightColor );
+      }
+    }
+    return pixelColor;
   }
   
   public void run()

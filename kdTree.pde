@@ -48,7 +48,7 @@ class KDTreeNode
 }
 
 //Start with naive
-class KDTree implements Shape
+class KDTree implements Primitive
 {
   private Box m_boundingBox;
   private ArrayList<LightedPrimitive> m_objects;
@@ -57,7 +57,6 @@ class KDTree implements Shape
   KDTree()
   {
     m_nodes = new ArrayList<KDTreeNode>();
-    m_boundingBox = new Box( new Point(0,0,0), new Point(0,0,0), null );
   }
   
   private float findCost( float probLeft, float probRight, int numLeft, int numRight )
@@ -70,12 +69,15 @@ class KDTree implements Shape
   {
     m_objects = objects;
     ArrayList<Integer> indices = new ArrayList<Integer>();
-    for (int i = 0; i < objects.size(); i++)
+    //Init with first bounding box
+    m_boundingBox = cloneBox( objects.get(0).getBoundingBox() );
+    for (int i = 1; i < objects.size(); i++)
     {
       indices.add(i);
-      //m_boundingBox.grow( objects.get(i).getBoundingBox() );
+      m_boundingBox.grow( objects.get(i).getBoundingBox() );
     }
-    recursiveCreate( indices, m_boundingBox );
+    m_boundingBox.debugPrint();
+    //recursiveCreate( indices, m_boundingBox );
   }
 
   //Trivial sorting implementation right now
@@ -154,7 +156,7 @@ class KDTree implements Shape
     return m_boundingBox;
   }
   
-  private boolean intersectRecursive( Integer nodeIndex, Ray ray, float tMin, float tMax )
+  /*private boolean intersectRecursive( Integer nodeIndex, Ray ray, float tMin, float tMax )
   {
     int axis = m_nodes.get(nodeIndex).getType();
     if ( axis == 3 )
@@ -174,10 +176,9 @@ class KDTree implements Shape
     float tSplit = (split - ray.getPosition().get(axis))/ray.getDirection(axis);
     if ( axis == 0 ) //x axis
     {
-      if ( tSplit < 
-      
     }
-  }
+    return false;
+  }*/
   
   public boolean intersects( Ray ray )
   {
@@ -185,11 +186,38 @@ class KDTree implements Shape
     {
       return false;
     }
-    intersectRecursive( 
+    for ( int i = 0; i < m_objects.size(); i++ )
+    {
+      if ( m_objects.get(i).intersects( ray ) )
+      {
+        return true;
+      }
+    }
+    return false;
   }
   
-  public ShapeIntersectionInfo getIntersectionInfo( Ray ray )
+  public IntersectionInfo getIntersectionInfo( Ray ray )
   {
-    return null;
+    if ( !m_boundingBox.intersects( ray ) )
+    {
+      return null;
+    }
+
+    IntersectionInfo minIntersectionInfo = null;
+    float minT = Float.MAX_VALUE;   
+
+    for ( int i = 0; i < m_objects.size(); i++ )
+    {
+      IntersectionInfo info = m_objects.get(i).getIntersectionInfo( ray );
+      if ( info != null )
+      {
+        if ( info.t() < minT )
+        {
+          minIntersectionInfo = info;
+          minT = info.t();
+        }
+      }
+    }
+    return minIntersectionInfo;
   }
 }

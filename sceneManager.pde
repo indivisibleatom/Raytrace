@@ -21,6 +21,11 @@ class SceneManager
     m_currentMaterial = new Material( ambient, diffuse );
   }
   
+  public void buildScene()
+  {
+    m_primitiveManager.buildScene();
+  }
+  
   public Material getCurrentMaterial()
   {
     return m_currentMaterial;
