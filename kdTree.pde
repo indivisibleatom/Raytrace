@@ -196,10 +196,12 @@ class KDTree implements Primitive
     for ( int i = 0; i < indices.size(); i++ )
     {
       localInfo = m_objects.get( indices.get(i) ).getIntersectionInfo( ray, tMin, tMax );
-      if ( info == null || localInfo.t() < info.t() )
+      if ( localInfo != null && ( info == null || localInfo.t() < info.t() ) )
       {
-        print("Here" + indices.get(i) + " " );
         info = localInfo;
+      }
+      else
+      {
       }
     }
     return info;
@@ -239,9 +241,7 @@ class KDTree implements Primitive
       {
         print("Traversal " + m_nodes.get(nodeIndex).getIndices() + "\n");
       }
-      print("Here Mukul\n");
       IntersectionInfo ret = getIntersectionInfoLeaf( nodeIndex, ray, tMin, tMax );
-      print("Here Mukul" + ret + "\n");
       return ret;
     }
   
@@ -281,7 +281,7 @@ class KDTree implements Primitive
         print("\n");
       }
        IntersectionInfo ret = getIntersectionInfoRecursive( farChild, ray, tMin, tMax );
-       print(ret);
+       //print(ret);
        return ret;
     }
     else if ( tSplit >= tMax )
@@ -292,7 +292,7 @@ class KDTree implements Primitive
         print("\n");
       }
       IntersectionInfo ret = getIntersectionInfoRecursive( nearChild, ray, tMin, tMax );
-      print(ret);
+      //print(ret);
       return ret;
     }
     else
@@ -305,11 +305,11 @@ class KDTree implements Primitive
       IntersectionInfo info = getIntersectionInfoRecursive( nearChild, ray, tMin, tSplit );
       if ( info != null )
       {
-        print(info);
+        //print(info);
         return info;
       }
       IntersectionInfo ret = getIntersectionInfoRecursive( farChild, ray, tSplit, tMax );
-      print(ret);
+      //print(ret);
       return ret;
     }
   }
@@ -372,10 +372,6 @@ class KDTree implements Primitive
     float[] tExtents = m_boundingBox.getIntersectionExtents( ray );
     IntersectionInfo intersectionInfo = null;
     intersectionInfo = getIntersectionInfoRecursive( 0, ray, tExtents[0], tExtents[1] );
-    if (intersectionInfo != null)
-    {
-      print("Here");
-    }
     /*if ( tExtents != null )
     {
       IntersectionInfo localInfo = null;
