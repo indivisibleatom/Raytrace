@@ -115,6 +115,11 @@ class Vector
     return m_v[index];
   }
   
+  void set( int index, float value ) { m_v[index] = value; }
+  void setX( float x ) { m_v[0] = x; }
+  void setY( float y ) { m_v[1] = y; }
+  void setZ( float z ) { m_v[2] = z; }
+  
   public float dot( Vector other )
   {
     float val = 0;
@@ -200,6 +205,12 @@ class Ray
   public void advanceEpsilon()
   {
     m_orig.add( m_dir, c_epsilon );
+  }
+ 
+  public void perturbDirection( int index )
+  {
+    m_dir.set( index, c_epsilon );
+    m_dir.normalize();
   } 
 }
 

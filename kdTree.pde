@@ -72,7 +72,7 @@ class KDTree implements Primitive
 
     //Init with first bounding box
     m_boundingBox = cloneBox( objects.get(0).getBoundingBox() );
-    indices.add(0);
+    indices.add(0);   
 
     for (int i = 1; i < objects.size(); i++)
     {
@@ -119,7 +119,7 @@ class KDTree implements Primitive
           {
             leftIndices.add(indices.get(k));
           }
-          else if ( m_objects.get(indices.get(k)).getBoundingBox().getPlaneForFace(j>>1) >= proposedPlane )
+          else if ( m_objects.get(indices.get(k)).getBoundingBox().getPlaneForFace(j&0xFFFFFFFE) >= proposedPlane )
           {
             rightIndices.add(indices.get(k));
           }
@@ -214,19 +214,50 @@ class KDTree implements Primitive
     }
     return intersect;
   } 
+  
+  private void printTree( int nodeIndex )
+  {
+    int axis = m_nodes.get(nodeIndex).getType();
+    if ( axis == 3)
+    {
+      print( m_nodes.get(nodeIndex).getIndices() );
+    }
+    else
+    {
+      printTree( nodeIndex + 1 );
+      printTree( m_nodes.get(nodeIndex).getOtherChild() );
+    }
+  }
 
   private IntersectionInfo getIntersectionInfoRecursive( Integer nodeIndex, Ray ray, float tMin, float tMax )
   {
     int axis = m_nodes.get(nodeIndex).getType();
     if ( axis == 3 )
     {
+      if ( DEBUG && DEBUG_MODE >= VERBOSE )
+      {
+        print("Traversal " + m_nodes.get(nodeIndex).getIndices() + "\n");
+      }
       return getIntersectionInfoLeaf( nodeIndex, ray, tMin, tMax );
     }
-
+  
     float splitPos = m_nodes.get(nodeIndex).getSplitPlane();
-    float tSplit = (splitPos - ray.getOrigin().get(axis))/ray.getDirection().get(axis);
+    if ( ray.getDirection().get(axis) == 0 )
+    {
+      ray.perturbDirection(axis);
+    }
+    float invDirection = 1/ray.getDirection().get(axis);
+    float tSplit = (splitPos - ray.getOrigin().get(axis))*invDirection;
     int nearChild = 0;
     int farChild = 0;
+
+    if ( DEBUG && DEBUG_MODE >= VERBOSE )
+    {
+      print( nodeIndex + " " + tSplit + " " + tMin + " " + tMax  + " \n");
+      printTree( nodeIndex );
+      print("\n");
+    }
+
     if ( ray.getDirection().get(axis) >= 0 )
     {
       nearChild = nodeIndex + 1;
@@ -240,14 +271,29 @@ class KDTree implements Primitive
 
     if ( tSplit <= tMin )
     {
+      if ( DEBUG && DEBUG_MODE >= VERBOSE )
+      {
+        printTree( farChild );
+        print("\n");
+      }
       return getIntersectionInfoRecursive( farChild, ray, tMin, tMax );
     }
     else if ( tSplit >= tMax )
     {
+      if ( DEBUG && DEBUG_MODE >= VERBOSE )
+      {
+        printTree( nearChild );
+        print("\n");
+      }
       return getIntersectionInfoRecursive( nearChild, ray, tMin, tMax );
     }
     else
     {
+      if ( DEBUG && DEBUG_MODE >= VERBOSE )
+      {
+        printTree( nodeIndex );
+        print("\n");
+      }
       IntersectionInfo info = getIntersectionInfoRecursive( nearChild, ray, tMin, tSplit );
       if ( info != null )
       {
@@ -314,8 +360,8 @@ class KDTree implements Primitive
   {
     float[] tExtents = m_boundingBox.getIntersectionExtents( ray );
     IntersectionInfo intersectionInfo = null;
-    //intersectionInfo = getIntersectionInfoRecursive( 0, ray, tExtents[0], tExtents[1] );
-    if ( tExtents != null )
+    intersectionInfo = getIntersectionInfoRecursive( 0, ray, tExtents[0], tExtents[1] );
+    /*if ( tExtents != null )
     {
       IntersectionInfo localInfo = null;
       for (int i = 0; i < m_objects.size(); i++)
@@ -330,7 +376,7 @@ class KDTree implements Primitive
         }
       }
       //intersectionInfo = getIntersectionInfoRecursive( 0, ray, tExtents[0], tExtents[1] );
-    }
+    }*/
     return intersectionInfo;
   }
 }

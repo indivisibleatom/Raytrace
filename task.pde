@@ -26,10 +26,10 @@ class SamplerRenderingTask implements Task
     {
       Light light = lightManager.getLight(i);
       Ray shadowRay = light.getRay( info.point() );
-
-      if ( !m_scene.intersects( shadowRay ) )
+      
+      return new Color(1,1,1);
+      /*if ( !m_scene.intersects( shadowRay ) )
       {
-        //print("Here");
         float cosine = info.normal().dot( shadowRay.getDirection() );
         if ( cosine < 0 ) //Dual sided lighting
         {
@@ -46,7 +46,7 @@ class SamplerRenderingTask implements Task
         Color lightColor = combineColor( info.primitive().getDiffuseCoeffs(), light.getColor() );
         lightColor.scale( cosine );
         pixelColor.add( lightColor );
-      }
+      }*/
     }
     return pixelColor;
   }
@@ -54,6 +54,10 @@ class SamplerRenderingTask implements Task
   public void run()
   {
     Sample sample = m_sampler.getNextSample();
+    /*for (int i = 0; i < 30; i++)
+    {
+      sample = m_sampler.getNextSample();
+    }*/
     do
     {
       Ray ray = m_scene.getCamera().getRay(sample);
