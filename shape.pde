@@ -238,6 +238,7 @@ class Triangle implements Shape
   
   public ShapeIntersectionInfo getIntersectionInfo( Ray ray, float tMin, float tMax )
   {
+    //TODO msati3: Remove dependence on intersects
     if ( !intersects( ray, tMin, tMax ) )
     {
       return null;

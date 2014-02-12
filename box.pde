@@ -236,13 +236,22 @@ class Box implements Shape
     BoxIntersectionInfoInternal info = internalIntersect(ray);
     tExtents[0] = info.t1[0];
     tExtents[1] = info.t2[0];
+
+    if ( tExtents[0] < 0 && tExtents[1] < 0 )
+    {
+      return null;
+    }
+    if ( tExtents[0] < 0 )
+    {
+      tExtents[0] = 0;
+    }
     return tExtents;
   }
  
   public ShapeIntersectionInfo getIntersectionInfo( Ray ray, float tMin, float tMax )
   {
     BoxIntersectionInfoInternal info = internalIntersect(ray);
-    if ( info.largestT1Index < 0 || info.t1[info.largestT1Index] < c_epsilon || info.t1[info.largestT1Index] < tMin || info.t1[info.largestT1Index] > tMax )    
+    if ( info.largestT1Index < 0 || info.t1[info.largestT1Index] < c_epsilon || info.t1[info.largestT1Index] < tMin || info.t1[info.largestT1Index] > tMax )
     {
       return null;
     }
@@ -276,8 +285,31 @@ class Box implements Shape
     res.box1 = cloneBox( this );
     res.box2 = cloneBox( this );
     
-    res.box1.m_extent2.set(faceIndex>>1, boundingBoxOther.getPlaneForFace( faceIndex ) );
-    res.box2.m_extent1.set(faceIndex>>1, boundingBoxOther.getPlaneForFace( faceIndex ) );
+    float value = boundingBoxOther.getPlaneForFace( faceIndex );
+    float valueToSet = value;
+    if ( value > m_extent2.get(faceIndex>>1) )
+    {
+      valueToSet = m_extent2.get(faceIndex>>1);
+    }
+    else if ( valueToSet < m_extent1.get(faceIndex>>1) )
+    {
+      valueToSet = m_extent1.get(faceIndex>>1);
+    }
+    res.box1.m_extent2.set(faceIndex>>1, valueToSet );
+    res.box2.m_extent1.set(faceIndex>>1, valueToSet );
+    res.box1.setSurfaceArea();
+    res.box2.setSurfaceArea();
+    if ( DEBUG && DEBUG_MODE >= LOW )
+    {
+      if ( res.box1.surfaceArea() < 0 )
+      {
+        print("Box.split - negative area!" + boundingBoxOther.getPlaneForFace( faceIndex ));
+        this.debugPrint();
+        boundingBoxOther.debugPrint();
+        res.box1.debugPrint();
+        res.box2.debugPrint();
+      }
+    }
     return res;
   }
   
@@ -289,6 +321,14 @@ class Box implements Shape
     print("Begin Box :\n");
     m_extent1.debugPrint();
     m_extent2.debugPrint();
+    
+    float[] length = new float[3];
+    for (int i = 0; i < 3; i++)
+    {
+      length[i] = (m_extent2.get(i) - m_extent1.get(i));     
+      print("Length " + i + " " + length[i] + "\n");
+    }
+    print("Surface area " + m_surfaceArea + "\n");
     print("End Box :\n");
   }
 }

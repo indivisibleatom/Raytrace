@@ -3,48 +3,48 @@ float intersectionCost = 80;
 
 class KDTreeNode
 {
-   float m_splitPlane;
-   int m_otherChildAndType;
-   private ArrayList<Integer> m_indices;
-   
-   KDTreeNode( float splitPlane, int type )
-   {
-     m_splitPlane = splitPlane;
-     m_otherChildAndType = type;
-     m_indices = null;
-   }
+  float m_splitPlane;
+  int m_otherChildAndType;
+  private ArrayList<Integer> m_indices;
 
-   KDTreeNode( ArrayList<Integer> indices, int type )
-   {
-     m_indices = indices;
-     m_otherChildAndType = type;
-     m_splitPlane = -1;
-   }
-   
-   public void setOtherChild( int otherChild )
-   {
-     m_otherChildAndType |= otherChild;
-   }
-   
-   public int getType()
-   {
-     return m_otherChildAndType & 0x3;
-   }
-   
-   public int getOtherChild()
-   {
-     return m_otherChildAndType>>2;
-   }
-   
-   public ArrayList<Integer> getIndices()
-   {
-     return m_indices;
-   }
-   
-   public float getSplitPlane()
-   {
-     return m_splitPlane;
-   }
+  KDTreeNode( float splitPlane, int type )
+  {
+    m_splitPlane = splitPlane;
+    m_otherChildAndType = type;
+    m_indices = null;
+  }
+
+  KDTreeNode( ArrayList<Integer> indices, int type )
+  {
+    m_indices = indices;
+    m_otherChildAndType = type;
+    m_splitPlane = -1;
+  }
+
+  public void setOtherChild( int otherChild )
+  {
+    m_otherChildAndType |= otherChild;
+  }
+
+  public int getType()
+  {
+    return m_otherChildAndType & 0x3;
+  }
+
+  public int getOtherChild()
+  {
+    return m_otherChildAndType>>2;
+  }
+
+  public ArrayList<Integer> getIndices()
+  {
+    return m_indices;
+  }
+
+  public float getSplitPlane()
+  {
+    return m_splitPlane;
+  }
 }
 
 //Start with naive
@@ -53,18 +53,18 @@ class KDTree implements Primitive
   private Box m_boundingBox;
   private ArrayList<LightedPrimitive> m_objects;
   private ArrayList<KDTreeNode> m_nodes;
-  
+
   KDTree()
   {
     m_nodes = new ArrayList<KDTreeNode>();
   }
-  
+
   private float findCost( float probLeft, float probRight, int numLeft, int numRight )
   {
-    float factor = (numLeft == 0 || numRight == 0)? 1 : 1;
+    float factor = (numLeft == 0 || numRight == 0)? 0.8 : 1;
     return factor * (traversalCost + (probLeft*numLeft + probRight*numRight) * intersectionCost);
   }
-  
+
   public void create( ArrayList<LightedPrimitive> objects )
   {
     m_objects = objects;
@@ -79,7 +79,11 @@ class KDTree implements Primitive
       indices.add(i);
       m_boundingBox.grow( objects.get(i).getBoundingBox() );
     }
-    m_boundingBox.debugPrint();
+    m_boundingBox.setSurfaceArea();
+    if ( DEBUG && DEBUG_MODE >= VERBOSE )
+    {   
+      m_boundingBox.debugPrint();
+    }
     recursiveCreate( indices, m_boundingBox );
   }
 
@@ -99,7 +103,7 @@ class KDTree implements Primitive
     ArrayList<Integer> minLeftIndices = new ArrayList<Integer>();
     ArrayList<Integer> minRightIndices = new ArrayList<Integer>();
     SplitResult minSplitResult = null;
-    
+
     float costCurrent = intersectionCost * indices.size();
     float minCost = Float.MAX_VALUE;
     for (int i = 0; i < indices.size(); i++)
@@ -107,31 +111,42 @@ class KDTree implements Primitive
       for (int j = 0; j < 6; j++)
       {
         float proposedPlane = m_objects.get(indices.get(i)).getBoundingBox().getPlaneForFace(j);
+        leftIndices = new ArrayList<Integer>();
+        rightIndices = new ArrayList<Integer>();
         for (int k = 0; k < indices.size(); k++)
         {
-          leftIndices = new ArrayList<Integer>();
-          rightIndices = new ArrayList<Integer>();
           if ( m_objects.get(indices.get(k)).getBoundingBox().getPlaneForFace(j | 1) <= proposedPlane )
           {
-            leftIndices.add(k);
+            leftIndices.add(indices.get(k));
+          }
+          else if ( m_objects.get(indices.get(k)).getBoundingBox().getPlaneForFace(j>>1) >= proposedPlane )
+          {
+            rightIndices.add(indices.get(k));
           }
           else
           {
-            rightIndices.add(k);
+            leftIndices.add(indices.get(k));
+            rightIndices.add(indices.get(k));
           }
-          SplitResult s = box.split( m_objects.get(j).getBoundingBox(), j );
-          float probLeft = s.box1.surfaceArea() / box.surfaceArea();
-          float probRight = s.box2.surfaceArea() / box.surfaceArea();
+        }
+        SplitResult s = box.split( m_objects.get(indices.get(i)).getBoundingBox(), j );
+        float probLeft = s.box1.surfaceArea() / box.surfaceArea();
+        float probRight = s.box2.surfaceArea() / box.surfaceArea();
+        if ( DEBUG && DEBUG_MODE >= LOW )
+        {
+          if ( s.box1.surfaceArea() > box.surfaceArea() )
+          {
+            print("Box Split1 Split2:");
+            box.debugPrint();
+            s.box1.debugPrint();
+            s.box2.debugPrint();
+          }
+        }
+        if ( !( (compare( probLeft, 1 ) ) || (compare( probRight, 1 ) ) ) )
+        {
           float cost = findCost( probLeft, probRight, leftIndices.size(), rightIndices.size() );
           if ( cost < minCost && cost < costCurrent )
           {
-            if ( DEBUG && DEBUG_MODE >= VERBOSE )
-            {
-              print("Costs " + cost + " " + minCost + " " + costCurrent + "\n");
-              box.debugPrint();
-              s.box1.debugPrint();
-              s.box2.debugPrint();  
-            }
             minLeftIndices = leftIndices;
             minRightIndices = rightIndices;
             minCost = cost;
@@ -146,7 +161,7 @@ class KDTree implements Primitive
     {
       if ( DEBUG && DEBUG_MODE >= VERBOSE )
       {
-        print("Adding plane " + minSplitPlane + " direction " + minSplitPlaneDirection + "\n");
+        print("Adding plane " + minSplitPlane + " direction " + minSplitPlaneDirection + " " + minLeftIndices + " " + minRightIndices + "\n");
       }
       m_nodes.add( new KDTreeNode( minSplitPlane, minSplitPlaneDirection ) );
       int indexAdded = m_nodes.size() - 1;
@@ -159,23 +174,32 @@ class KDTree implements Primitive
     }
     else
     {
+      if ( DEBUG && DEBUG_MODE >= VERBOSE )
+      {
+        print("Adding leaf with children " + indices + "\n");
+      }
       m_nodes.add( new KDTreeNode( indices, 3 ) );
       return m_nodes.size() - 1;
     }
   }
-  
+
   public Box getBoundingBox()
   {
     return m_boundingBox;
   }
-  
+
   private IntersectionInfo getIntersectionInfoLeaf( Integer nodeIndex, Ray ray, float tMin, float tMax )
   {
     ArrayList<Integer> indices = m_nodes.get(nodeIndex).getIndices();
     IntersectionInfo info = null;
+    IntersectionInfo localInfo = null;
     for ( int i = 0; i < indices.size(); i++ )
     {
-      info = m_objects.get( indices.get(i) ).getIntersectionInfo( ray, tMin, tMax );
+      localInfo = m_objects.get( indices.get(i) ).getIntersectionInfo( ray, tMin, tMax );
+      if ( info == null || localInfo.t() < info.t() )
+      {
+        info = localInfo;
+      }
     }
     return info;
   }
@@ -232,7 +256,7 @@ class KDTree implements Primitive
       return getIntersectionInfoRecursive( farChild, ray, tSplit, tMax );
     }
   }
-  
+
   private boolean intersectsRecursive( Integer nodeIndex, Ray ray, float tMin, float tMax )
   {
     int axis = m_nodes.get(nodeIndex).getType();
@@ -274,7 +298,7 @@ class KDTree implements Primitive
       return intersectsRecursive( farChild, ray, tSplit, tMax );
     }
   }
-  
+
   public boolean intersects( Ray ray, float tMin, float tMax )
   {
     float[] tExtents = m_boundingBox.getIntersectionExtents( ray );
@@ -285,15 +309,29 @@ class KDTree implements Primitive
     }
     return intersects;
   }
-  
+
   public IntersectionInfo getIntersectionInfo( Ray ray, float tMin, float tMax )
   {
     float[] tExtents = m_boundingBox.getIntersectionExtents( ray );
     IntersectionInfo intersectionInfo = null;
+    //intersectionInfo = getIntersectionInfoRecursive( 0, ray, tExtents[0], tExtents[1] );
     if ( tExtents != null )
     {
-      intersectionInfo = getIntersectionInfoRecursive( 0, ray, tExtents[0], tExtents[1] );
+      IntersectionInfo localInfo = null;
+      for (int i = 0; i < m_objects.size(); i++)
+      {
+        localInfo = m_objects.get(i).getIntersectionInfo( ray, tMin, tMax );
+        if ( localInfo != null )
+        {
+          if ( intersectionInfo == null || intersectionInfo.t() > localInfo.t() )
+          {
+            intersectionInfo = localInfo;
+          }
+        }
+      }
+      //intersectionInfo = getIntersectionInfoRecursive( 0, ray, tExtents[0], tExtents[1] );
     }
     return intersectionInfo;
   }
 }
+

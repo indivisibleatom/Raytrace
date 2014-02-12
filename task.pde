@@ -29,6 +29,7 @@ class SamplerRenderingTask implements Task
 
       if ( !m_scene.intersects( shadowRay ) )
       {
+        //print("Here");
         float cosine = info.normal().dot( shadowRay.getDirection() );
         if ( cosine < 0 ) //Dual sided lighting
         {
