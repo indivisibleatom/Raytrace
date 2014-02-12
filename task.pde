@@ -27,6 +27,7 @@ class SamplerRenderingTask implements Task
       Light light = lightManager.getLight(i);
       Ray shadowRay = light.getRay( info.point() );
       
+      print("Here");
       return new Color(1,1,1);
       /*if ( !m_scene.intersects( shadowRay ) )
       {
@@ -54,15 +55,15 @@ class SamplerRenderingTask implements Task
   public void run()
   {
     Sample sample = m_sampler.getNextSample();
-    /*for (int i = 0; i < 30; i++)
+    for (int i = 0; i < 30; i++)
     {
       sample = m_sampler.getNextSample();
-    }*/
-    do
-    {
+    }
+    //do
+    //{
       Ray ray = m_scene.getCamera().getRay(sample);
       m_scene.getCamera().getFilm().setRadiance(sample, computeRadiance(ray));
       sample = m_sampler.getNextSample();
-    } while ( sample != null );
+    //} while ( sample != null );
   }
 }

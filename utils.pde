@@ -1,4 +1,4 @@
-float c_epsilon = 0.01;
+float c_epsilon = 0.0001;
 
 boolean compare( float n1, float n2 )
 {

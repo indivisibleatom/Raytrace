@@ -198,6 +198,7 @@ class KDTree implements Primitive
       localInfo = m_objects.get( indices.get(i) ).getIntersectionInfo( ray, tMin, tMax );
       if ( info == null || localInfo.t() < info.t() )
       {
+        print("Here" + indices.get(i) + " " );
         info = localInfo;
       }
     }
@@ -238,7 +239,10 @@ class KDTree implements Primitive
       {
         print("Traversal " + m_nodes.get(nodeIndex).getIndices() + "\n");
       }
-      return getIntersectionInfoLeaf( nodeIndex, ray, tMin, tMax );
+      print("Here Mukul\n");
+      IntersectionInfo ret = getIntersectionInfoLeaf( nodeIndex, ray, tMin, tMax );
+      print("Here Mukul" + ret + "\n");
+      return ret;
     }
   
     float splitPos = m_nodes.get(nodeIndex).getSplitPlane();
@@ -276,7 +280,9 @@ class KDTree implements Primitive
         printTree( farChild );
         print("\n");
       }
-      return getIntersectionInfoRecursive( farChild, ray, tMin, tMax );
+       IntersectionInfo ret = getIntersectionInfoRecursive( farChild, ray, tMin, tMax );
+       print(ret);
+       return ret;
     }
     else if ( tSplit >= tMax )
     {
@@ -285,7 +291,9 @@ class KDTree implements Primitive
         printTree( nearChild );
         print("\n");
       }
-      return getIntersectionInfoRecursive( nearChild, ray, tMin, tMax );
+      IntersectionInfo ret = getIntersectionInfoRecursive( nearChild, ray, tMin, tMax );
+      print(ret);
+      return ret;
     }
     else
     {
@@ -297,9 +305,12 @@ class KDTree implements Primitive
       IntersectionInfo info = getIntersectionInfoRecursive( nearChild, ray, tMin, tSplit );
       if ( info != null )
       {
+        print(info);
         return info;
       }
-      return getIntersectionInfoRecursive( farChild, ray, tSplit, tMax );
+      IntersectionInfo ret = getIntersectionInfoRecursive( farChild, ray, tSplit, tMax );
+      print(ret);
+      return ret;
     }
   }
 
@@ -361,6 +372,10 @@ class KDTree implements Primitive
     float[] tExtents = m_boundingBox.getIntersectionExtents( ray );
     IntersectionInfo intersectionInfo = null;
     intersectionInfo = getIntersectionInfoRecursive( 0, ray, tExtents[0], tExtents[1] );
+    if (intersectionInfo != null)
+    {
+      print("Here");
+    }
     /*if ( tExtents != null )
     {
       IntersectionInfo localInfo = null;
