@@ -189,10 +189,10 @@ class Triangle implements Shape
   //Optimized ray triangle intersection
   public boolean intersects( Ray ray, float tMin, float tMax )
   {
-    if ( !m_boundingBox.intersects( ray, tMin, tMax ) )
+    /*if ( !m_boundingBox.intersects( ray, tMin, tMax ) )
     {
       return false;
-    }
+    }*/
 
     float denominator = ray.getDirection().dot( m_normal );
     if ( denominator == 0 )
@@ -202,7 +202,7 @@ class Triangle implements Shape
 
     Vector rayOrigToPlane = new Vector( ray.getOrigin(), m_vertices[0] );
     float t = rayOrigToPlane.dot( m_normal ) / denominator;
-    if ( t < c_epsilon || t < tMin || t > tMax )
+    if ( t < c_epsilon || t < tMin - c_epsilon || t > tMax + c_epsilon )
     {
       return false;
     }
@@ -252,7 +252,7 @@ class Triangle implements Shape
     Vector rayOrigToPlane = new Vector( ray.getOrigin(), m_vertices[0] );
     float t = rayOrigToPlane.dot( m_normal ) / denominator;
     
-    if ( t < c_epsilon || t < tMin || t > tMax )
+    if ( t < c_epsilon || t < tMin - c_epsilon || t > tMax + c_epsilon )
     {
       return null;
     }
