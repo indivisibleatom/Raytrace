@@ -61,7 +61,7 @@ class KDTree implements Primitive
   
   private float findCost( float probLeft, float probRight, int numLeft, int numRight )
   {
-    float factor = (numLeft == 0 || numRight == 0)? 0.8 : 1;
+    float factor = (numLeft == 0 || numRight == 0)? 1 : 1;
     return factor * (traversalCost + (probLeft*numLeft + probRight*numRight) * intersectionCost);
   }
   
@@ -80,14 +80,17 @@ class KDTree implements Primitive
       m_boundingBox.grow( objects.get(i).getBoundingBox() );
     }
     m_boundingBox.debugPrint();
-    //recursiveCreate( indices, m_boundingBox );
+    recursiveCreate( indices, m_boundingBox );
   }
 
   //Trivial sorting implementation right now
   private int recursiveCreate( ArrayList<Integer> indices, Box box )
   {
+    if ( DEBUG && DEBUG_MODE >= VERBOSE )
+    {
+      print("Number of objects " + indices.size() + "\n");
+    }
     float totalArea = box.surfaceArea();
-    float minCost = Float.MAX_VALUE;
     float minSplitPlane = 0;
     int minSplitPlaneDirection = -1;
 
@@ -98,6 +101,7 @@ class KDTree implements Primitive
     SplitResult minSplitResult = null;
     
     float costCurrent = intersectionCost * indices.size();
+    float minCost = Float.MAX_VALUE;
     for (int i = 0; i < indices.size(); i++)
     {
       for (int j = 0; j < 6; j++)
@@ -107,7 +111,7 @@ class KDTree implements Primitive
         {
           leftIndices = new ArrayList<Integer>();
           rightIndices = new ArrayList<Integer>();
-          if ( m_objects.get(indices.get(k)).getBoundingBox().getPlaneForFace(j>>1) <= proposedPlane )
+          if ( m_objects.get(indices.get(k)).getBoundingBox().getPlaneForFace(j | 1) <= proposedPlane )
           {
             leftIndices.add(k);
           }
@@ -121,11 +125,18 @@ class KDTree implements Primitive
           float cost = findCost( probLeft, probRight, leftIndices.size(), rightIndices.size() );
           if ( cost < minCost && cost < costCurrent )
           {
+            if ( DEBUG && DEBUG_MODE >= VERBOSE )
+            {
+              print("Costs " + cost + " " + minCost + " " + costCurrent + "\n");
+              box.debugPrint();
+              s.box1.debugPrint();
+              s.box2.debugPrint();  
+            }
             minLeftIndices = leftIndices;
             minRightIndices = rightIndices;
             minCost = cost;
             minSplitPlaneDirection = j>>1;
-            minSplitPlane = box.getPlaneForFace( j );
+            minSplitPlane = proposedPlane;
             minSplitResult = s;
           }
         }
@@ -133,23 +144,22 @@ class KDTree implements Primitive
     }
     if ( minSplitPlaneDirection != -1 )
     {
+      if ( DEBUG && DEBUG_MODE >= VERBOSE )
+      {
+        print("Adding plane " + minSplitPlane + " direction " + minSplitPlaneDirection + "\n");
+      }
       m_nodes.add( new KDTreeNode( minSplitPlane, minSplitPlaneDirection ) );
       int indexAdded = m_nodes.size() - 1;
 
       int left = recursiveCreate( minLeftIndices, minSplitResult.box1 );
-      if ( minSplitPlaneDirection == -1 )
-      {
-        minSplitPlaneDirection = 3;
-      }
-
-      int right = recursiveCreate( minLeftIndices, minSplitResult.box2 );
+      int right = recursiveCreate( minRightIndices, minSplitResult.box2 );
       int otherChild = right<<2;
       m_nodes.get(indexAdded).setOtherChild( otherChild );
       return indexAdded;
     }
     else
     {
-      m_nodes.add( new KDTreeNode( null, 3 ) );
+      m_nodes.add( new KDTreeNode( indices, 3 ) );
       return m_nodes.size() - 1;
     }
   }
@@ -159,68 +169,131 @@ class KDTree implements Primitive
     return m_boundingBox;
   }
   
-  /*private boolean intersectRecursive( Integer nodeIndex, Ray ray, float tMin, float tMax )
+  private IntersectionInfo getIntersectionInfoLeaf( Integer nodeIndex, Ray ray, float tMin, float tMax )
+  {
+    ArrayList<Integer> indices = m_nodes.get(nodeIndex).getIndices();
+    IntersectionInfo info = null;
+    for ( int i = 0; i < indices.size(); i++ )
+    {
+      info = m_objects.get( indices.get(i) ).getIntersectionInfo( ray, tMin, tMax );
+    }
+    return info;
+  }
+
+  private boolean intersectsLeaf( Integer nodeIndex, Ray ray, float tMin, float tMax )
+  {
+    ArrayList<Integer> indices = m_nodes.get(nodeIndex).getIndices();
+    boolean intersect = false;
+    for ( int i = 0; i < indices.size(); i++ )
+    {
+      intersect = m_objects.get( indices.get(i) ).intersects( ray, tMin, tMax );
+    }
+    return intersect;
+  } 
+
+  private IntersectionInfo getIntersectionInfoRecursive( Integer nodeIndex, Ray ray, float tMin, float tMax )
   {
     int axis = m_nodes.get(nodeIndex).getType();
     if ( axis == 3 )
     {
-      for ( int i = 0; i < m_indices.size(); i++ )
-      {
-        if ( m_objects.get( m_indices.get(i) ).intersects( ray )
-        {
-          return true;
-        }
-      }
-      return false;
+      return getIntersectionInfoLeaf( nodeIndex, ray, tMin, tMax );
     }
 
-    int intersectionInfo = 
-    int splitPos = m_nodes.get(nodeIndex).getSplitPlane();
-    float tSplit = (split - ray.getPosition().get(axis))/ray.getDirection(axis);
-    if ( axis == 0 ) //x axis
+    float splitPos = m_nodes.get(nodeIndex).getSplitPlane();
+    float tSplit = (splitPos - ray.getOrigin().get(axis))/ray.getDirection().get(axis);
+    int nearChild = 0;
+    int farChild = 0;
+    if ( ray.getDirection().get(axis) >= 0 )
     {
+      nearChild = nodeIndex + 1;
+      farChild = m_nodes.get(nodeIndex).getOtherChild();
     }
-    return false;
-  }*/
-  
-  public boolean intersects( Ray ray )
-  {
-    if ( !m_boundingBox.intersects( ray ) )
+    else
     {
-      return false;
-    }
-    for ( int i = 0; i < m_objects.size(); i++ )
-    {
-      if ( m_objects.get(i).intersects( ray ) )
-      {
-        return true;
-      }
-    }
-    return false;
-  }
-  
-  public IntersectionInfo getIntersectionInfo( Ray ray )
-  {
-    if ( !m_boundingBox.intersects( ray ) )
-    {
-      return null;
+      nearChild = m_nodes.get(nodeIndex).getOtherChild();
+      farChild = nodeIndex + 1;
     }
 
-    IntersectionInfo minIntersectionInfo = null;
-    float minT = Float.MAX_VALUE;   
-
-    for ( int i = 0; i < m_objects.size(); i++ )
+    if ( tSplit <= tMin )
     {
-      IntersectionInfo info = m_objects.get(i).getIntersectionInfo( ray );
+      return getIntersectionInfoRecursive( farChild, ray, tMin, tMax );
+    }
+    else if ( tSplit >= tMax )
+    {
+      return getIntersectionInfoRecursive( nearChild, ray, tMin, tMax );
+    }
+    else
+    {
+      IntersectionInfo info = getIntersectionInfoRecursive( nearChild, ray, tMin, tSplit );
       if ( info != null )
       {
-        if ( info.t() < minT )
-        {
-          minIntersectionInfo = info;
-          minT = info.t();
-        }
+        return info;
       }
+      return getIntersectionInfoRecursive( farChild, ray, tSplit, tMax );
     }
-    return minIntersectionInfo;
+  }
+  
+  private boolean intersectsRecursive( Integer nodeIndex, Ray ray, float tMin, float tMax )
+  {
+    int axis = m_nodes.get(nodeIndex).getType();
+    if ( axis == 3 )
+    {
+      return intersectsLeaf( nodeIndex, ray, tMin, tMax );
+    }
+
+    float splitPos = m_nodes.get(nodeIndex).getSplitPlane();
+    float tSplit = (splitPos - ray.getOrigin().get(axis))/ray.getDirection().get(axis);
+    int nearChild = 0;
+    int farChild = 0;
+    if ( ray.getDirection().get(axis) >= 0 )
+    {
+      nearChild = nodeIndex + 1;
+      farChild = m_nodes.get(nodeIndex).getOtherChild();
+    }
+    else
+    {
+      nearChild = m_nodes.get(nodeIndex).getOtherChild();
+      farChild = nodeIndex + 1;
+    }
+
+    if ( tSplit <= tMin )
+    {
+      return intersectsRecursive( farChild, ray, tMin, tMax );
+    }
+    else if ( tSplit >= tMax )
+    {
+      return intersectsRecursive( nearChild, ray, tMin, tMax );
+    }
+    else
+    {
+      boolean intersects = intersectsRecursive( nearChild, ray, tMin, tSplit );
+      if ( intersects != false )
+      {
+        return intersects;
+      }
+      return intersectsRecursive( farChild, ray, tSplit, tMax );
+    }
+  }
+  
+  public boolean intersects( Ray ray, float tMin, float tMax )
+  {
+    float[] tExtents = m_boundingBox.getIntersectionExtents( ray );
+    boolean intersects = false;
+    if ( tExtents != null )
+    {
+      intersects = intersectsRecursive( 0, ray, tExtents[0], tExtents[1] );
+    }
+    return intersects;
+  }
+  
+  public IntersectionInfo getIntersectionInfo( Ray ray, float tMin, float tMax )
+  {
+    float[] tExtents = m_boundingBox.getIntersectionExtents( ray );
+    IntersectionInfo intersectionInfo = null;
+    if ( tExtents != null )
+    {
+      intersectionInfo = getIntersectionInfoRecursive( 0, ray, tExtents[0], tExtents[1] );
+    }
+    return intersectionInfo;
   }
 }

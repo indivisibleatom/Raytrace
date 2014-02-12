@@ -16,12 +16,12 @@ class PointLight implements Light
     m_color = col;
   }
 
-  public boolean intersects( Ray ray )
+  public boolean intersects( Ray ray, float tMin, float tMax )
   {
     return false;
   }
   
-  public IntersectionInfo getIntersectionInfo( Ray ray )
+  public IntersectionInfo getIntersectionInfo( Ray ray, float tMin, float tMax )
   {
     return null;
   }

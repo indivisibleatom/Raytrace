@@ -22,11 +22,11 @@ class PrimitiveManager
   
   public boolean intersects( Ray ray )
   {
-    return m_kdTree.intersects( ray );
+    return m_kdTree.intersects( ray, Float.MIN_VALUE, Float.MAX_VALUE );
   }
   
   public IntersectionInfo getIntersectionInfo( Ray ray )
   {
-    return m_kdTree.getIntersectionInfo( ray );   
+    return m_kdTree.getIntersectionInfo( ray, Float.MIN_VALUE, Float.MAX_VALUE );
   }
 }
