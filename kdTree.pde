@@ -47,6 +47,40 @@ class KDTreeNode
   }
 }
 
+class SweepEvent
+{
+  private Integer m_index;
+  private float m_planeLocation;
+  private boolean m_fStartFace;
+  
+  SweepEvent( Integer index, float planeLocation, boolean fStartFace )
+  {
+    m_index = index;
+    m_planeLocation = planeLocation;
+    m_fStartFace = fStartFace;
+  }
+  
+  float planeLocation() { return m_planeLocation; }
+  boolean fStartFace() { return m_fStartFace; }
+  Integer index() { return m_index; }
+}
+
+class SweepEventComparator implements Comparator<SweepEvent> 
+{
+    public int compare(SweepEvent e1, SweepEvent e2) 
+    {
+      if ( e1.planeLocation() > e2.planeLocation() )
+      {
+        return 1;
+      }
+      else if ( e1.planeLocation() < e2.planeLocation() )
+      {
+        return -1;
+      }
+      return 0;
+    }
+}
+
 //Start with naive
 class KDTree implements Primitive
 {
@@ -72,7 +106,7 @@ class KDTree implements Primitive
 
     //Init with first bounding box
     m_boundingBox = cloneBox( objects.get(0).getBoundingBox() );
-    indices.add(0);   
+    indices.add(0);
 
     for (int i = 1; i < objects.size(); i++)
     {
@@ -80,12 +114,16 @@ class KDTree implements Primitive
       m_boundingBox.grow( objects.get(i).getBoundingBox() );
     }
     m_boundingBox.setSurfaceArea();
-    if ( DEBUG && DEBUG_MODE >= VERBOSE )
-    {   
+    if ( DEBUG && DEBUG_MODE >= LOW )
+    {
+      for (int i = 0; i < objects.size(); i++)
+      {
+        m_objects.get(i).getBoundingBox().debugPrint();
+      }
       m_boundingBox.debugPrint();
     }
     recursiveCreate( indices, m_boundingBox );
-    print("Created");
+    print("Created tree\n");
   }
 
   //Trivial sorting implementation right now
@@ -99,46 +137,77 @@ class KDTree implements Primitive
     float minSplitPlane = 0;
     int minSplitPlaneDirection = -1;
 
-    ArrayList<Integer> leftIndices = new ArrayList<Integer>();
-    ArrayList<Integer> rightIndices = new ArrayList<Integer>();
-    ArrayList<Integer> minLeftIndices = new ArrayList<Integer>();
-    ArrayList<Integer> minRightIndices = new ArrayList<Integer>();
     SplitResult minSplitResult = null;
 
     float costCurrent = intersectionCost * indices.size();
     float minCost = Float.MAX_VALUE;
     
+    ArrayList<SweepEvent>[] planeLocations = (ArrayList<SweepEvent>[])new ArrayList[3];
+    ArrayList<Integer>[] leftIndices = (ArrayList<Integer>[])new ArrayList[3];
+    ArrayList<Integer>[] rightIndices = (ArrayList<Integer>[])new ArrayList[3];
+    ArrayList<Integer> minLeftIndices = null;
+    ArrayList<Integer> minRightIndices = null;
+    
     //Sort according to dimension
     for (int dim = 0; dim < 3; dim++)
     {
+      planeLocations[dim] = new ArrayList<SweepEvent>();
+      leftIndices[dim] = new ArrayList<Integer>();
+      rightIndices[dim] = new ArrayList<Integer>();
+      for ( int i = 0; i < indices.size(); i++ )
+      {
+        planeLocations[dim].add( new SweepEvent( indices.get(i), m_objects.get( indices.get(i) ).getBoundingBox().getPlaneForFace(dim<<1), true ) );
+        planeLocations[dim].add( new SweepEvent( indices.get(i), m_objects.get( indices.get(i) ).getBoundingBox().getPlaneForFace((dim<<1)+1), false ) );
+        rightIndices[dim].add(indices.get(i));
+      }
+      Collections.sort(planeLocations[dim], new SweepEventComparator());
     }
     
-    for (int i = 0; i < indices.size(); i++)
+    //Find best split pane
+    for (int dim = 0; dim < 3; dim++)
     {
-      for (int j = 0; j < 6; j++)
+      int numLeft = 0;
+      int numRight = indices.size();
+
+      /*if ( dim == 2 )
       {
-        float proposedPlane = m_objects.get(indices.get(i)).getBoundingBox().getPlaneForFace(j);
-        leftIndices = new ArrayList<Integer>();
-        rightIndices = new ArrayList<Integer>();
-        for (int k = 0; k < indices.size(); k++)
+        print( "Start " + leftIndices[dim] + " " + rightIndices[dim] + "\n");
+      }*/
+      for (int i = 0; i < planeLocations[dim].size(); i++)
+      {
+        float proposedPlane = planeLocations[dim].get(i).planeLocation();
+        Integer objectIndex = planeLocations[dim].get(i).index();
+        int face = planeLocations[dim].get(i).fStartFace() ? (dim<<1) : (dim<<1)+1;
+        
+        SplitResult s = box.split( m_objects.get(objectIndex).getBoundingBox(), face );
+        float probLeft = s.box1.surfaceArea() / box.surfaceArea();
+        float probRight = s.box2.surfaceArea() / box.surfaceArea();
+        
+        int farthestAdvance = i;
+        while ( farthestAdvance < planeLocations[dim].size() && ( planeLocations[dim].get(farthestAdvance).planeLocation() <= proposedPlane ) )
         {
-          if ( m_objects.get(indices.get(k)).getBoundingBox().getPlaneForFace(j | 1) <= proposedPlane )
+          if ( planeLocations[dim].get(farthestAdvance).fStartFace() )
           {
-            leftIndices.add(indices.get(k));
-          }
-          else if ( m_objects.get(indices.get(k)).getBoundingBox().getPlaneForFace(j&0xFFFFFFFE) >= proposedPlane )
-          {
-            rightIndices.add(indices.get(k));
+            numLeft++;
+            leftIndices[dim].add(planeLocations[dim].get(farthestAdvance).index());
+            /*if ( dim == 2 )
+            {
+              print("Adding left : " + leftIndices[dim] + " for plane " + proposedPlane + "\n" );
+            }*/
           }
           else
           {
-            leftIndices.add(indices.get(k));
-            rightIndices.add(indices.get(k));
+            numRight--;
+            rightIndices[dim].remove(planeLocations[dim].get(farthestAdvance).index());
+            /*if ( dim == 2 )
+            {
+              print("Removing right : " + rightIndices[dim] + " for plane " + proposedPlane + "\n" );
+            }*/
           }
+          farthestAdvance++;
         }
-        SplitResult s = box.split( m_objects.get(indices.get(i)).getBoundingBox(), j );
-        float probLeft = s.box1.surfaceArea() / box.surfaceArea();
-        float probRight = s.box2.surfaceArea() / box.surfaceArea();
+        i = farthestAdvance - 1;
+        
         if ( DEBUG && DEBUG_MODE >= LOW )
         {
           if ( s.box1.surfaceArea() > box.surfaceArea() )
@@ -151,13 +220,13 @@ class KDTree implements Primitive
         }
         if ( !( (compare( probLeft, 1 ) ) || (compare( probRight, 1 ) ) ) )
         {
-          float cost = findCost( probLeft, probRight, leftIndices.size(), rightIndices.size() );
+          float cost = findCost( probLeft, probRight, numLeft, numRight );
           if ( cost < minCost && cost < costCurrent )
           {
-            minLeftIndices = leftIndices;
-            minRightIndices = rightIndices;
+            minLeftIndices = new ArrayList(leftIndices[dim]);
+            minRightIndices = new ArrayList(rightIndices[dim]);
             minCost = cost;
-            minSplitPlaneDirection = j>>1;
+            minSplitPlaneDirection = dim;
             minSplitPlane = proposedPlane;
             minSplitResult = s;
           }
