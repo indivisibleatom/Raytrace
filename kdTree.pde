@@ -4,6 +4,7 @@ float intersectionCost = 80;
 class KDTreeNode
 {
   float m_splitPlane;
+  int m_oneChild;
   int m_otherChildAndType;
   private ArrayList<Integer> m_indices;
 
@@ -136,7 +137,7 @@ class KDTreeSplitCreatorTask implements Task
   private Box m_box;
   private SingleSplitResultQueue m_queue; 
   
-  KDTreeSplitCreatorTask( ArrayList<Integer> indices, Box box, SingleSplitResultQueue queue )
+  KDTreeSplitCreatorTask( ArrayList<Integer> indices, Box box, KDTreeNode parent, SingleSplitResultQueue queue )
   {
     m_indices = indices;
     m_box = box;
@@ -183,17 +184,18 @@ class KDTreeCreator
     SingleSplitResult result = m_queue.onConsume();
     if ( result.splitPlaneDirection() != -1 )
     {
-      m_nodes.add( new KDTreeNode( result.splitPlane(), result.splitPlaneDirection() );
+      KDTreeNode newNode = new KDTreeNode( result.splitPlane(), result.splitPlaneDirection() );
+      m_nodes.add( newNode );
       if ( DEBUG && DEBUG_MODE >= VERBOSE )
       {
         print("Adding plane " + result.splitPlane() + " direction " + result.splitPlaneDirection() + " " + result.indicesLeft() + " " + result.indicesRight() + "\n");
       }
 
-      KDTreeSplitCreatorTask taskLeft = new KDTreeSplitCreatorTask( result.indicesLeft(), result.boxLeft(), m_queue );
+      KDTreeSplitCreatorTask taskLeft = new KDTreeSplitCreatorTask( result.indicesLeft(), result.boxLeft(), newNode, m_queue );
       Thread taskLeftThread = new Thread(taskLeft);
       m_pool.submit(taskLeftThread);
       
-      KDTreeSplitCreatorTask taskRight = new KDTreeSplitCreatorTask( result.indicesRight(), result.boxRight(), m_queue );
+      KDTreeSplitCreatorTask taskRight = new KDTreeSplitCreatorTask( result.indicesRight(), result.boxRight(), newNode, m_queue );
       Thread taskRightThread = new Thread(taskRight);
       m_pool.submit(taskRightThread);
 
