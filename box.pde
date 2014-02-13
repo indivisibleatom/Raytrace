@@ -1,4 +1,10 @@
 //Class for bounds checking as well as intersection. Handles axis aligned bounding boxes
+class BoxSplitResult
+{
+  Box box1;
+  Box box2;
+}
+
 class Box implements Shape
 {
   private Point m_extent1; //In world coordinates, m_extent1 < m_extent2 in all x,y and z
@@ -279,9 +285,9 @@ class Box implements Shape
     return m_surfaceArea;
   }
   
-  public SplitResult split( Box boundingBoxOther, int faceIndex )
+  public BoxSplitResult split( Box boundingBoxOther, int faceIndex )
   {
-    SplitResult res = new SplitResult();
+    BoxSplitResult res = new BoxSplitResult();
     res.box1 = cloneBox( this );
     res.box2 = cloneBox( this );
     

@@ -67,18 +67,150 @@ class SweepEvent
 
 class SweepEventComparator implements Comparator<SweepEvent> 
 {
-    public int compare(SweepEvent e1, SweepEvent e2) 
+  public int compare(SweepEvent e1, SweepEvent e2) 
+  {
+    if ( e1.planeLocation() > e2.planeLocation() )
     {
-      if ( e1.planeLocation() > e2.planeLocation() )
-      {
-        return 1;
-      }
-      else if ( e1.planeLocation() < e2.planeLocation() )
-      {
-        return -1;
-      }
-      return 0;
+      return 1;
     }
+    else if ( e1.planeLocation() < e2.planeLocation() )
+    {
+      return -1;
+    }
+    return 0;
+  }
+}
+
+class SingleSplitResult
+{
+  private ArrayList<Integer> m_indicesLeft;
+  private ArrayList<Integer> m_indicesRight;
+  private Box m_boxLeft;
+  private Box m_boxRight;
+  private float m_splitPlane;
+  private int m_splitPlaneDirection;
+  
+  SingleSplitResult( ArrayList<Integer> indicesLeft, ArrayList<Integer> indicesRight, Box boxLeft, Box boxRight, float splitPlane, int splitPlaneDirection )
+  {
+    m_indicesLeft = indicesLeft;
+    m_indicesRight = indicesRight;
+    m_boxLeft = boxLeft;
+    m_boxRight = boxRight;
+    m_splitPlane = splitPlane;
+    m_splitPlaneDirection = splitPlaneDirection;
+  }
+  
+  public float splitPlane() { return m_splitPlane; }
+  public int splitPlaneDirection() { return m_splitPlaneDirection; }
+  public Box boxLeft() { return m_boxLeft; }
+  public Box boxRight() { return m_boxRight; }
+  public ArrayList<Integer> indicesLeft() { return m_indicesLeft; }
+  public ArrayList<?Integer> indicesRight() { return m_indicesRight; }
+}
+
+//This maintains a queue of results that are produced by the KDTreeSplitCreatorTask threads. The kdtree creator reads these and spawns off further SplitCreatorTasks
+class SingleSplitResultQueue
+{
+  private Queue<SingleSplitResult> m_results;
+  
+  SharedResult()
+  {
+    m_results = new ArrayList<SingleSplitResult>();
+  }
+  
+  public synchronized void onProduce( SingleSplitResult result)
+  {
+    m_results.add( result );
+    this.notifyAll();
+  }
+  
+  public synchronized SingleSplitResult onConsume()
+  {
+    return m_results.remove();
+  }
+}
+
+class KDTreeSplitCreatorTask implements Task
+{
+  private ArrayList<Integer> m_indices;
+  private Box m_box;
+  private SingleSplitResultQueue m_queue; 
+  
+  KDTreeSplitCreatorTask( ArrayList<Integer> indices, Box box, SingleSplitResultQueue queue )
+  {
+    m_indices = indices;
+    m_box = box;
+    m_queue = queue;
+  }
+  
+  public void run()
+  {
+    SingleSplitResult result = m_input.tree().createSingleSplit( m_indices, m_box );
+    m_queue.add( result );
+  }
+}
+
+//Paraller creation of KD-Tree
+class KDTreeCreator
+{
+  private KDTree m_tree;
+  private ExecutorService m_pool;
+  private ArrayList<KDTreeNode> m_nodes;
+  private SingleSplitResultQueue m_queue; 
+    
+  KDTreeCreator( ArrayList<LightedPrimitive> objects )
+  {
+    m_tree = new KDTree( objects );
+    int cores = Runtime.getRuntime().availableProcessors();
+    m_pool = Executors.newFixedThreadPool(2*cores);
+    m_queue = new SingleSplitResultQueue();
+
+    ArrayList<Integer> indices = new ArrayList<Integer>();
+    for (int i = 0; i < objects.size(); i++)
+    {
+      indices.add(i);
+    }
+    Box boundingBox = cloneBox( m_tree.getBoundingBox() );
+
+    KDTreeSplitCreatorTask task = new KDTreeSplitCreatorTask( indices, boundingBox, m_queue );
+    Thread t = new Thread(task);
+    m_pool.submit(t);
+    onSplitResultAvailable();
+  }
+  
+  public void onSplitResultAvailable()
+  {
+    SingleSplitResult result = m_queue.onConsume();
+    if ( result.splitPlaneDirection() != -1 )
+    {
+      m_nodes.add( new KDTreeNode( result.splitPlane(), result.splitPlaneDirection() );
+      if ( DEBUG && DEBUG_MODE >= VERBOSE )
+      {
+        print("Adding plane " + result.splitPlane() + " direction " + result.splitPlaneDirection() + " " + result.indicesLeft() + " " + result.indicesRight() + "\n");
+      }
+
+      KDTreeSplitCreatorTask taskLeft = new KDTreeSplitCreatorTask( result.indicesLeft(), result.boxLeft(), m_queue );
+      Thread taskLeftThread = new Thread(taskLeft);
+      m_pool.submit(taskLeftThread);
+      
+      KDTreeSplitCreatorTask taskRight = new KDTreeSplitCreatorTask( result.indicesRight(), result.boxRight(), m_queue );
+      Thread taskRightThread = new Thread(taskRight);
+      m_pool.submit(taskRightThread);
+
+      int otherChild = right<<2;
+      m_nodes.get(indexAdded).setOtherChild( otherChild );
+      return indexAdded;
+    }
+    else
+    {
+      if ( DEBUG && DEBUG_MODE >= VERBOSE )
+      {
+        print("Adding leaf with children " + indices + "\n");
+      }
+      m_nodes.add( new KDTreeNode( indices, 3 ) );
+      return m_nodes.size() - 1;
+    }
+  }
 }
 
 //Start with naive
@@ -88,9 +220,22 @@ class KDTree implements Primitive
   private ArrayList<LightedPrimitive> m_objects;
   private ArrayList<KDTreeNode> m_nodes;
 
-  KDTree()
+  KDTree( ArrayList<LightedPrimitive> objects )
   {
-    m_nodes = new ArrayList<KDTreeNode>();
+    m_objects = objects;
+
+    //Init with first bounding box
+    m_boundingBox = cloneBox( objects.get(0).getBoundingBox() );
+    for (int i = 1; i < objects.size(); i++)
+    {
+      m_boundingBox.grow( objects.get(i).getBoundingBox() );
+    }
+    m_boundingBox.setSurfaceArea();
+  }
+  
+  void setNodes( ArrayList<KDTreeNode> nodes )
+  {
+    m_nodes = m_nodes;
   }
 
   private float findCost( float probLeft, float probRight, int numLeft, int numRight )
@@ -99,35 +244,10 @@ class KDTree implements Primitive
     return factor * (traversalCost + (probLeft*numLeft + probRight*numRight) * intersectionCost);
   }
 
-  public void create( ArrayList<LightedPrimitive> objects )
-  {
-    m_objects = objects;
-    ArrayList<Integer> indices = new ArrayList<Integer>();
-
-    //Init with first bounding box
-    m_boundingBox = cloneBox( objects.get(0).getBoundingBox() );
-    indices.add(0);
-
-    for (int i = 1; i < objects.size(); i++)
-    {
-      indices.add(i);
-      m_boundingBox.grow( objects.get(i).getBoundingBox() );
-    }
-    m_boundingBox.setSurfaceArea();
-    if ( DEBUG && DEBUG_MODE >= VERBOSE )
-    {
-      for (int i = 0; i < objects.size(); i++)
-      {
-        m_objects.get(i).getBoundingBox().debugPrint();
-      }
-      m_boundingBox.debugPrint();
-    }
-    recursiveCreate( indices, m_boundingBox );
-  }
-
   //Trivial sorting implementation right now
-  private int recursiveCreate( ArrayList<Integer> indices, Box box )
+  private SingleSplitResult createSingleSplit( ArrayList<Integer> indices, Box box )
   {
+    SingleSplitResult result = null;
     if ( DEBUG && DEBUG_MODE >= VERBOSE )
     {
       print("Number of objects " + indices.size() + "\n");
@@ -168,17 +288,13 @@ class KDTree implements Primitive
       int numLeft = 0;
       int numRight = indices.size();
 
-      /*if ( dim == 2 )
-      {
-        print( "Start " + leftIndices[dim] + " " + rightIndices[dim] + "\n");
-      }*/
       for (int i = 0; i < planeLocations[dim].size(); i++)
       {
         float proposedPlane = planeLocations[dim].get(i).planeLocation();
         Integer objectIndex = planeLocations[dim].get(i).index();
         int face = planeLocations[dim].get(i).fStartFace() ? (dim<<1) : (dim<<1)+1;
         
-        SplitResult s = box.split( m_objects.get(objectIndex).getBoundingBox(), face );
+        BoxSplitResult s = box.split( m_objects.get(objectIndex).getBoundingBox(), face );
         float probLeft = s.box1.surfaceArea() / box.surfaceArea();
         float probRight = s.box2.surfaceArea() / box.surfaceArea();
         
@@ -189,19 +305,11 @@ class KDTree implements Primitive
           {
             numLeft++;
             leftIndices[dim].add(planeLocations[dim].get(farthestAdvance).index());
-            /*if ( dim == 2 )
-            {
-              print("Adding left : " + leftIndices[dim] + " for plane " + proposedPlane + "\n" );
-            }*/
           }
           else
           {
             numRight--;
             rightIndices[dim].remove(planeLocations[dim].get(farthestAdvance).index());
-            /*if ( dim == 2 )
-            {
-              print("Removing right : " + rightIndices[dim] + " for plane " + proposedPlane + "\n" );
-            }*/
           }
           farthestAdvance++;
         }
@@ -232,30 +340,7 @@ class KDTree implements Primitive
         }
       }
     }
-    if ( minSplitPlaneDirection != -1 )
-    {
-      if ( DEBUG && DEBUG_MODE >= VERBOSE )
-      {
-        print("Adding plane " + minSplitPlane + " direction " + minSplitPlaneDirection + " " + minLeftIndices + " " + minRightIndices + "\n");
-      }
-      m_nodes.add( new KDTreeNode( minSplitPlane, minSplitPlaneDirection ) );
-      int indexAdded = m_nodes.size() - 1;
-
-      int left = recursiveCreate( minLeftIndices, minSplitResult.box1 );
-      int right = recursiveCreate( minRightIndices, minSplitResult.box2 );
-      int otherChild = right<<2;
-      m_nodes.get(indexAdded).setOtherChild( otherChild );
-      return indexAdded;
-    }
-    else
-    {
-      if ( DEBUG && DEBUG_MODE >= VERBOSE )
-      {
-        print("Adding leaf with children " + indices + "\n");
-      }
-      m_nodes.add( new KDTreeNode( indices, 3 ) );
-      return m_nodes.size() - 1;
-    }
+    return new SingleSplitResult( minLeftIndices, minRightIndices, minSplitResult.box1, minSplitResult.box2, minSplitPlane, minSplitPlaneDirection );
   }
 
   public Box getBoundingBox()

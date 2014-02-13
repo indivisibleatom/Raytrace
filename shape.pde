@@ -262,9 +262,3 @@ class Triangle implements Shape
   }
 }
 
-class SplitResult
-{
-  Box box1;
-  Box box2;
-}
-
