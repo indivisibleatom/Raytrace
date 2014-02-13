@@ -114,7 +114,7 @@ class KDTree implements Primitive
       m_boundingBox.grow( objects.get(i).getBoundingBox() );
     }
     m_boundingBox.setSurfaceArea();
-    if ( DEBUG && DEBUG_MODE >= LOW )
+    if ( DEBUG && DEBUG_MODE >= VERBOSE )
     {
       for (int i = 0; i < objects.size(); i++)
       {
@@ -123,7 +123,6 @@ class KDTree implements Primitive
       m_boundingBox.debugPrint();
     }
     recursiveCreate( indices, m_boundingBox );
-    print("Created tree\n");
   }
 
   //Trivial sorting implementation right now
