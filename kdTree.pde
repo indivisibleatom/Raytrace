@@ -278,7 +278,10 @@ class KDTreeCreator
       {
         m_nodes.add( new KDTreeNode( result.indicesLeft(), 3 ) );
         int index = m_nodes.size() - 1;
-        m_nodes.get( result.parent() ).setChild( result.fLeftChild(), index );
+        if ( result.parent() != -1 )
+        {
+          m_nodes.get( result.parent() ).setChild( result.fLeftChild(), index );
+        }
         if ( DEBUG && DEBUG_MODE >= VERBOSE )
         {
           print("Adding leaf with children " + m_nodes.get( m_nodes.size() - 1 ).getIndices() + "\n");

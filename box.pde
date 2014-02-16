@@ -229,7 +229,7 @@ class Box implements Shape
   public boolean intersects( Ray ray, float tMin, float tMax )
   {
      BoxIntersectionInfoInternal info = internalIntersect(ray);
-     if ( info.largestT1Index < 0 || info.t1[info.largestT1Index] < c_epsilon || info.t1[info.largestT1Index] < tMin - c_epsilon || info.t1[info.largestT1Index] > tMax + c_epsilon )
+     if ( info.largestT1Index < 0 || info.t1[info.largestT1Index] < 0 || info.t1[info.largestT1Index] < tMin || info.t1[info.largestT1Index] > tMax )
      {
        return false;
      }
@@ -240,8 +240,8 @@ class Box implements Shape
   {
     float[] tExtents = new float[2];
     BoxIntersectionInfoInternal info = internalIntersect(ray);
-    tExtents[0] = info.t1[0] - c_epsilon;
-    tExtents[1] = info.t2[0] + c_epsilon;
+    tExtents[0] = info.t1[0];
+    tExtents[1] = info.t2[0];
 
     if ( tExtents[0] < 0 && tExtents[1] < 0 )
     {
@@ -257,7 +257,7 @@ class Box implements Shape
   public ShapeIntersectionInfo getIntersectionInfo( Ray ray, float tMin, float tMax )
   {
     BoxIntersectionInfoInternal info = internalIntersect(ray);
-    if ( info.largestT1Index < 0 || info.t1[info.largestT1Index] < c_epsilon || info.t1[info.largestT1Index] < tMin - c_epsilon || info.t1[info.largestT1Index] > tMax + c_epsilon )
+    if ( info.largestT1Index < 0 || info.t1[info.largestT1Index] < 0 || info.t1[info.largestT1Index] < tMin || info.t1[info.largestT1Index] > tMax )
     {
       return null;
     }

@@ -136,48 +136,26 @@ class Triangle implements Shape
 {
   Transformation m_transformation;
   Point[] m_vertices;
-  Point[] m_projectedVertices;
   Vector m_normal;
+  Vector m_e1;
+  Vector m_e2;
   Box m_boundingBox;
 
   Triangle( Point p1, Point p2, Point p3, Transformation transformation )
   {
     m_vertices = new Point[3];
-    m_projectedVertices = new Point[3];
     m_transformation = new Transformation();
     m_transformation.apply( transformation );
     m_vertices[0] = m_transformation.localToWorld( p1 );
     m_vertices[1] = m_transformation.localToWorld( p2 );
     m_vertices[2] = m_transformation.localToWorld( p3 );
     
-    m_projectedVertices[0] = clonePt( m_vertices[0] );
-    m_projectedVertices[1] = clonePt( m_vertices[1] );
-    m_projectedVertices[2] = clonePt( m_vertices[2] );
+    m_e1 = new Vector( m_vertices[0], m_vertices[1] );
+    m_e2 = new Vector( m_vertices[0], m_vertices[2] );
 
-    Vector AB = new Vector( m_vertices[0], m_vertices[1] );
-    Vector AC = new Vector( m_vertices[0], m_vertices[2] );
-    m_normal = AC.cross(AB);
+    m_normal = m_e1.cross( m_e2 );
     m_normal.normalize();
-    
-    if ( abs(m_normal.X()) >= abs(m_normal.Y()) && abs(m_normal.X()) >= abs(m_normal.Z()) )
-    {
-      m_projectedVertices[0].set( 0, m_projectedVertices[0].Y(), m_projectedVertices[0].Z() );
-      m_projectedVertices[1].set( 0, m_projectedVertices[1].Y(), m_projectedVertices[1].Z() );
-      m_projectedVertices[2].set( 0, m_projectedVertices[2].Y(), m_projectedVertices[2].Z() );
-    }
-    else if ( abs(m_normal.Y()) >= abs(m_normal.Z()) )
-    {
-      m_projectedVertices[0].set( m_projectedVertices[0].X(), 0, m_projectedVertices[0].Z() );
-      m_projectedVertices[1].set( m_projectedVertices[1].X(), 0, m_projectedVertices[1].Z() );
-      m_projectedVertices[2].set( m_projectedVertices[2].X(), 0, m_projectedVertices[2].Z() );
-    }
-    else
-    {
-      m_projectedVertices[0].set( m_projectedVertices[0].X(), m_projectedVertices[0].Y(), 0 );
-      m_projectedVertices[1].set( m_projectedVertices[1].X(), m_projectedVertices[1].Y(), 0 );
-      m_projectedVertices[2].set( m_projectedVertices[2].X(), m_projectedVertices[2].Y(), 0 );
-    }
-    
+
     m_boundingBox = new Box( m_vertices ).getBoundingBox();
   }
   
@@ -187,78 +165,63 @@ class Triangle implements Shape
   }
   
   //Optimized ray triangle intersection
-  public boolean intersects( Ray ray, float tMin, float tMax )
+  private float intersectInternal( Ray ray, float tMin, float tMax )
   {
-    /*if ( !m_boundingBox.intersects( ray, tMin, tMax ) )
+    Vector p = ray.getDirection().cross( m_e2 );
+    Vector tVec, q;
+    float det = m_e1.dot( p );
+    float u, v, t;
+    if ( det > c_epsilon )
     {
-      return false;
-    }*/
-
-    float denominator = ray.getDirection().dot( m_normal );
-    if ( denominator == 0 )
-    {
-      return false;
+      tVec = new Vector( m_vertices[0], ray.getOrigin() );
+      u = tVec.dot(p);
+      if ( u < 0.0 || u > det )
+        return 0;
+        
+      q = tVec.cross( m_e1 );
+      v = ray.getDirection().dot( q );
+      if ( v < 0.0 || v > det )
+        return 0;
     }
-
-    Vector rayOrigToPlane = new Vector( ray.getOrigin(), m_vertices[0] );
-    float t = rayOrigToPlane.dot( m_normal ) / denominator;
-    if ( t < c_epsilon || t < tMin - c_epsilon || t > tMax + c_epsilon )
+    else if ( det < -c_epsilon )
     {
-      return false;
-    }
-    Point inPlane = new Point( ray, t );
-
-    if ( abs(m_normal.X()) >= abs(m_normal.Y()) && abs(m_normal.X()) >= abs(m_normal.Z()) )
-    {
-      inPlane.set( 0, inPlane.Y(), inPlane.Z() );
-    }
-    else if ( abs(m_normal.Y()) >= abs(m_normal.Z()) )
-    {
-      inPlane.set( inPlane.X(), 0, inPlane.Z() );
+      tVec = new Vector( m_vertices[0], ray.getOrigin() );
+      u = tVec.dot(p);
+      if ( u > 0.0 || u < det )
+        return 0;
+        
+      q = tVec.cross( m_e1 );
+      v = ray.getDirection().dot( q );
+      if ( v > 0.0 || v < det )
+        return 0;
     }
     else
     {
-      inPlane.set( inPlane.X(), inPlane.Y(), 0 );
+      return 0;
     }
-    
-    Vector AP = new Vector( m_projectedVertices[0], inPlane );
-    Vector BP = new Vector( m_projectedVertices[1], inPlane );
-    Vector CP = new Vector( m_projectedVertices[2], inPlane );
-    Vector AB = new Vector( m_projectedVertices[0], m_projectedVertices[1] );
-    Vector BC = new Vector( m_projectedVertices[1], m_projectedVertices[2] );
-    Vector CA = new Vector( m_projectedVertices[2], m_projectedVertices[0] );
-
-    Vector v1 = AB.cross( AP );
-    Vector v2 = BC.cross( BP );
-    Vector v3 = CA.cross( CP );
-    
-    return ( v1.dot(v2) >= 0 && v1.dot(v3) >= 0 && v2.dot(v3) >= 0 );
+    float tIntersection = m_e2.dot( q ) / det;
+    if ( tIntersection < c_epsilon || tIntersection < tMin || tIntersection > tMax )
+    {
+      return 0;
+    }
+    return tIntersection;
+  }
+  
+  public boolean intersects( Ray ray, float tMin, float tMax )
+  {
+    return ( intersectInternal( ray, tMin, tMax ) != 0 );
   }
   
   
   public ShapeIntersectionInfo getIntersectionInfo( Ray ray, float tMin, float tMax )
-  {
-    //TODO msati3: Remove dependence on intersects
-    if ( !intersects( ray, tMin, tMax ) )
+  {  
+    float t = intersectInternal( ray, tMin, tMax );
+    if ( t != 0 )
     {
-      return null;
+      Point inPlane = new Point( ray, t );
+      return new ShapeIntersectionInfo( inPlane, m_normal, t, true );
     }
-    float denominator = ray.getDirection().dot( m_normal );
-    if ( denominator == 0 )
-    {
-      return null;
-    }
-
-    Vector rayOrigToPlane = new Vector( ray.getOrigin(), m_vertices[0] );
-    float t = rayOrigToPlane.dot( m_normal ) / denominator;
-    
-    if ( t < c_epsilon || t < tMin - c_epsilon || t > tMax + c_epsilon )
-    {
-      return null;
-    }
-    
-    Point inPlane = new Point( ray, t );
-    return new ShapeIntersectionInfo( inPlane, m_normal, t, true );
+    return null;
   }
 }
 
