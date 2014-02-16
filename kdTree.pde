@@ -1,40 +1,55 @@
 float traversalCost = 1;
 float intersectionCost = 80;
 
+//TODO msati3: Cleanup memory usage stuff from all these data-structures
 class KDTreeNode
 {
   float m_splitPlane;
-  int m_oneChild;
-  int m_otherChildAndType;
+  int m_child1;
+  int m_child2AndType;
   private ArrayList<Integer> m_indices;
 
   KDTreeNode( float splitPlane, int type )
   {
     m_splitPlane = splitPlane;
-    m_otherChildAndType = type;
+    m_child1 = -1;
+    m_child2AndType = type;
     m_indices = null;
   }
 
   KDTreeNode( ArrayList<Integer> indices, int type )
   {
     m_indices = indices;
-    m_otherChildAndType = type;
+    m_child1 = -1;
+    m_child2AndType = type;
     m_splitPlane = -1;
   }
 
-  public void setOtherChild( int otherChild )
+  public void setChild( boolean fLeft, int child )
   {
-    m_otherChildAndType |= otherChild;
+    if ( fLeft )
+    {
+      m_child1 = child;
+    }
+    else
+    {
+      m_child2AndType |= (child<<2);
+    }
   }
 
   public int getType()
   {
-    return m_otherChildAndType & 0x3;
+    return m_child2AndType & 0x3;
   }
 
-  public int getOtherChild()
+  public int child1()
   {
-    return m_otherChildAndType>>2;
+    return m_child1;
+  }
+
+  public int child2()
+  {
+    return m_child2AndType>>2;
   }
 
   public ArrayList<Integer> getIndices()
@@ -82,7 +97,7 @@ class SweepEventComparator implements Comparator<SweepEvent>
   }
 }
 
-class SingleSplitResult
+class SplitResult
 {
   private ArrayList<Integer> m_indicesLeft;
   private ArrayList<Integer> m_indicesRight;
@@ -90,8 +105,11 @@ class SingleSplitResult
   private Box m_boxRight;
   private float m_splitPlane;
   private int m_splitPlaneDirection;
+
+  private int m_parent;
+  private boolean m_fLeftChild;
   
-  SingleSplitResult( ArrayList<Integer> indicesLeft, ArrayList<Integer> indicesRight, Box boxLeft, Box boxRight, float splitPlane, int splitPlaneDirection )
+  SplitResult( ArrayList<Integer> indicesLeft, ArrayList<Integer> indicesRight, Box boxLeft, Box boxRight, float splitPlane, int splitPlaneDirection )
   {
     m_indicesLeft = indicesLeft;
     m_indicesRight = indicesRight;
@@ -99,35 +117,68 @@ class SingleSplitResult
     m_boxRight = boxRight;
     m_splitPlane = splitPlane;
     m_splitPlaneDirection = splitPlaneDirection;
+    
+    //Parameters for retrospectively pointing parent to its children
+    m_parent = -1;
+    m_fLeftChild = false;
   }
   
+  public void setParentAndChildFlag( int parent, boolean fLeftChild ) 
+  {
+    m_parent = parent; 
+    m_fLeftChild = fLeftChild;
+  }
+ 
   public float splitPlane() { return m_splitPlane; }
   public int splitPlaneDirection() { return m_splitPlaneDirection; }
   public Box boxLeft() { return m_boxLeft; }
   public Box boxRight() { return m_boxRight; }
   public ArrayList<Integer> indicesLeft() { return m_indicesLeft; }
-  public ArrayList<?Integer> indicesRight() { return m_indicesRight; }
+  public ArrayList<Integer> indicesRight() { return m_indicesRight; }
+
+  public int parent() { return m_parent; }
+  public boolean fLeftChild() { return m_fLeftChild; }
 }
 
 //This maintains a queue of results that are produced by the KDTreeSplitCreatorTask threads. The kdtree creator reads these and spawns off further SplitCreatorTasks
-class SingleSplitResultQueue
+class SplitResultQueue
 {
-  private Queue<SingleSplitResult> m_results;
+  private ArrayList<SplitResult> m_results;
+  private int m_consumptionIndex;
   
-  SharedResult()
+  SplitResultQueue()
   {
-    m_results = new ArrayList<SingleSplitResult>();
+    m_results = new ArrayList<SplitResult>();
+    m_consumptionIndex = 0;
   }
   
-  public synchronized void onProduce( SingleSplitResult result)
+  //Multiple producing threads can write to this
+  public synchronized void onProduce( SplitResult result)
   {
     m_results.add( result );
     this.notifyAll();
   }
   
-  public synchronized SingleSplitResult onConsume()
+  //This is just to be used by the single consuming thread
+  //Is is the callers responsibility to ensure that this is not called when no more creator threads exist
+  public synchronized SplitResult onConsume()
   {
-    return m_results.remove();
+    if ( m_consumptionIndex == m_results.size() )
+    {
+      try
+      {
+        this.notifyAll();
+        this.wait();
+      }
+      catch (InterruptedException ex)
+      {
+        print("Caught interrupted exception in on consume!!\n");
+      }
+    }
+    //Wait until some thread produces
+    SplitResult result = m_results.get(m_consumptionIndex);
+    m_consumptionIndex++;
+    return result;
   }
 }
 
@@ -135,83 +186,113 @@ class KDTreeSplitCreatorTask implements Task
 {
   private ArrayList<Integer> m_indices;
   private Box m_box;
-  private SingleSplitResultQueue m_queue; 
+  private SplitResultQueue m_queue; 
+  private KDTree m_tree;
+
+  //To populate parent's points when this Task is done 
+  private int m_parent;
+  private boolean m_fLeftChild;
   
-  KDTreeSplitCreatorTask( ArrayList<Integer> indices, Box box, KDTreeNode parent, SingleSplitResultQueue queue )
+  KDTreeSplitCreatorTask( KDTree tree, ArrayList<Integer> indices, Box box, SplitResultQueue queue, int parent, boolean fLeftChild )
   {
     m_indices = indices;
     m_box = box;
     m_queue = queue;
+    m_parent = parent;
+    m_fLeftChild = fLeftChild;
+    m_tree = tree;
   }
   
   public void run()
   {
-    SingleSplitResult result = m_input.tree().createSingleSplit( m_indices, m_box );
-    m_queue.add( result );
+    SplitResult result = m_tree.createSingleSplit( m_indices, m_box );
+    result.setParentAndChildFlag( m_parent, m_fLeftChild );
+    m_queue.onProduce( result );
   }
 }
 
-//Paraller creation of KD-Tree
+//Facilitates Parallel creation of KD-Tree
 class KDTreeCreator
 {
   private KDTree m_tree;
   private ExecutorService m_pool;
   private ArrayList<KDTreeNode> m_nodes;
-  private SingleSplitResultQueue m_queue; 
+  private SplitResultQueue m_queue;
     
   KDTreeCreator( ArrayList<LightedPrimitive> objects )
   {
     m_tree = new KDTree( objects );
     int cores = Runtime.getRuntime().availableProcessors();
     m_pool = Executors.newFixedThreadPool(2*cores);
-    m_queue = new SingleSplitResultQueue();
+    m_queue = new SplitResultQueue();
+    m_nodes = new ArrayList<KDTreeNode>();
+  }
+  
+  public KDTree create()
+  {
+    int threadsSpawned = 0;
+    int threadsReturned = 0;
 
     ArrayList<Integer> indices = new ArrayList<Integer>();
-    for (int i = 0; i < objects.size(); i++)
+    for (int i = 0; i < m_tree.getNumObjects(); i++)
     {
       indices.add(i);
     }
     Box boundingBox = cloneBox( m_tree.getBoundingBox() );
 
-    KDTreeSplitCreatorTask task = new KDTreeSplitCreatorTask( indices, boundingBox, m_queue );
+    KDTreeSplitCreatorTask task = new KDTreeSplitCreatorTask( m_tree, indices, boundingBox, m_queue, -1, false );
     Thread t = new Thread(task);
     m_pool.submit(t);
-    onSplitResultAvailable();
-  }
-  
-  public void onSplitResultAvailable()
-  {
-    SingleSplitResult result = m_queue.onConsume();
-    if ( result.splitPlaneDirection() != -1 )
-    {
-      KDTreeNode newNode = new KDTreeNode( result.splitPlane(), result.splitPlaneDirection() );
-      m_nodes.add( newNode );
-      if ( DEBUG && DEBUG_MODE >= VERBOSE )
-      {
-        print("Adding plane " + result.splitPlane() + " direction " + result.splitPlaneDirection() + " " + result.indicesLeft() + " " + result.indicesRight() + "\n");
-      }
+    threadsSpawned++;
 
-      KDTreeSplitCreatorTask taskLeft = new KDTreeSplitCreatorTask( result.indicesLeft(), result.boxLeft(), newNode, m_queue );
-      Thread taskLeftThread = new Thread(taskLeft);
-      m_pool.submit(taskLeftThread);
+    while ( threadsReturned != threadsSpawned )
+    {
+      SplitResult result = m_queue.onConsume();
+      threadsReturned++;
+      if ( result.splitPlaneDirection() != -1 )
+      {
+        KDTreeNode newNode = new KDTreeNode( result.splitPlane(), result.splitPlaneDirection() );
+        m_nodes.add( newNode );
+        int index = m_nodes.size() - 1;
+        if ( result.parent() != -1 )
+        {
+          m_nodes.get( result.parent() ).setChild( result.fLeftChild(), index );
+        }
+
+        if ( DEBUG && DEBUG_MODE >= VERBOSE )
+        {
+          print("Adding plane " + result.splitPlane() + " direction " + result.splitPlaneDirection() + " " + result.indicesLeft() + " " + result.indicesRight() + "\n");
+        }
+ 
+        KDTreeSplitCreatorTask taskLeft = new KDTreeSplitCreatorTask( m_tree, result.indicesLeft(), result.boxLeft(), m_queue, index, true );
+        Thread taskLeftThread = new Thread(taskLeft);
+        m_pool.submit(taskLeftThread);
+        threadsSpawned++;
       
-      KDTreeSplitCreatorTask taskRight = new KDTreeSplitCreatorTask( result.indicesRight(), result.boxRight(), newNode, m_queue );
-      Thread taskRightThread = new Thread(taskRight);
-      m_pool.submit(taskRightThread);
-
-      int otherChild = right<<2;
-      m_nodes.get(indexAdded).setOtherChild( otherChild );
-      return indexAdded;
-    }
-    else
-    {
-      if ( DEBUG && DEBUG_MODE >= VERBOSE )
-      {
-        print("Adding leaf with children " + indices + "\n");
+        KDTreeSplitCreatorTask taskRight = new KDTreeSplitCreatorTask( m_tree, result.indicesRight(), result.boxRight(), m_queue, index, false );
+        Thread taskRightThread = new Thread(taskRight);
+        m_pool.submit(taskRightThread);
+        threadsSpawned++;
       }
-      m_nodes.add( new KDTreeNode( indices, 3 ) );
-      return m_nodes.size() - 1;
+      else
+      {
+        m_nodes.add( new KDTreeNode( result.indicesLeft(), 3 ) );
+        if ( DEBUG && DEBUG_MODE >= LOW )
+        {
+          print("Adding leaf with children " + m_nodes.get( m_nodes.size() - 1 ).getIndices() + "\n");
+        }
+      }
     }
+    m_pool.shutdown();
+    try
+    {
+      m_pool.awaitTermination(Long.MAX_VALUE, TimeUnit.SECONDS);
+    } catch ( InterruptedException ex )
+    {
+      print("Exception occurred while shutting down thread pool! KDTreeCreator::create render!");
+    }   
+    m_tree.setNodes( m_nodes );
+    return m_tree;
   }
 }
 
@@ -237,7 +318,7 @@ class KDTree implements Primitive
   
   void setNodes( ArrayList<KDTreeNode> nodes )
   {
-    m_nodes = m_nodes;
+    m_nodes = nodes;
   }
 
   private float findCost( float probLeft, float probRight, int numLeft, int numRight )
@@ -246,10 +327,11 @@ class KDTree implements Primitive
     return factor * (traversalCost + (probLeft*numLeft + probRight*numRight) * intersectionCost);
   }
 
-  //Trivial sorting implementation right now
-  private SingleSplitResult createSingleSplit( ArrayList<Integer> indices, Box box )
+  //Trivial sorting implementation right now. 
+  //This has to be thread safe. Is is called by each KDTreeSplitCreator task
+  public SplitResult createSingleSplit( ArrayList<Integer> indices, Box box )
   {
-    SingleSplitResult result = null;
+    SplitResult result = null;
     if ( DEBUG && DEBUG_MODE >= VERBOSE )
     {
       print("Number of objects " + indices.size() + "\n");
@@ -258,7 +340,7 @@ class KDTree implements Primitive
     float minSplitPlane = 0;
     int minSplitPlaneDirection = -1;
 
-    SplitResult minSplitResult = null;
+    BoxSplitResult minSplitResult = null;
 
     float costCurrent = intersectionCost * indices.size();
     float minCost = Float.MAX_VALUE;
@@ -342,12 +424,21 @@ class KDTree implements Primitive
         }
       }
     }
-    return new SingleSplitResult( minLeftIndices, minRightIndices, minSplitResult.box1, minSplitResult.box2, minSplitPlane, minSplitPlaneDirection );
+    if ( minSplitPlaneDirection != -1 )
+    {
+      return new SplitResult( minLeftIndices, minRightIndices, minSplitResult.box1, minSplitResult.box2, minSplitPlane, minSplitPlaneDirection );
+    }
+    return new SplitResult( indices, null, box, null, minSplitPlane, minSplitPlaneDirection );
   }
 
   public Box getBoundingBox()
   {
     return m_boundingBox;
+  }
+  
+  public int getNumObjects()
+  {
+    return m_objects.size();
   }
 
   private IntersectionInfo getIntersectionInfoLeaf( Integer nodeIndex, Ray ray, float tMin, float tMax )
@@ -390,16 +481,18 @@ class KDTree implements Primitive
     }
     else
     {
-      printTree( nodeIndex + 1 );
-      printTree( m_nodes.get(nodeIndex).getOtherChild() );
+      printTree( m_nodes.get(nodeIndex).child1() );
+      printTree( m_nodes.get(nodeIndex).child2() );
     }
   }
+
 
   private IntersectionInfo getIntersectionInfoRecursive( Integer nodeIndex, Ray ray, float tMin, float tMax )
   {
     int axis = m_nodes.get(nodeIndex).getType();
+
     if ( axis == 3 )
-    {
+    { 
       if ( DEBUG && DEBUG_MODE >= VERBOSE )
       {
         print("Traversal " + m_nodes.get(nodeIndex).getIndices() + "\n");
@@ -414,7 +507,7 @@ class KDTree implements Primitive
     int nearChild = 0;
     int farChild = 0;
 
-    if ( DEBUG && DEBUG_MODE >= VERBOSE )
+    if ( DEBUG && DEBUG_MODE >= LOW )
     {
       print( nodeIndex + " " + tSplit + " " + tMin + " " + tMax  + " \n");
       printTree( nodeIndex );
@@ -423,13 +516,13 @@ class KDTree implements Primitive
 
     if ( ray.getDirection().get(axis) >= 0 )
     {
-      nearChild = nodeIndex + 1;
-      farChild = m_nodes.get(nodeIndex).getOtherChild();
+      nearChild = m_nodes.get(nodeIndex).child1();
+      farChild = m_nodes.get(nodeIndex).child2();
     }
     else
     {
-      nearChild = m_nodes.get(nodeIndex).getOtherChild();
-      farChild = nodeIndex + 1;
+      nearChild = m_nodes.get(nodeIndex).child2();
+      farChild = m_nodes.get(nodeIndex).child1();
     }
 
     if ( tSplit < tMin && (tSplit == tSplit) )
@@ -488,13 +581,13 @@ class KDTree implements Primitive
     int farChild = 0;
     if ( ray.getDirection().get(axis) >= 0 )
     {
-      nearChild = nodeIndex + 1;
-      farChild = m_nodes.get(nodeIndex).getOtherChild();
+      nearChild = m_nodes.get(nodeIndex).child1();
+      farChild = m_nodes.get(nodeIndex).child2();
     }
     else
     {
-      nearChild = m_nodes.get(nodeIndex).getOtherChild();
-      farChild = nodeIndex + 1;
+      nearChild = m_nodes.get(nodeIndex).child2();
+      farChild = m_nodes.get(nodeIndex).child1();
     }
 
     if ( tSplit < tMin && (tSplit == tSplit) )
@@ -531,7 +624,10 @@ class KDTree implements Primitive
   {
     float[] tExtents = m_boundingBox.getIntersectionExtents( ray );
     IntersectionInfo intersectionInfo = null;
-    intersectionInfo = getIntersectionInfoRecursive( 0, ray, tExtents[0] - c_epsilon, tExtents[1] + c_epsilon);
+    if ( tExtents != null )
+    {
+      intersectionInfo = getIntersectionInfoRecursive( 0, ray, tExtents[0] - c_epsilon, tExtents[1] + c_epsilon);
+    }
     return intersectionInfo;
   }
 }

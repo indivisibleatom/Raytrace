@@ -7,7 +7,6 @@ class PrimitiveManager
   PrimitiveManager()
   {
     m_primitives = new ArrayList<LightedPrimitive>();
-    m_kdTree = new KDTree();
   }
   
   public void addPrimitive( LightedPrimitive primitive )
@@ -17,7 +16,8 @@ class PrimitiveManager
   
   public void buildScene()
   {
-    m_kdTree.create( m_primitives );
+    KDTreeCreator creator = new KDTreeCreator( m_primitives );
+    m_kdTree = creator.create();
   }
   
   public boolean intersects( Ray ray )

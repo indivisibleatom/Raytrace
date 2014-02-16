@@ -26,7 +26,7 @@ void setup() {
 void keyPressed() {
   switch(key) {
     case '0':  gCurrentFile = new SceneBuilder(); gCurrentFile.buildScene("t10.cli"); break;
-    case '1':  gCurrentFile = new SceneBuilder(); gCurrentFile.buildScene("t1.cli"); break;
+    case '1':  gCurrentFile = new SceneBuilder(); gCurrentFile.buildScene("t01.cli"); break;
     case '2':  gCurrentFile = new SceneBuilder(); gCurrentFile.buildScene("t02.cli"); break;
     case '3':  gCurrentFile = new SceneBuilder(); gCurrentFile.buildScene("t03.cli"); break;
     case '4':  gCurrentFile = new SceneBuilder(); gCurrentFile.buildScene("t04.cli"); break;
