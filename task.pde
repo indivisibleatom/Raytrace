@@ -53,6 +53,7 @@ class SamplerRenderingTask implements Task
   public void run()
   {
     Sample sample = m_sampler.getNextSample();
+    int count = 0;
     do
     {
       Ray ray = m_scene.getCamera().getRay(sample);

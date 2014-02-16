@@ -277,7 +277,9 @@ class KDTreeCreator
       else
       {
         m_nodes.add( new KDTreeNode( result.indicesLeft(), 3 ) );
-        if ( DEBUG && DEBUG_MODE >= LOW )
+        int index = m_nodes.size() - 1;
+        m_nodes.get( result.parent() ).setChild( result.fLeftChild(), index );
+        if ( DEBUG && DEBUG_MODE >= VERBOSE )
         {
           print("Adding leaf with children " + m_nodes.get( m_nodes.size() - 1 ).getIndices() + "\n");
         }
@@ -476,11 +478,12 @@ class KDTree implements Primitive
   {
     int axis = m_nodes.get(nodeIndex).getType();
     if ( axis == 3)
-    {
+    {    
       print( m_nodes.get(nodeIndex).getIndices() );
     }
     else
     {
+      print( m_nodes.get(nodeIndex).child1() + " " );
       printTree( m_nodes.get(nodeIndex).child1() );
       printTree( m_nodes.get(nodeIndex).child2() );
     }
@@ -507,9 +510,10 @@ class KDTree implements Primitive
     int nearChild = 0;
     int farChild = 0;
 
-    if ( DEBUG && DEBUG_MODE >= LOW )
+    if ( DEBUG && DEBUG_MODE >= VERBOSE )
     {
-      print( nodeIndex + " " + tSplit + " " + tMin + " " + tMax  + " \n");
+      print( nodeIndex + " " + tSplit + " " + tMin + " " + tMax + " \n");
+      ray.debugPrint();
       printTree( nodeIndex );
       print("\n");
     }
