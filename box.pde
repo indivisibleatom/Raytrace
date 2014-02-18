@@ -319,6 +319,38 @@ class Box implements Shape
     return res;
   }
   
+  public BoxSplitResult split( float proposedPlaneValue, int dimension )
+  {
+    BoxSplitResult res = new BoxSplitResult();
+    res.box1 = cloneBox( this );
+    res.box2 = cloneBox( this );
+    
+    float valueToSet = proposedPlaneValue;
+    if ( proposedPlaneValue > m_extent2.get(dimension) )
+    {
+      valueToSet = m_extent2.get(dimension);
+    }
+    else if ( valueToSet < m_extent1.get(dimension) )
+    {
+      valueToSet = m_extent1.get(dimension);
+    }
+    res.box1.m_extent2.set(dimension, valueToSet );
+    res.box2.m_extent1.set(dimension, valueToSet );
+    res.box1.setSurfaceArea();
+    res.box2.setSurfaceArea();
+    if ( DEBUG && DEBUG_MODE >= LOW )
+    {
+      if ( res.box1.surfaceArea() < 0 )
+      {
+        print("Box.split - negative area!" + proposedPlaneValue);
+        this.debugPrint();
+        res.box1.debugPrint();
+        res.box2.debugPrint();
+      }
+    }
+    return res;
+  }
+  
   public Point extent1() { return m_extent1; }
   public Point extent2() { return m_extent2; }
   

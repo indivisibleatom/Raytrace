@@ -121,6 +121,7 @@ class SplitResult
     //Parameters for retrospectively pointing parent to its children
     m_parent = -1;
     m_fLeftChild = false;
+    //print("Best split " + m_splitPlaneDirection + " " + m_splitPlane + "\n");
   }
   
   public void setParentAndChildFlag( int parent, boolean fLeftChild ) 
@@ -205,7 +206,7 @@ class KDTreeSplitCreatorTask implements Task
   
   public void run()
   {
-    SplitResult result = m_tree.createSingleSplit( m_indices, m_box );
+    SplitResult result = m_tree.createSingleSplitUsingSubdivision( m_indices, m_box );
     result.setParentAndChildFlag( m_parent, m_fLeftChild );
     m_queue.onProduce( result );
   }
@@ -331,10 +332,132 @@ class KDTree implements Primitive
     float factor = (numLeft == 0 || numRight == 0)? 0.8 : 1;
     return factor * (traversalCost + (probLeft*numLeft + probRight*numRight) * intersectionCost);
   }
-
-  //Trivial sorting implementation right now. 
+  
+  //Spatial subdivision approach. Currently http://electronic-blue.wdfiles.com/local--files/research%3Agpurt/WK06.pdf.
+  //TODO msati3: Implement the approach mentioned in http://www.cs.utexas.edu/~whunt/papers/fast-kd-construction-RT06.pdf
   //This has to be thread safe. Is is called by each KDTreeSplitCreator task
-  public SplitResult createSingleSplit( ArrayList<Integer> indices, Box box )
+  public SplitResult createSingleSplitUsingSubdivision( ArrayList<Integer> indices, Box box )
+  {
+    SplitResult result = null;
+    if ( DEBUG && DEBUG_MODE >= VERBOSE )
+    {
+      print("Number of objects " + indices.size() + "\n");
+    }
+    float totalArea = box.surfaceArea();
+    float minSplitPlane = 0;
+    int minSplitPlaneDirection = -1;
+
+    BoxSplitResult minSplitResult = null;
+
+    float costCurrent = intersectionCost * indices.size();
+    float minCost = Float.MAX_VALUE;
+    
+    ArrayList<Integer> leftIndices = null;
+    ArrayList<Integer> rightIndices = null;
+    ArrayList<Integer> minLeftIndices = null;
+    ArrayList<Integer> minRightIndices = null;
+    
+    int numSamples = 8; //This is the maximum number of samples we consider for deciding split along each direction
+    //Find best split pane
+
+    float maxRange = 0;
+    int maxAxis = 0;
+
+    int numLeft = 0;
+    int numRight = 0;
+
+    for (int dim = 0; dim < 3; dim++)
+    {
+      float lowerRange = box.getPlaneForFace(dim<<1);
+      float higherRange = box.getPlaneForFace((dim<<1)+1);
+      if ( higherRange - lowerRange > maxRange )
+      {
+        maxRange = higherRange - lowerRange;
+        maxAxis = dim;
+      }
+    }
+    
+    float lowerRange = box.getPlaneForFace(maxAxis<<1);
+    float higherRange = box.getPlaneForFace((maxAxis<<1)+1);  
+    float proposedPlane = higherRange/2.0 + lowerRange/2.0;
+    int numTries = 0;
+    while ( (higherRange - lowerRange) > c_epsilon && numTries++ < numSamples )
+    {
+      BoxSplitResult s = box.split( proposedPlane, maxAxis );
+      float probLeft = s.box1.surfaceArea() / box.surfaceArea();
+      float probRight = s.box2.surfaceArea() / box.surfaceArea();
+
+      if ( DEBUG && DEBUG_MODE >= LOW )
+      {
+        if ( s.box1.surfaceArea() >= box.surfaceArea() )
+        {
+          print(proposedPlane + " " + maxAxis + " " + higherRange + " " + lowerRange + "\n");
+          print("Box Split1 Split2:");
+          box.debugPrint();
+          s.box1.debugPrint();
+          s.box2.debugPrint();
+        }
+      }
+      leftIndices = new ArrayList<Integer>();
+      rightIndices = new ArrayList<Integer>();
+      for (int i = 0; i < indices.size(); i++)
+      {
+        int index = indices.get(i);
+        float leftFace = m_objects.get( index ).getBoundingBox().getPlaneForFace(maxAxis<<1);
+        float rightFace = m_objects.get( index ).getBoundingBox().getPlaneForFace((maxAxis<<1)+1);
+        
+        if ( rightFace < proposedPlane )
+        {
+          leftIndices.add( index );
+        }
+        else if ( leftFace > proposedPlane )
+        {
+          rightIndices.add( index );
+        }
+        else
+        {
+          rightIndices.add( index );
+          leftIndices.add( index );
+        }
+      }
+
+      if ( !( (compare( probLeft, 1 ) ) || (compare( probRight, 1 ) ) ) )
+      {
+        numLeft = leftIndices.size();
+        numRight = rightIndices.size();
+        float cost = findCost( probLeft, probRight, numLeft, numRight );
+        if ( cost < minCost && cost < costCurrent )
+        {
+          minLeftIndices = leftIndices;
+          minRightIndices = rightIndices;
+          minCost = cost;
+          minSplitPlaneDirection = maxAxis;
+          minSplitPlane = proposedPlane;
+          minSplitResult = s;
+
+          if ( numLeft < numRight )
+          {
+            lowerRange = proposedPlane;
+            proposedPlane = higherRange/2 + lowerRange/2;
+          }
+          else
+          {
+            higherRange = proposedPlane;
+            proposedPlane = higherRange/2 + lowerRange/2;
+          }
+        }
+      }
+    }
+    if ( minSplitPlaneDirection != -1 )
+    {
+      return new SplitResult( minLeftIndices, minRightIndices, minSplitResult.box1, minSplitResult.box2, minSplitPlane, minSplitPlaneDirection );
+    }
+    return new SplitResult( indices, null, box, null, minSplitPlane, minSplitPlaneDirection );
+  }
+
+  //Trivial sorting implementation right now. TODO msati3: implement the one mentioned at http://www.eng.utah.edu/~cs6965/papers/kdtree.pdf
+  //This has to be thread safe. Is is called by each KDTreeSplitCreator task
+  public SplitResult createSingleSplitUsingSort( ArrayList<Integer> indices, Box box )
   {
     SplitResult result = null;
     if ( DEBUG && DEBUG_MODE >= VERBOSE )
