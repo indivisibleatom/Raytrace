@@ -122,12 +122,11 @@ class Vector
   
   public float dot( Vector other )
   {
-    float val = 0;
-    for (int i = 0; i < 3; i++)
-    {
-      val += m_v[i] * other.m_v[i];
-    }
-    return val;
+    float[] val = new float[3];
+    val[0] = m_v[0] * other.m_v[0];
+    val[1] = m_v[1] * other.m_v[1];
+    val[2] = m_v[2] * other.m_v[2];
+    return val[0] + val[1] + val[2];
   }
   
   public Vector cross( Vector other )
@@ -148,12 +147,12 @@ class Vector
   public void normalize()
   {
     float denom = getMagnitude();
-    if ( denom != 0 )
+    if ( denom == 0 || denom == 1  )
+      return;
+    float invDenom = 1/denom;
+    for (int i = 0; i < 3; i++)
     {
-      for (int i = 0; i < 3; i++)
-      {
-        m_v[i] /= denom;
-      }
+      m_v[i] *= invDenom;
     }
   }
   
