@@ -224,7 +224,7 @@ class KDTreeCreator
   {
     m_tree = new KDTree( objects );
     int cores = Runtime.getRuntime().availableProcessors();
-    m_pool = Executors.newFixedThreadPool(2*cores);
+    m_pool = Executors.newFixedThreadPool(3*cores);
     m_queue = new SplitResultQueue();
     m_nodes = new ArrayList<KDTreeNode>();
   }
