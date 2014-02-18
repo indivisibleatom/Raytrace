@@ -21,7 +21,7 @@ class SamplerRenderer implements Renderer
   {
     int cores = Runtime.getRuntime().availableProcessors();
     int numTasks = 25;
-    ExecutorService pool = Executors.newFixedThreadPool(3*cores);
+    ExecutorService pool = Executors.newFixedThreadPool(coreMultiplier*cores);
     for (int i = 0; i < numTasks; i++)
     {
       SamplerRenderingTask task = new SamplerRenderingTask( scene, m_sampler, numTasks, i );

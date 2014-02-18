@@ -1,3 +1,6 @@
+int maxDepth = 15;
+int numSamples = 8;
+int coreMultiplier = 5;
 float traversalCost = 1;
 float intersectionCost = 80;
 
@@ -109,6 +112,8 @@ class SplitResult
   private int m_parent;
   private boolean m_fLeftChild;
   
+  private int m_depth;
+  
   SplitResult( ArrayList<Integer> indicesLeft, ArrayList<Integer> indicesRight, Box boxLeft, Box boxRight, float splitPlane, int splitPlaneDirection )
   {
     m_indicesLeft = indicesLeft;
@@ -121,7 +126,8 @@ class SplitResult
     //Parameters for retrospectively pointing parent to its children
     m_parent = -1;
     m_fLeftChild = false;
-    //print("Best split " + m_splitPlaneDirection + " " + m_splitPlane + "\n");
+    
+    m_depth = -1;
   }
   
   public void setParentAndChildFlag( int parent, boolean fLeftChild ) 
@@ -130,12 +136,18 @@ class SplitResult
     m_fLeftChild = fLeftChild;
   }
  
+  public void setDepth( int depth )
+  {
+    m_depth = depth;
+  }
+ 
   public float splitPlane() { return m_splitPlane; }
   public int splitPlaneDirection() { return m_splitPlaneDirection; }
   public Box boxLeft() { return m_boxLeft; }
   public Box boxRight() { return m_boxRight; }
   public ArrayList<Integer> indicesLeft() { return m_indicesLeft; }
   public ArrayList<Integer> indicesRight() { return m_indicesRight; }
+  public int depth() { return m_depth; }
 
   public int parent() { return m_parent; }
   public boolean fLeftChild() { return m_fLeftChild; }
@@ -189,12 +201,13 @@ class KDTreeSplitCreatorTask implements Task
   private Box m_box;
   private SplitResultQueue m_queue; 
   private KDTree m_tree;
+  private int m_depth;
 
   //To populate parent's points when this Task is done 
   private int m_parent;
   private boolean m_fLeftChild;
   
-  KDTreeSplitCreatorTask( KDTree tree, ArrayList<Integer> indices, Box box, SplitResultQueue queue, int parent, boolean fLeftChild )
+  KDTreeSplitCreatorTask( KDTree tree, ArrayList<Integer> indices, Box box, SplitResultQueue queue, int parent, boolean fLeftChild, int depth )
   {
     m_indices = indices;
     m_box = box;
@@ -202,13 +215,26 @@ class KDTreeSplitCreatorTask implements Task
     m_parent = parent;
     m_fLeftChild = fLeftChild;
     m_tree = tree;
+    m_depth = depth;
   }
   
   public void run()
   {
-    SplitResult result = m_tree.createSingleSplitUsingSubdivision( m_indices, m_box );
-    result.setParentAndChildFlag( m_parent, m_fLeftChild );
-    m_queue.onProduce( result );
+    if ( m_depth < maxDepth )
+    {
+      //SplitResult result = m_tree.createSingleSplitUsingSort( m_indices, m_box );
+      SplitResult result = m_tree.createSingleSplitUsingSubdivision( m_indices, m_box );
+      result.setParentAndChildFlag( m_parent, m_fLeftChild );
+      result.setDepth( m_depth );
+      m_queue.onProduce( result );
+    }
+    else
+    {
+      SplitResult result = new SplitResult( m_indices, null, m_box, null, 0, -1 );
+      result.setParentAndChildFlag( m_parent, m_fLeftChild );
+      result.setDepth( m_depth );
+      m_queue.onProduce( result );
+    }
   }
 }
 
@@ -224,7 +250,7 @@ class KDTreeCreator
   {
     m_tree = new KDTree( objects );
     int cores = Runtime.getRuntime().availableProcessors();
-    m_pool = Executors.newFixedThreadPool(3*cores);
+    m_pool = Executors.newFixedThreadPool(coreMultiplier*cores);
     m_queue = new SplitResultQueue();
     m_nodes = new ArrayList<KDTreeNode>();
   }
@@ -241,7 +267,8 @@ class KDTreeCreator
     }
     Box boundingBox = cloneBox( m_tree.getBoundingBox() );
 
-    KDTreeSplitCreatorTask task = new KDTreeSplitCreatorTask( m_tree, indices, boundingBox, m_queue, -1, false );
+    int depth = 0;
+    KDTreeSplitCreatorTask task = new KDTreeSplitCreatorTask( m_tree, indices, boundingBox, m_queue, -1, false, depth );
     Thread t = new Thread(task);
     m_pool.submit(t);
     threadsSpawned++;
@@ -249,6 +276,7 @@ class KDTreeCreator
     while ( threadsReturned != threadsSpawned )
     {
       SplitResult result = m_queue.onConsume();
+      depth = result.depth();
       threadsReturned++;
       if ( result.splitPlaneDirection() != -1 )
       {
@@ -265,12 +293,12 @@ class KDTreeCreator
           print("Adding plane " + result.splitPlane() + " direction " + result.splitPlaneDirection() + " " + result.indicesLeft() + " " + result.indicesRight() + "\n");
         }
  
-        KDTreeSplitCreatorTask taskLeft = new KDTreeSplitCreatorTask( m_tree, result.indicesLeft(), result.boxLeft(), m_queue, index, true );
+        KDTreeSplitCreatorTask taskLeft = new KDTreeSplitCreatorTask( m_tree, result.indicesLeft(), result.boxLeft(), m_queue, index, true, depth + 1 );
         Thread taskLeftThread = new Thread(taskLeft);
         m_pool.submit(taskLeftThread);
         threadsSpawned++;
       
-        KDTreeSplitCreatorTask taskRight = new KDTreeSplitCreatorTask( m_tree, result.indicesRight(), result.boxRight(), m_queue, index, false );
+        KDTreeSplitCreatorTask taskRight = new KDTreeSplitCreatorTask( m_tree, result.indicesRight(), result.boxRight(), m_queue, index, false, depth + 1 );
         Thread taskRightThread = new Thread(taskRight);
         m_pool.submit(taskRightThread);
         threadsSpawned++;
@@ -357,9 +385,7 @@ class KDTree implements Primitive
     ArrayList<Integer> minLeftIndices = null;
     ArrayList<Integer> minRightIndices = null;
     
-    int numSamples = 8; //This is the maximum number of samples we consider for deciding split along each direction
     //Find best split pane
-
     float maxRange = 0;
     int maxAxis = 0;
 
