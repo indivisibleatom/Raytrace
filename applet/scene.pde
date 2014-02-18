@@ -57,21 +57,6 @@ class Scene
     m_sceneManager.addPrimitive(obj);
   }
   
-  public void onBeginList()
-  {
-    m_sceneManager.onBeginList();
-  }
-  
-  public void onEndList()
-  {
-    m_sceneManager.onEndList();
-  }
-  
-  public void onEndAccel()
-  {
-    m_sceneManager.onEndAccel();
-  }
-  
   public void raytrace()
   {
     long startTime = System.currentTimeMillis();

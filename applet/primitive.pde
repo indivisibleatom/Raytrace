@@ -2,13 +2,13 @@ interface Primitive
 {
   public boolean intersects( Ray ray, float tMin, float tMax ); 
   public IntersectionInfo getIntersectionInfo( Ray ray, float tMin, float tMax );
-  public Box getBoundingBox();
 }
 
 interface LightedPrimitive extends Primitive
 {
   public Color getDiffuseCoeffs();
   public Color getAmbientCoeffs();
+  public Box getBoundingBox();
 }
 
 class GeometricPrimitive implements LightedPrimitive
@@ -53,11 +53,11 @@ class GeometricPrimitive implements LightedPrimitive
 //Stores a reference to the actual primitive and a reference to a transform to take
 class InstancePrimitive implements LightedPrimitive
 {
-  private Primitive m_primitive;
+  private LightedPrimitive m_primitive;
   private Transformation m_transform;
   private Box m_boundingBox;
   
-  InstancePrimitive( Primitive primitive, Transformation transform )
+  InstancePrimitive( LightedPrimitive primitive, Transformation transform )
   {
     m_primitive = primitive;
     m_transform = new Transformation();
@@ -76,5 +76,20 @@ class InstancePrimitive implements LightedPrimitive
   {
     Ray rayLocal = m_transform.worldToLocalUnnormalized( ray );
     return m_primitive.getIntersectionInfo( rayLocal, tMin, tMax ); 
+  }
+  
+  public Color getDiffuseCoeffs()
+  {
+    return m_primitive.getDiffuseCoeffs(); 
+  }
+  
+  public Color getAmbientCoeffs() 
+  {
+    return m_primitive.getAmbientCoeffs(); 
+  }
+  
+  public Box getBoundingBox()
+  {
+    return m_boundingBox; 
   }
 }

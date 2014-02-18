@@ -13,13 +13,6 @@ class Box implements Shape
   Transformation m_transformation;
   float m_surfaceArea;
   
-  Box( Box other )
-  {
-    m_extent1 = clonePt( other.extent1() );
-    m_extent2 = clonePt( other.extent2() );
-    setSurfaceArea();
-  }
-  
   Box( Point point1, Point point2, Transformation transformation )
   {
     if ( transformation == null ) //If no transformation, treat this as an untransformed box.
@@ -128,7 +121,7 @@ class Box implements Shape
     }
   }
   
-  class BoxIntersectionInfoInternal
+  private class BoxIntersectionInfoInternal
   {
     float[] t1 = new float[3];
     float[] t2 = new float[3];
@@ -136,7 +129,7 @@ class Box implements Shape
   }
   
   //Optimized box ray intersection. Implemented with the aid of paper http://people.csail.mit.edu/amy/papers/box-jgt.pdf. Nifty tricks include +/0 = float.MAX, -/0 = float.MIN
-  public BoxIntersectionInfoInternal internalIntersect( Ray ray )
+  private BoxIntersectionInfoInternal internalIntersect( Ray ray )
   {
     Point rayOrigin = ray.getOrigin();
     Vector rayDirection = ray.getDirection();
@@ -351,48 +344,3 @@ Box cloneBox( Box other )
   Box newBox = new Box( clonePt( other.extent1() ), clonePt( other.extent2() ), null );
   return newBox;
 }
-
-class BoundingBox implements Primitive
-{
-  private ArrayList<Primitive> m_primitives;
-  private KDTree m_tree;
-  private Box m_box;
-  
-  BoundingBox( ArrayList<Primitive> primitives )
-  {
-    m_primitives = primitives;
-  
-    m_box = cloneBox( primitives.get(0).getBoundingBox() ); 
-    for (int i = 1; i < m_primitives.size(); i++)
-    {
-      m_box.grow( m_primitives.get(i).getBoundingBox() );
-    }
-    
-    KDTreeCreator creator = new KDTreeCreator( m_primitives );
-    m_tree = creator.create();
-  }
-  
-  public boolean intersects( Ray ray, float tMin, float tMax )
-  {
-    if ( m_box.intersects( ray, tMin, tMax ) )
-    {
-     return m_tree.intersects( ray, tMin, tMax );
-    }
-    return false;
-  }
-  
-  public IntersectionInfo getIntersectionInfo( Ray ray, float tMin, float tMax )
-  {
-    if ( m_box.getIntersectionInfo( ray, tMin, tMax ) != null )
-    {   
-      return m_tree.getIntersectionInfo( ray, tMin, tMax );
-    }
-    return null;
-  }
-  
-  public Box getBoundingBox()
-  {
-    return m_box;
-  }
-}
-

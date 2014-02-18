@@ -25,16 +25,11 @@ class PointLight implements Light
   {
     return null;
   }
-
-  public Box getBoundingBox()
-  {
-    return null;
-  }
   
   public Color getColor()
   {
     return m_color;
-  } 
+  }
   
   public Ray getRay( Point pointFrom )
   {

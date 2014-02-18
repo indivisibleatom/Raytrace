@@ -219,7 +219,7 @@ class KDTreeCreator
   private ArrayList<KDTreeNode> m_nodes;
   private SplitResultQueue m_queue;
     
-  KDTreeCreator( ArrayList<Primitive> objects )
+  KDTreeCreator( ArrayList<LightedPrimitive> objects )
   {
     m_tree = new KDTree( objects );
     int cores = Runtime.getRuntime().availableProcessors();
@@ -305,10 +305,10 @@ class KDTreeCreator
 class KDTree implements Primitive
 {
   private Box m_boundingBox;
-  private ArrayList<Primitive> m_objects;
+  private ArrayList<LightedPrimitive> m_objects;
   private ArrayList<KDTreeNode> m_nodes;
 
-  KDTree( ArrayList<Primitive> objects )
+  KDTree( ArrayList<LightedPrimitive> objects )
   {
     m_objects = objects;
 

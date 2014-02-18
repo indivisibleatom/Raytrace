@@ -24,9 +24,9 @@ class IntersectionInfo
   private LightedPrimitive m_primitive;
   private ShapeIntersectionInfo m_shapeInfo;
   
-  IntersectionInfo( Primitive primitive, ShapeIntersectionInfo info )
+  IntersectionInfo( LightedPrimitive primitive, ShapeIntersectionInfo info )
   {
-    m_primitive = (LightedPrimitive) primitive;
+    m_primitive = primitive;
     m_shapeInfo = info;
   }
 

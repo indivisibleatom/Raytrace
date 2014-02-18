@@ -23,24 +23,9 @@ class SceneManager
   
   public void addPrimitive(String name, Transformation transformation )
   {
-    Primitive namedPrimitive = m_primitiveManager.getPrimitive( name );
+    LightedPrimitive namedPrimitive = m_primitiveManager.getPrimitive( name );
     InstancePrimitive instancePrimitive = new InstancePrimitive( namedPrimitive, transformation );
     addPrimitive( instancePrimitive );
-  }
-  
-  public void onBeginList()
-  {
-    m_primitiveManager.beginList();
-  }
-  
-  public void onEndList()
-  {
-    m_primitiveManager.endList();
-  }
-  
-  public void onEndAccel()
-  {
-    m_primitiveManager.endAccel();
   }
   
   public void setMaterial( Color ambient, Color diffuse )
