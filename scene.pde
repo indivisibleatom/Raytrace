@@ -60,13 +60,12 @@ class Scene
   public void raytrace()
   {
     long startTime = System.currentTimeMillis();
-    print("Start raytracing \n");
     m_sceneManager.buildScene();
     long createTime = System.currentTimeMillis();
     print( "Time taken for tree creation " + (createTime - startTime)/1000.0 + "seconds\n");
     m_renderer.render( this );
     long endTime = System.currentTimeMillis();
-    print( "Total Time taken " + (endTime - startTime)/1000.0 + "seconds\n");
+    print( "Time taken for render " + (endTime - createTime)/1000.0 + "seconds\n");
   }
   
   //Light commands
