@@ -180,8 +180,9 @@ class Triangle implements Shape
         
       q = tVec.cross( m_e1 );
       v = ray.getDirection().dot( q );
-      if ( v < 0.0 || v > det )
+      if ( v < 0.0 || v + u > det )
         return 0;
+      
     }
     else if ( det < -c_epsilon )
     {
@@ -192,7 +193,7 @@ class Triangle implements Shape
         
       q = tVec.cross( m_e1 );
       v = ray.getDirection().dot( q );
-      if ( v > 0.0 || v < det )
+      if ( v > 0.0 || v + u < det )
         return 0;
     }
     else
