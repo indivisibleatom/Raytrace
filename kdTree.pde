@@ -121,7 +121,7 @@ class SplitResult
     //Parameters for retrospectively pointing parent to its children
     m_parent = -1;
     m_fLeftChild = false;
-    print("Best split " + m_splitPlaneDirection + " " + m_splitPlane + "\n");
+    //print("Best split " + m_splitPlaneDirection + " " + m_splitPlane + "\n");
   }
   
   public void setParentAndChildFlag( int parent, boolean fLeftChild ) 
@@ -357,87 +357,94 @@ class KDTree implements Primitive
     ArrayList<Integer> minLeftIndices = null;
     ArrayList<Integer> minRightIndices = null;
     
-    int numSamples = 32; //This is the maximum number of samples we consider for deciding split along each direction
+    int numSamples = 8; //This is the maximum number of samples we consider for deciding split along each direction
     //Find best split pane
+
+    float maxRange = 0;
+    int maxAxis = 0;
+
+    int numLeft = 0;
+    int numRight = 0;
 
     for (int dim = 0; dim < 3; dim++)
     {
-      int numLeft = 0;
-      int numRight = 0;
-
       float lowerRange = box.getPlaneForFace(dim<<1);
       float higherRange = box.getPlaneForFace((dim<<1)+1);
-      float proposedPlane = higherRange/2 + lowerRange/2;
-      int numTries = 0;
-      while ( (higherRange - lowerRange) > c_epsilon && numTries++ < numSamples )
+      if ( higherRange - lowerRange > maxRange )
       {
-        BoxSplitResult s = box.split( proposedPlane, dim );
-        float probLeft = s.box1.surfaceArea() / box.surfaceArea();
-        float probRight = s.box2.surfaceArea() / box.surfaceArea();
+        maxRange = higherRange - lowerRange;
+        maxAxis = dim;
+      }
+    }
+    
+    float lowerRange = box.getPlaneForFace(maxAxis<<1);
+    float higherRange = box.getPlaneForFace((maxAxis<<1)+1);  
+    float proposedPlane = higherRange/2.0 + lowerRange/2.0;
+    int numTries = 0;
+    while ( (higherRange - lowerRange) > c_epsilon && numTries++ < numSamples )
+    {
+      BoxSplitResult s = box.split( proposedPlane, maxAxis );
+      float probLeft = s.box1.surfaceArea() / box.surfaceArea();
+      float probRight = s.box2.surfaceArea() / box.surfaceArea();
 
-        if ( DEBUG && DEBUG_MODE >= VERBOSE )
+      if ( DEBUG && DEBUG_MODE >= LOW )
+      {
+        if ( s.box1.surfaceArea() >= box.surfaceArea() )
         {
-          if ( s.box1.surfaceArea() >= box.surfaceArea() )
-          {
-            print(proposedPlane + " " + dim + " " + higherRange + " " + lowerRange + "\n");
-            print("Box Split1 Split2:");
-            box.debugPrint();
-            s.box1.debugPrint();
-            s.box2.debugPrint();
-          }
+          print(proposedPlane + " " + maxAxis + " " + higherRange + " " + lowerRange + "\n");
+          print("Box Split1 Split2:");
+          box.debugPrint();
+          s.box1.debugPrint();
+          s.box2.debugPrint();
         }
-        leftIndices = new ArrayList<Integer>();
-        rightIndices = new ArrayList<Integer>();
-        for (int i = 0; i < indices.size(); i++)
+      }
+      leftIndices = new ArrayList<Integer>();
+      rightIndices = new ArrayList<Integer>();
+      for (int i = 0; i < indices.size(); i++)
+      {
+        int index = indices.get(i);
+        float leftFace = m_objects.get( index ).getBoundingBox().getPlaneForFace(maxAxis<<1);
+        float rightFace = m_objects.get( index ).getBoundingBox().getPlaneForFace((maxAxis<<1)+1);
+        
+        if ( rightFace < proposedPlane )
         {
-          int index = indices.get(i);
-          float leftFace = m_objects.get( index ).getBoundingBox().getPlaneForFace(dim<<1);
-          float rightFace = m_objects.get( index ).getBoundingBox().getPlaneForFace((dim<<1)+1);
-          
-          if ( rightFace < proposedPlane )
-          {
-            rightIndices.add( index );
-          }
-          else if ( leftFace > proposedPlane )
-          {
-            leftIndices.add( index );
-          }
-          else
-          {
-            rightIndices.add( index );
-            leftIndices.add( index );
-          }
+          leftIndices.add( index );
         }
-
-        if ( !( (compare( probLeft, 1 ) ) || (compare( probRight, 1 ) ) ) )
+        else if ( leftFace > proposedPlane )
         {
-          numLeft = leftIndices.size();
-          numRight = rightIndices.size();
-          float cost = findCost( probLeft, probRight, numLeft, numRight );
-          if ( cost < minCost && cost < costCurrent )
-          {
-            minLeftIndices = leftIndices;
-            minRightIndices = rightIndices;
-            minCost = cost;
-            minSplitPlaneDirection = dim;
-            minSplitPlane = proposedPlane;
-            minSplitResult = s;
-
-            if ( numLeft < numRight )
-            {
-              lowerRange = proposedPlane;
-              proposedPlane = (higherRange + lowerRange)/2;
-            }
-            else
-            {
-              higherRange = proposedPlane;
-              proposedPlane = (higherRange + lowerRange)/2;
-            }
-          }
+          rightIndices.add( index );
         }
         else
         {
-          break;
+          rightIndices.add( index );
+          leftIndices.add( index );
+        }
+      }
+
+      if ( !( (compare( probLeft, 1 ) ) || (compare( probRight, 1 ) ) ) )
+      {
+        numLeft = leftIndices.size();
+        numRight = rightIndices.size();
+        float cost = findCost( probLeft, probRight, numLeft, numRight );
+        if ( cost < minCost && cost < costCurrent )
+        {
+          minLeftIndices = leftIndices;
+          minRightIndices = rightIndices;
+          minCost = cost;
+          minSplitPlaneDirection = maxAxis;
+          minSplitPlane = proposedPlane;
+          minSplitResult = s;
+
+          if ( numLeft < numRight )
+          {
+            lowerRange = proposedPlane;
+            proposedPlane = higherRange/2 + lowerRange/2;
+          }
+          else
+          {
+            higherRange = proposedPlane;
+            proposedPlane = higherRange/2 + lowerRange/2;
+          }
         }
       }
     }
