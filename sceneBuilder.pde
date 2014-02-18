@@ -28,6 +28,16 @@ class SceneBuilder
     m_scene.raytrace();
   }
   
+  private void addNamedObject(String name)
+  {
+    m_scene.addNamedObject(name);
+  }
+  
+  private void instantiateObject(String name)
+  {
+    m_scene.instantiateObject(name);
+  }
+  
   private void startPolygon()
   {
     m_verticesCached = new ArrayList<Point>();
@@ -77,9 +87,10 @@ class SceneBuilder
   {
     m_scene.setCoeffs( new Color( ambientCoeffs ), new Color( diffuse ) );
   }
-  
+   
   void buildScene(String fileName)
   {
+    int timer = 0;
     String str[] = loadStrings(fileName);
     if (str == null) 
     {
@@ -121,6 +132,14 @@ class SceneBuilder
       else if (token[0].equals("end")) 
       {
         endPolygon();
+      }
+      else if (token[0].equals("named_object"))
+      {
+        addNamedObject(token[1]);
+      }
+      else if (token[0].equals("instance"))
+      {
+        instantiateObject(token[1]);
       }
       else if (token[0].equals("vertex")) 
       {
@@ -165,6 +184,17 @@ class SceneBuilder
       else if (token[0].equals("read"))
       {
         buildScene(token[1]);
+      }
+      else if (token[0].equals("reset_timer")) 
+      {
+        timer = millis();
+      }
+      else if (token[0].equals("print_timer")) 
+      {
+        int new_timer = millis();
+        int diff = new_timer - timer;
+        float seconds = diff / 1000.0;
+        println ("Timer = " + seconds);
       }
       else if (token[0].equals("write")) 
       {

@@ -189,7 +189,17 @@ class Ray
     m_dir = direction;
     m_dir.normalize();
   }
-  
+
+  Ray(Point orig, Vector direction, boolean fNormalize)
+  {
+    m_orig = orig;
+    m_dir = direction;
+    if ( fNormalize )
+    {
+      m_dir.normalize();
+    }
+  }
+
   Point getOrigin() { return m_orig; }
   
   Vector getDirection() { return m_dir; }

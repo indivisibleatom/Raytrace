@@ -16,6 +16,18 @@ class SceneManager
     m_primitiveManager.addPrimitive(p);
   }
   
+  public void addNamedPrimitive(String name)
+  {
+    m_primitiveManager.addNamedPrimitive(name);
+  }
+  
+  public void addPrimitive(String name, Transformation transformation )
+  {
+    LightedPrimitive namedPrimitive = m_primitiveManager.getPrimitive( name );
+    InstancePrimitive instancePrimitive = new InstancePrimitive( namedPrimitive, transformation );
+    addPrimitive( instancePrimitive );
+  }
+  
   public void setMaterial( Color ambient, Color diffuse )
   {
     m_currentMaterial = new Material( ambient, diffuse );

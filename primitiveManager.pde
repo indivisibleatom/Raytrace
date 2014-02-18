@@ -2,16 +2,29 @@
 class PrimitiveManager
 {
   private ArrayList<LightedPrimitive> m_primitives;
+  private HashMap<String, LightedPrimitive> m_namedPrimitives;
   private KDTree m_kdTree;
   
   PrimitiveManager()
   {
     m_primitives = new ArrayList<LightedPrimitive>();
+    m_namedPrimitives = new HashMap<String, LightedPrimitive>();
   }
   
   public void addPrimitive( LightedPrimitive primitive )
   {
     m_primitives.add(primitive);
+  }
+  
+  public LightedPrimitive getPrimitive( String name )
+  {
+    return m_namedPrimitives.get( name );
+  }
+    
+  public void addNamedPrimitive(String name)
+  {
+    LightedPrimitive namedPrimitive = m_primitives.remove( m_primitives.size() - 1 );
+    m_namedPrimitives.put( name, namedPrimitive );
   }
   
   public void buildScene()

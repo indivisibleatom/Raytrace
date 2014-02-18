@@ -42,11 +42,21 @@ class Scene
     m_camera.setFov( fov );
   }
   
+  public void addNamedObject( String name )
+  {
+    m_sceneManager.addNamedPrimitive( name );
+  }
+  
+  public void instantiateObject( String name )
+  {
+    m_sceneManager.addPrimitive( name, m_currentTransformation );
+  }
+  
   public void addObject(LightedPrimitive obj)
   {
     m_sceneManager.addPrimitive(obj);
   }
-
+  
   public void raytrace()
   {
     long startTime = System.currentTimeMillis();
@@ -106,7 +116,7 @@ class Scene
   {
     m_currentTransformation.rotate( angle, axis );
   }
-  
+   
   public void onPush()
   {
     Transformation newTrans = new Transformation();

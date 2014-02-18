@@ -138,5 +138,13 @@ class Transformation
     Ray worldRay = new Ray( originPoint, directionVector );
     return worldRay;
   }
+  
+  public Ray worldToLocalUnnormalized( Ray rayLocal )
+  {
+    Point originPoint = worldToLocal( rayLocal.getOrigin() );
+    Vector directionVector = worldToLocal( rayLocal.getDirection() );
+    Ray worldRay = new Ray( originPoint, directionVector, false );
+    return worldRay;
+  }
 }
 

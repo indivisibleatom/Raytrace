@@ -55,10 +55,41 @@ class InstancePrimitive implements LightedPrimitive
 {
   private LightedPrimitive m_primitive;
   private Transformation m_transform;
+  private Box m_boundingBox;
   
-  public boolean intersects( Ray ray, float tMin, float tMax ) { return m_primitive.intersects( ray, tMin, tMax ); }
-  public IntersectionInfo getIntersectionInfo( Ray ray, float tMin, float tMax ) { return m_primitive.getIntersectionInfo( ray, tMin, tMax ); }
-  public Color getDiffuseCoeffs() { return m_primitive.getDiffuseCoeffs(); }
-  public Color getAmbientCoeffs() { return m_primitive.getAmbientCoeffs(); }
-  public Box getBoundingBox() { return m_primitive.getBoundingBox(); }
+  InstancePrimitive( LightedPrimitive primitive, Transformation transform )
+  {
+    m_primitive = primitive;
+    m_transform = new Transformation();
+    m_transform.clone( transform );
+    
+    m_boundingBox = new Box( m_primitive.getBoundingBox().extent1(), m_primitive.getBoundingBox().extent2(), m_transform );
+  }
+  
+  public boolean intersects( Ray ray, float tMin, float tMax ) 
+  {
+    Ray rayLocal = m_transform.worldToLocalUnnormalized( ray );
+    return m_primitive.intersects( rayLocal, tMin, tMax ); 
+  }
+  
+  public IntersectionInfo getIntersectionInfo( Ray ray, float tMin, float tMax ) 
+  {
+    Ray rayLocal = m_transform.worldToLocalUnnormalized( ray );
+    return m_primitive.getIntersectionInfo( rayLocal, tMin, tMax ); 
+  }
+  
+  public Color getDiffuseCoeffs()
+  {
+    return m_primitive.getDiffuseCoeffs(); 
+  }
+  
+  public Color getAmbientCoeffs() 
+  {
+    return m_primitive.getAmbientCoeffs(); 
+  }
+  
+  public Box getBoundingBox()
+  {
+    return m_boundingBox; 
+  }
 }
