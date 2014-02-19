@@ -1,6 +1,6 @@
-int maxDepth = 15;
-int numSamples = 8;
-int coreMultiplier = 5;
+int maxDepth = 20;
+int numSamples = 4;
+int coreMultiplier = 2;
 float traversalCost = 1;
 float intersectionCost = 80;
 

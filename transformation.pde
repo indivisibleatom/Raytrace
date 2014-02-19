@@ -1,3 +1,5 @@
+int count = 0;
+
 class Transformation
 {
   PMatrix m_transformation;
@@ -12,14 +14,22 @@ class Transformation
   Transformation()
   {
     m_transformation = new PMatrix3D();
+    m_inverse = new PMatrix3D();
     m_transformation.set( 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 );
-    setInverse();
+    m_inverse.set( 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 );
+  }
+  
+  Transformation( Transformation other )
+  {
+    m_transformation = new PMatrix3D();
+    m_inverse = new PMatrix3D();
+    clone(other);
   }
   
   void clone( Transformation other )
   {
     m_transformation.set( other.m_transformation );
-    setInverse();
+    m_inverse.set(other.m_inverse);
   }
   
   public void translate( Vector v )

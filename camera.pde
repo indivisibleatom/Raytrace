@@ -1,5 +1,3 @@
-int count = 0;
-
 class Camera
 {
   private Film m_film;
@@ -54,7 +52,6 @@ class Film
   
   public void setRadiance( Sample sample, Color col )
   {
-    count++;
     //TODO msati3: Remove hardcoding of single color being equated
     m_screenColor[m_screenDim.height() - sample.getY() - 1][sample.getX()] = col;
   }

@@ -12,8 +12,7 @@ class Sphere implements Shape
 
   Sphere( float radius, Point center, Transformation transformation )
   {
-    m_transformation = new Transformation();
-    m_transformation.apply( transformation );
+    m_transformation = new Transformation( transformation );
     m_transformation.translate( new Vector( c_origin, center ) );
     m_transformation.scale( radius );
     
@@ -144,8 +143,7 @@ class Triangle implements Shape
   Triangle( Point p1, Point p2, Point p3, Transformation transformation )
   {
     m_vertices = new Point[3];
-    m_transformation = new Transformation();
-    m_transformation.apply( transformation );
+    m_transformation = new Transformation( transformation );
     m_vertices[0] = m_transformation.localToWorld( p1 );
     m_vertices[1] = m_transformation.localToWorld( p2 );
     m_vertices[2] = m_transformation.localToWorld( p3 );
@@ -182,7 +180,6 @@ class Triangle implements Shape
       v = ray.getDirection().dot( q );
       if ( v < 0.0 || v + u > det )
         return 0;
-      
     }
     else if ( det < -c_epsilon )
     {
