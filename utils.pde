@@ -131,7 +131,7 @@ class Vector
   
   public Vector cross( Vector other )
   {
-    return new Vector( Y() * other.Z() - Z() * other.Y(), Z() * other.X() - X() * other.Z(), X() * other.Y() - Y() * other.X() );
+    return new Vector( m_v[1] * other.m_v[2] - m_v[2] * other.m_v[1], m_v[2] * other.m_v[0] - m_v[0] * other.m_v[2], m_v[0] * other.m_v[1] - m_v[1] * other.m_v[0] );
   }
   
   public float getMagnitude()
