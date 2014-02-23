@@ -120,9 +120,8 @@ class Transformation
     float[] localArray = { normalLocal.x, normalLocal.y, normalLocal.z, 0 };
     float[] values = new float[4];
     m_transformation.mult( localArray, values );
-    Vector worldNormal = new Vector( values[0], values[1], values[2] );
-    worldNormal.normalize();
-    return worldNormal;
+    Vector worlNormal = new Vector( values[0], values[1], values[2] );
+    return worlNormal;
   }
   
   public Point worldToLocal( Point pointWorld )

@@ -17,7 +17,6 @@ class KDTreeNode
   int m_child2AndType;
   int m_numChild;
   private ArrayList<Integer> m_indices;
-  boolean m_fSkipNode;
 
   KDTreeNode( float splitPlane, int type )
   {
@@ -25,7 +24,6 @@ class KDTreeNode
     m_child1 = -1;
     m_child2AndType = type;
     m_indices = null;
-    m_fSkipNode = true;
   }
 
   KDTreeNode( ArrayList<Integer> indices, int type )
@@ -35,11 +33,6 @@ class KDTreeNode
     m_child2AndType = type;
     m_splitPlane = -1;
     m_numChild = indices.size();
-  }
-  
-  public void setSkipNode()
-  {
-    m_fSkipNode = true;
   }
 
   public void setChild( boolean fLeft, int child )
@@ -249,12 +242,12 @@ class KDTreeSplitCreatorTask implements Task
       SplitResult result = null;
       if ( m_indices.size() < numNodesForSwitch )
       {
-        result = m_tree.createSingleSplitUsingSort( m_indices, m_box, m_depth );
+        result = m_tree.createSingleSplitUsingSort( m_indices, m_box );
       }
       else
       {
-        result = m_tree.createSingleSplitUsingSubdivisionAndInterpolation( m_indices, m_box, m_depth );
-        //result = m_tree.createSingleSplitUsingSubdivision( m_indices, m_box, m_depth );
+        result = m_tree.createSingleSplitUsingSubdivisionAndInterpolation( m_indices, m_box );
+        //result = m_tree.createSingleSplitUsingSubdivision( m_indices, m_box );
       }
       result.setParentAndChildFlag( m_parent, m_fLeftChild );
       result.setDepth( m_depth );
@@ -286,25 +279,6 @@ class KDTreeCreator
     m_queue = new SplitResultQueue();
     m_nodes = new ArrayList<KDTreeNode>();
   }
-  
-  /*private void cullBackFaces()
-  {
-    Vector viewVector = new Vector(0,0,-1);
-    for (int i = 0; i < m_nodes.size(); i++)
-    {
-      if (m_nodes.get(i).getType() == 3)
-      {
-        int indices = m_nodes.get(i).indices();
-        for (int j = 0; j < indices.size() ; j++)
-        {
-          if (m_objects.get(indices.get(j)).getNormal().dot(viewVector) > 0)
-          {
-            m_fSkipNode = false;
-          }
-        }
-      }
-    }
-  }*/
   
   public KDTree create()
   {
@@ -425,13 +399,13 @@ class KDTree implements Primitive
 
   private float findCost( float probLeft, float probRight, int numLeft, int numRight )
   {
-    float factor = (numLeft == 0 || numRight == 0)? 0.85 : 1;
+    float factor = (numLeft == 0 || numRight == 0)? 0.8 : 1;
     return factor * (traversalCost + (probLeft*numLeft + probRight*numRight) * intersectionCost);
   }
   
   //Spatial subdivision approach. Currently http://electronic-blue.wdfiles.com/local--files/research%3Agpurt/WK06.pdf.
   //This has to be thread safe. Is is called by each KDTreeSplitCreator task
-  public SplitResult createSingleSplitUsingSubdivision( ArrayList<Integer> indices, Box box, int depth )
+  public SplitResult createSingleSplitUsingSubdivision( ArrayList<Integer> indices, Box box )
   {
     SplitResult result = null;
     if ( DEBUG && DEBUG_MODE >= VERBOSE )
@@ -554,38 +528,29 @@ class KDTree implements Primitive
     float rightFace = m_objects.get( index ).getBoundingBox().getPlaneOfUpperFaceForDim(maxAxis);
     float midPlaneObject = (leftFace + rightFace)/2;
     int minBin = 0;
-    int maxBin = planePositions.length;
+    int maxBin = numNASamples;
     int midBin;
-   
-    if ( midPlaneObject <= planePositions[0] ) { return 0; }
-    else if ( midPlaneObject > planePositions[planePositions.length-1] ) { return planePositions.length-1; }
 
-    while ( minBin <= maxBin )
+    return 4;
+
+    /*while ( minBin < maxBin )
     {
       midBin = minBin + (maxBin-minBin)/2;
-      if ( midPlaneObject <= planePositions[midBin] && midPlaneObject > planePositions[midBin - 1] )
+      if ( midPlaneObject < planePositions[midBin] )
       {
-        return minBin;
+        maxBin=midBin;
       }
-      else if ( midPlaneObject <= planePositions[midBin] )
+      else
       {
-        maxBin=midBin - 1;
-      }
-      else if ( midPlaneObject > planePositions[midBin - 1] )
-      {
-        minBin=midBin + 1;
+        minBin=midBin;
       }
     }
-    if ( DEBUG && DEBUG_MODE >= LOW )
-    {
-      print("FindBinFor: Can't find bin! Error!\n" + minBin + maxBin);
-    }
-    return -1;
+    return minBin;*/
   }
 
   //Approach in http://www.cs.utexas.edu/~whunt/papers/fast-kd-construction-RT06.pdf
   //This has to be thread safe. Is is called by each KDTreeSplitCreator task
-  public SplitResult createSingleSplitUsingSubdivisionAndInterpolation( ArrayList<Integer> indices, Box box, int depth )
+  public SplitResult createSingleSplitUsingSubdivisionAndInterpolation( ArrayList<Integer> indices, Box box )
   {
     SplitResult result = null;
     if ( DEBUG && DEBUG_MODE >= VERBOSE )
@@ -623,36 +588,29 @@ class KDTree implements Primitive
       }
     }
     
-    int numSamplesForDepth = numNASamples * ((depth/10)+1);
-    
     float lowerRange = box.getPlaneOfLowerFaceForDim(maxAxis);
     float higherRange = box.getPlaneOfUpperFaceForDim(maxAxis);
-    float increment= (higherRange - lowerRange)/(numSamplesForDepth+1);
+    float increment= (higherRange - lowerRange)/(numNASamples+1);
 
-    float[] proposedPlanes = new float[numSamplesForDepth];
-    for (int i = 0; i < numSamplesForDepth; i++)
+    float[] proposedPlanes = new float[numNASamples];
+    for (int i = 0; i < numNASamples; i++)
     {
-       lowerRange += increment;
-       proposedPlanes[i] = lowerRange;
+        proposedPlanes[i] = lowerRange + increment;
     }
 
-    BoxSplitResult[] s = new BoxSplitResult[numSamplesForDepth];
-    float[] probLeft = new float[numSamplesForDepth]; 
-    float[] probRight = new float[numSamplesForDepth];
+    BoxSplitResult[] s = new BoxSplitResult[numNASamples ];
+    float[] probLeft = new float[numNASamples]; 
+    float[] probRight = new float[numNASamples];
     float boxInvArea =  1 / box.surfaceArea();
 
-    for (int i = 0; i < numSamplesForDepth; i++)
+    for (int i = 0; i < numNASamples; i++)
     {
       s[i] = box.split( proposedPlanes[i], maxAxis );
       probLeft[i] = s[i].box1.surfaceArea() * boxInvArea;
       probRight[i] = s[i].box2.surfaceArea() * boxInvArea;
     }
 
-    ArrayList<Integer>[] binIndices = (ArrayList<Integer>[])new ArrayList[numSamplesForDepth + 1];
-    for (int i = 0; i < numSamplesForDepth+1; i++)
-    {
-      binIndices[i] = new ArrayList<Integer>();
-    }
+    ArrayList<Integer>[] binIndices = (ArrayList<Integer>[])new ArrayList[numNASamples];
     for (int i = 0; i < indices.size(); i++)
     {
       int index = indices.get(i);
@@ -668,18 +626,17 @@ class KDTree implements Primitive
     int cumulativeLeft = 0;
     int cumulativeRight = indices.size();
     float cost = Float.MAX_VALUE;
-    for (int i = 0; i < numSamplesForDepth; i++)
+    for (int i = 0; i < numNASamples; i++)
     {
       cumulativeLeft += binIndices[i].size();
       cumulativeRight -= binIndices[i].size();
       cost = findCost( probLeft[i], probRight[i], cumulativeLeft, cumulativeRight);
       if ( cost < minCost && cost < costCurrent )
       {
-        minCost = cost;
         minSplitPlaneDirection = maxAxis;
         minimumBin = i;
       }
-    }
+    }   
 
     //Evaluate objects to left and right of minimum splitting plane
     for (int i = 0; i < indices.size(); i++)
@@ -712,7 +669,7 @@ class KDTree implements Primitive
 
   //Trivial sorting implementation right now. TODO msati3: implement the one mentioned at http://www.eng.utah.edu/~cs6965/papers/kdtree.pdf
   //This has to be thread safe. Is is called by each KDTreeSplitCreator task
-  public SplitResult createSingleSplitUsingSort( ArrayList<Integer> indices, Box box, int depth )
+  public SplitResult createSingleSplitUsingSort( ArrayList<Integer> indices, Box box )
   {
     SplitResult result = null;
     if ( DEBUG && DEBUG_MODE >= VERBOSE )

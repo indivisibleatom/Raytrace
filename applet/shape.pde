@@ -15,18 +15,16 @@ class Sphere implements Shape
     m_transformation = new Transformation( transformation );
     m_transformation.translate( new Vector( c_origin, center ) );
     m_transformation.scale( radius );
-
-    m_boundingBox = new Box( new Point(-1, -1, -1), new Point(1, 1, 1), m_transformation );
+    
+    m_boundingBox = new Box( new Point(-1,-1,-1), new Point(1,1,1), m_transformation );
     m_boundingBox = m_boundingBox.getBoundingBox();
   }
-
+  
   private boolean intersectsCanonical( Ray ray, float tMin, float tMax )
   {
     Vector OA = new Vector( c_origin, ray.getOrigin() );    
-    float scale = 1/ray.getDirection().getMagnitude();
-    ray.getDirection().normalize();
-
-    float b = 2*OA.dot(ray.getDirection());
+    Vector dir = ray.getDirection();
+    float b = 2*OA.dot(dir);
     float a = 1;
     float c = OA.getMagnitudeSquare() - 1;
     float delta = b*b - 4*a*c;
@@ -50,22 +48,18 @@ class Sphere implements Shape
     {
       minT = root2;
     }
-
-    float minTScaled = minT * scale;
-    if ( minTScaled < tMin || minTScaled > tMax )
+    if ( minT < tMin || minT > tMax )
     {
       return false;
     }
     return true;
   }
-
+  
   private ShapeIntersectionInfo intersectionInfoCanonical( Ray ray, float tMin, float tMax )
   {
-    Vector OA = new Vector( c_origin, ray.getOrigin() );
-    float scale = 1/ray.getDirection().getMagnitude();
-    ray.getDirection().normalize();
-
-    float b = 2*OA.dot(ray.getDirection());
+    Vector OA = new Vector( c_origin, ray.getOrigin() );    
+    Vector dir = ray.getDirection();
+    float b = 2*OA.dot(dir);
     float a = 1;
     float c = OA.getMagnitudeSquare() - 1;
     float delta = b*b - 4*a*c;
@@ -93,19 +87,20 @@ class Sphere implements Shape
         minT = root2;
       }
 
-      float minTScaled = minT * scale;
-      if ( minTScaled < tMin || minTScaled > tMax )
+      if ( minT < tMin || minT > tMax )
       {
         return null;
       }
 
+      Ray newRay = new Ray( ray );
       Point intersectionPointLocal = new Point( ray, minT );
       Vector normalLocal = new Vector( c_origin, intersectionPointLocal );
 
       //Now go to world space
       Point intersectionPoint = m_transformation.localToWorld( intersectionPointLocal );
       Vector normal = m_transformation.localToWorldNormal( normalLocal );
-      return new ShapeIntersectionInfo( intersectionPoint, normal, minTScaled, false );
+      normal.normalize();
+      return new ShapeIntersectionInfo( intersectionPoint, normal, minT, false );
     }
   }
 
@@ -113,25 +108,25 @@ class Sphere implements Shape
   {
     return m_boundingBox;
   }
-
+    
   public boolean intersects( Ray ray, float tMin, float tMax )
   {
-    /*if ( !m_boundingBox.intersects( ray, tMin, tMax ) )
+    if ( !m_boundingBox.intersects( ray, tMin, tMax ) )
     {
       return false;
-    }*/
+    }
     Ray rayLocal = m_transformation.worldToLocalUnnormalized( ray );
-    return intersectsCanonical( rayLocal, tMin - c_epsilon, tMax + c_epsilon );
+    return intersectsCanonical( rayLocal, tMin, tMax );
   }
-
+  
   public ShapeIntersectionInfo getIntersectionInfo( Ray ray, float tMin, float tMax )
   {
-    /*if ( !m_boundingBox.intersects( ray, tMin, tMax ) )
+    if ( !m_boundingBox.intersects( ray, tMin, tMax ) )
     {
       return null;
-    }*/
+    }
     Ray rayLocal = m_transformation.worldToLocalUnnormalized( ray );
-    return intersectionInfoCanonical( rayLocal, tMin - c_epsilon, tMax + c_epsilon);
+    return intersectionInfoCanonical( rayLocal, tMin, tMax );
   }
 }
 
@@ -152,7 +147,7 @@ class Triangle implements Shape
     m_vertices[0] = m_transformation.localToWorld( p1 );
     m_vertices[1] = m_transformation.localToWorld( p2 );
     m_vertices[2] = m_transformation.localToWorld( p3 );
-
+    
     m_e1 = new Vector( m_vertices[0], m_vertices[1] );
     m_e2 = new Vector( m_vertices[0], m_vertices[2] );
 
@@ -161,12 +156,12 @@ class Triangle implements Shape
 
     m_boundingBox = new Box( m_vertices ).getBoundingBox();
   }
-
+  
   public Box getBoundingBox()
   {
     return m_boundingBox;
   }
-
+  
   //Optimized ray triangle intersection
   private float intersectInternal( Ray ray, float tMin, float tMax )
   {
@@ -180,7 +175,7 @@ class Triangle implements Shape
       u = tVec.dot(p);
       if ( u < 0.0 || u > det )
         return 0;
-
+        
       q = tVec.cross( m_e1 );
       v = ray.getDirection().dot( q );
       if ( v < 0.0 || v + u > det )
@@ -192,7 +187,7 @@ class Triangle implements Shape
       u = tVec.dot(p);
       if ( u > 0.0 || u < det )
         return 0;
-
+        
       q = tVec.cross( m_e1 );
       v = ray.getDirection().dot( q );
       if ( v > 0.0 || v + u < det )
@@ -209,13 +204,13 @@ class Triangle implements Shape
     }
     return tIntersection;
   }
-
+  
   public boolean intersects( Ray ray, float tMin, float tMax )
   {
     return ( intersectInternal( ray, tMin, tMax ) != 0 );
   }
-
-
+  
+  
   public ShapeIntersectionInfo getIntersectionInfo( Ray ray, float tMin, float tMax )
   {  
     float t = intersectInternal( ray, tMin, tMax );

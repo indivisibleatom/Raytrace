@@ -69,26 +69,23 @@ class InstancePrimitive implements LightedPrimitive
   public boolean intersects( Ray ray, float tMin, float tMax ) 
   {
     Ray rayLocal = m_transform.worldToLocalUnnormalized( ray );
-    float scale = 1/rayLocal.getDirection().getMagnitude();
-    rayLocal.getDirection().normalize();
-    return m_primitive.intersects( rayLocal, tMin/scale, tMax/scale );
+    return m_primitive.intersects( rayLocal, tMin, tMax ); 
   }
   
   public IntersectionInfo getIntersectionInfo( Ray ray, float tMin, float tMax ) 
   {
     Ray rayLocal = m_transform.worldToLocalUnnormalized( ray );
-    float scale = 1/rayLocal.getDirection().getMagnitude();
-    rayLocal.getDirection().normalize();
-    IntersectionInfo localInfo = m_primitive.getIntersectionInfo( rayLocal, tMin/scale, tMax/scale );
-    if ( localInfo == null )
+    IntersectionInfo localInfo = m_primitive.getIntersectionInfo( rayLocal, tMin, tMax );
+    return localInfo;
+    /*if ( localInfo == null )
     {
       return null;
     }
-
     Point point = m_transform.localToWorld( localInfo.point() );
     Vector normal = m_transform.localToWorldNormal( localInfo.normal() );
-    ShapeIntersectionInfo intersectionInfo = new ShapeIntersectionInfo( point, normal, localInfo.t()*scale, localInfo.fDualSided() );
-    return new IntersectionInfo( this, intersectionInfo );
+    normal.normalize();*/
+    //ShapeIntersectionInfo intersectionInfo = new ShapeIntersectionInfo( point, normal, localInfo.t(), localInfo.fDualSided() );
+    //return new IntersectionInfo( this, intersectionInfo );
   }
   
   public Color getDiffuseCoeffs()
