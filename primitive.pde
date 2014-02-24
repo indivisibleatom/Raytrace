@@ -9,7 +9,6 @@ interface LightedPrimitive extends Primitive
   public Color getDiffuseCoeffs();
   public Color getAmbientCoeffs();
   public Box getBoundingBox();
-  public Vector getNormal();
 }
 
 class GeometricPrimitive implements LightedPrimitive
@@ -26,12 +25,6 @@ class GeometricPrimitive implements LightedPrimitive
   public Box getBoundingBox()
   {
     return m_shape.getBoundingBox();
-  }
-  
-  public Vector getNormal() 
-  {
-    Triangle t = (Triangle)m_shape;
-    return t.getNormal(); 
   }
    
   public boolean intersects( Ray ray, float tMin, float tMax )
@@ -111,10 +104,5 @@ class InstancePrimitive implements LightedPrimitive
   public Box getBoundingBox()
   {
     return m_boundingBox; 
-  }
-  
-  public Vector getNormal()
-  {
-    return m_primitive.getNormal();
   }
 }
