@@ -106,7 +106,7 @@ class Transformation
     inverse.transpose();
     float[] localArray = { normal.X(), normal.Y(), normal.Z(), 0 };
     float[] values = new float[4];
-    m_transformation.mult( localArray, values );
+    inverse.mult( localArray, values );
     Vector worldNormal = new Vector( values[0], values[1], values[2] );
     worldNormal.normalize();
     return worldNormal;

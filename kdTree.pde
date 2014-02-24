@@ -1,4 +1,4 @@
-int maxDepth = 25;
+int maxDepth = 30;
 int numSamples = 8;
 int coreMultiplier = 2;
 int numNodesForSwitch = 32;

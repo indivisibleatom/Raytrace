@@ -33,7 +33,9 @@ class PointLight implements Light
   
   public Ray getRay( Point pointFrom )
   {
-    return new Ray( pointFrom, new Vector( pointFrom, m_position ) );
+    Vector direction = new Vector( pointFrom, m_position );
+    Point displacedPoint = new Point( pointFrom, direction, c_epsilon );
+    return new Ray( displacedPoint, direction );
   }
 }
 

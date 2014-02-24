@@ -53,7 +53,7 @@ class Sphere implements Shape
     }
 
     float minTScaled = minT * scale;
-    if ( minTScaled < c_epsilon || minTScaled < tMin || minTScaled > tMax )
+    if ( minT < 0 || minTScaled < tMin || minTScaled > tMax )
     {
       return false;
     }
@@ -86,7 +86,7 @@ class Sphere implements Shape
       }
 
       float minT;
-      if ( root1 > c_epsilon && ( root1 < root2 || root2 < 0 ) )
+      if ( root1 > 0 && ( root1 < root2 || root2 < 0 ) )
       {
         minT = root1;
       }
@@ -96,7 +96,7 @@ class Sphere implements Shape
       }
 
       float minTScaled = minT * scale;
-      if ( minT < c_epsilon || minTScaled < tMin || minTScaled > tMax )
+      if ( minT < 0 || minTScaled < tMin || minTScaled > tMax )
       {
         return null;
       }
@@ -118,20 +118,12 @@ class Sphere implements Shape
 
   public boolean intersects( Ray ray, float tMin, float tMax )
   {
-    /*if ( !m_boundingBox.intersects( ray, tMin, tMax ) )
-    {
-      return false;
-    }*/
     Ray rayLocal = m_transformation.worldToLocalUnnormalized( ray );
     return intersectsCanonical( rayLocal, tMin, tMax );
   }
 
   public ShapeIntersectionInfo getIntersectionInfo( Ray ray, float tMin, float tMax )
   {
-    /*if ( !m_boundingBox.intersects( ray, tMin, tMax ) )
-    {
-      return null;
-    }*/
     Ray rayLocal = m_transformation.worldToLocalUnnormalized( ray );
     return intersectionInfoCanonical( rayLocal, tMin, tMax );
   }
