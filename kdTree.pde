@@ -1,4 +1,4 @@
-int maxDepth = 20;
+int maxDepth = 30;
 int numSamples = 8;
 int coreMultiplier = 2;
 int numNodesForSwitch = 32;
@@ -6,7 +6,7 @@ float traversalCost = 1;
 float intersectionCost = 1;
 
 //The cap on the number of adaptive and non-adaptive samples of the cost function
-int numNASamples = 7;
+int numNASamples = 15;
 int numASamples = 4;
 
 //TODO msati3: Cleanup memory usage stuff from all these data-structures
@@ -17,7 +17,6 @@ class KDTreeNode
   int m_child2AndType;
   int m_numChild;
   private ArrayList<Integer> m_indices;
-  boolean m_fSkipNode;
 
   KDTreeNode( float splitPlane, int type )
   {
@@ -25,7 +24,6 @@ class KDTreeNode
     m_child1 = -1;
     m_child2AndType = type;
     m_indices = null;
-    m_fSkipNode = true;
   }
 
   KDTreeNode( ArrayList<Integer> indices, int type )
@@ -37,11 +35,6 @@ class KDTreeNode
     m_numChild = indices.size();
   }
   
-  public void setSkipNode()
-  {
-    m_fSkipNode = true;
-  }
-
   public void setChild( boolean fLeft, int child )
   {
     if ( fLeft )
@@ -277,35 +270,40 @@ class KDTreeCreator
   private ExecutorService m_pool;
   private ArrayList<KDTreeNode> m_nodes;
   private SplitResultQueue m_queue;
+  private ArrayList<Boolean> m_fCulled;
     
   KDTreeCreator( ArrayList<LightedPrimitive> objects )
   {
-    m_tree = new KDTree( objects );
+    cullBackFaces(objects);
+    m_tree = new KDTree( objects, m_fCulled );
     int cores = Runtime.getRuntime().availableProcessors();
     m_pool = Executors.newFixedThreadPool(coreMultiplier*cores);
     m_queue = new SplitResultQueue();
     m_nodes = new ArrayList<KDTreeNode>();
   }
   
-  /*private void cullBackFaces()
+  private void cullBackFaces( ArrayList<LightedPrimitive> objects )
   {
+    m_fCulled = new ArrayList<Boolean>();
     Vector viewVector = new Vector(0,0,-1);
-    for (int i = 0; i < m_nodes.size(); i++)
+    int count = 0;
+    int countCulled = 0;
+    for (int i = 0; i < objects.size(); i++)
     {
-      if (m_nodes.get(i).getType() == 3)
+      if (objects.get(i).getNormal().dot(viewVector) < 0)
       {
-        int indices = m_nodes.get(i).indices();
-        for (int j = 0; j < indices.size() ; j++)
-        {
-          if (m_objects.get(indices.get(j)).getNormal().dot(viewVector) > 0)
-          {
-            m_fSkipNode = false;
-          }
-        }
+        countCulled++;
+        m_fCulled.add(true);
+      }
+      else
+      {
+        count++;
+        m_fCulled.add(false);
       }
     }
-  }*/
-  
+    print(" Not Culled " + count + "  culled " + countCulled + "\n" );
+  }
+   
   public KDTree create()
   {
     int threadsSpawned = 0;
@@ -314,7 +312,10 @@ class KDTreeCreator
     ArrayList<Integer> indices = new ArrayList<Integer>();
     for (int i = 0; i < m_tree.getNumObjects(); i++)
     {
-      indices.add(i);
+      if (!m_fCulled.get(i))
+      {
+        indices.add(i);
+      }
     }
     Box boundingBox = cloneBox( m_tree.getBoundingBox() );
 
@@ -404,10 +405,12 @@ class KDTree implements Primitive
   private Box m_boundingBox;
   private ArrayList<LightedPrimitive> m_objects;
   private ArrayList<KDTreeNode> m_nodes;
+  private ArrayList<Boolean> m_fCulled;
 
-  KDTree( ArrayList<LightedPrimitive> objects )
+  KDTree( ArrayList<LightedPrimitive> objects, ArrayList<Boolean> culled )
   {
     m_objects = objects;
+    m_fCulled = culled;
 
     //Init with first bounding box
     m_boundingBox = cloneBox( objects.get(0).getBoundingBox() );
@@ -846,10 +849,17 @@ class KDTree implements Primitive
     boolean intersect = false;
     for ( int i = 0; i < indices.size(); i++ )
     {
-      intersect = m_objects.get( indices.get(i) ).intersects( ray, tMin, tMax );
-      if ( intersect == true )
+      if ( !m_fCulled.get( indices.get(i) ) )
       {
-        break;
+        intersect = m_objects.get( indices.get(i) ).intersects( ray, tMin, tMax );
+        if ( intersect == true )
+        {
+          break;
+        }
+      }
+      else
+      {
+        print("Yeah\n");
       }
     }
     return intersect;
