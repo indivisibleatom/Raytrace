@@ -391,3 +391,74 @@ Box cloneBox( Box other )
   Box newBox = new Box( clonePt( other.extent1() ), clonePt( other.extent2() ), null );
   return newBox;
 }
+
+class BoundingBox implements LightedPrimitive
+{
+  private ArrayList<LightedPrimitive> m_objects;
+  private Box m_box;
+  //TODO msati3: Move getDiffuse, etc out of lighted primitive and return in the returned structure of intersection info itself
+  private LightedPrimitive m_selectedPrimitive;
+  
+  BoundingBox( ArrayList<LightedPrimitive> objects )
+  {
+    if (objects.size() > 0)
+    {
+      m_box = cloneBox(objects.get(0).getBoundingBox());
+      m_objects = objects;
+      m_selectedPrimitive = null;
+      for (int i = 1; i < m_objects.size(); i++)
+      {
+        m_box.grow(m_objects.get(i).getBoundingBox());
+      }
+    }
+  }
+  
+  public boolean intersects( Ray ray, float tMin, float tMax )
+  {
+     if ( m_box.intersects( ray, tMin, tMax ) )
+     {
+       for (int i = 0; i < m_objects.size(); i++)
+       {
+         if ( m_objects.get(i).intersects( ray, tMin, tMax ) )
+         {
+           return true;
+         }
+       }
+     }
+     return false;
+  }
+  
+  public IntersectionInfo getIntersectionInfo( Ray ray, float tMin, float tMax )
+  {
+    IntersectionInfo intersectionInfo = null;
+    if ( m_box.getIntersectionInfo( ray, tMin, tMax ) != null )   
+    {
+       for (int i = 0; i < m_objects.size(); i++)
+       {         
+         IntersectionInfo currentInfo = m_objects.get(i).getIntersectionInfo( ray, tMin, tMax );
+         if ( currentInfo != null && (intersectionInfo == null || currentInfo.t() < intersectionInfo.t()) )
+         {
+           intersectionInfo = currentInfo;
+         }
+       }
+     }
+    return intersectionInfo;
+  }
+
+  public Box getBoundingBox() 
+  {
+    return m_box;
+  }
+
+  public Color getDiffuseCoeffs()
+  {
+    return null;
+  }
+  
+  public Color getAmbientCoeffs()
+  {
+    return null;
+  }
+}
+
+

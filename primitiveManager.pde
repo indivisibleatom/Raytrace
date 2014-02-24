@@ -3,17 +3,49 @@ class PrimitiveManager
 {
   private ArrayList<LightedPrimitive> m_primitives;
   private HashMap<String, LightedPrimitive> m_namedPrimitives;
+  private ArrayList<LightedPrimitive> m_currentList;
   private KDTree m_kdTree;
+  private boolean m_fAddToList;
   
   PrimitiveManager()
   {
     m_primitives = new ArrayList<LightedPrimitive>();
     m_namedPrimitives = new HashMap<String, LightedPrimitive>();
+    m_currentList = new ArrayList<LightedPrimitive>();
+    m_fAddToList = false;
   }
   
   public void addPrimitive( LightedPrimitive primitive )
   {
-    m_primitives.add(primitive);
+    if ( !m_fAddToList )
+    {
+      m_primitives.add(primitive);
+    }
+    else
+    {
+      m_currentList.add(primitive);
+    }
+  }
+  
+  public void startList()
+  {
+    m_fAddToList = true;
+    m_currentList.clear();
+  }
+  
+  public void commitList()
+  {
+    BoundingBox box = new BoundingBox(m_currentList);
+    m_fAddToList = false;
+    addPrimitive(box);
+  }
+  
+  public void commitAccel()
+  {
+    KDTreeCreator creator = new KDTreeCreator(m_currentList);
+    m_fAddToList = false;
+    KDTree kdTree = creator.create();
+    addPrimitive(kdTree);
   }
   
   public LightedPrimitive getPrimitive( String name )

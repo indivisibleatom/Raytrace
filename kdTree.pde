@@ -399,7 +399,7 @@ class KDTreeCreator
 }
 
 //Start with naive
-class KDTree implements Primitive
+class KDTree implements LightedPrimitive
 {
   private Box m_boundingBox;
   private ArrayList<LightedPrimitive> m_objects;
@@ -1024,6 +1024,16 @@ class KDTree implements Primitive
       intersectionInfo = getIntersectionInfoRecursive( 0, ray, tExtents[0] - c_epsilon, tExtents[1] + c_epsilon);
     }
     return intersectionInfo;
+  }
+
+  public Color getDiffuseCoeffs()
+  {
+    return null;
+  }
+  
+  public Color getAmbientCoeffs()
+  {
+    return null;
   }
 }
 

@@ -157,6 +157,18 @@ class SceneBuilder
         Point p2 = new Point( Float.parseFloat(token[4]), Float.parseFloat(token[5]), Float.parseFloat(token[6]) );
         addBox(p1, p2);
       }
+      else if (token[0].equals("begin_list"))
+      {
+        m_scene.startList();
+      }
+      else if (token[0].equals("end_list"))
+      {
+        m_scene.commitList();
+      }
+      else if (token[0].equals("end_accel"))
+      {
+        m_scene.commitAccel();
+      }
       else if (token[0].equals("push"))
       {
         m_scene.onPush();

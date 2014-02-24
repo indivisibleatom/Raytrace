@@ -43,7 +43,7 @@ class GeometricPrimitive implements LightedPrimitive
       }
       return null;
     }
-    return new IntersectionInfo( this, shapeInfo );
+    return new IntersectionInfo( this, getDiffuseCoeffs(), getAmbientCoeffs(), shapeInfo );
   }
   
   public Color getDiffuseCoeffs() { return m_material.getDiffuse(); }
@@ -88,7 +88,7 @@ class InstancePrimitive implements LightedPrimitive
     Point point = m_transform.localToWorld( localInfo.point() );
     Vector normal = m_transform.localToWorldNormal( localInfo.normal() );
     ShapeIntersectionInfo intersectionInfo = new ShapeIntersectionInfo( point, normal, localInfo.t()*scale, localInfo.fDualSided() );
-    return new IntersectionInfo( this, intersectionInfo );
+    return new IntersectionInfo( this, getDiffuseCoeffs(), getAmbientCoeffs(), intersectionInfo );
   }
   
   public Color getDiffuseCoeffs()

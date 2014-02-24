@@ -21,6 +21,21 @@ class SceneManager
     m_primitiveManager.addNamedPrimitive(name);
   }
   
+  public void startList()
+  {
+    m_primitiveManager.startList();
+  }
+  
+  public void commitList()
+  {
+    m_primitiveManager.commitList();
+  }
+  
+  public void commitAccel()
+  {
+    m_primitiveManager.commitAccel();
+  }
+  
   public void addPrimitive(String name, Transformation transformation )
   {
     LightedPrimitive namedPrimitive = m_primitiveManager.getPrimitive( name );

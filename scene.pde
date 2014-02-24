@@ -57,15 +57,25 @@ class Scene
     m_sceneManager.addPrimitive(obj);
   }
   
+  public void startList()
+  {
+    m_sceneManager.startList();
+  }
+  
+  public void commitList()
+  {
+    m_sceneManager.commitList();
+  }
+  
+  public void commitAccel()
+  {
+    m_sceneManager.commitAccel();
+  }
+  
   public void raytrace()
   {
-    long startTime = System.currentTimeMillis();
     m_sceneManager.buildScene();
-    long createTime = System.currentTimeMillis();
-    print( "Diagnostic self log : Time taken for tree creation " + (createTime - startTime)/1000.0 + "seconds\n");
     m_renderer.render( this );
-    long endTime = System.currentTimeMillis();
-    print( "Diagnostic self log : Time for rendering " + (endTime - createTime)/1000.0 + "seconds\n");
   }
   
   //Light commands

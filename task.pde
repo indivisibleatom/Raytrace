@@ -23,7 +23,7 @@ class SamplerRenderingTask implements Task
       return lightManager.getAmbient();
     }
     numI++;
-    Color pixelColor = cloneCol( info.primitive().getAmbientCoeffs() );
+    Color pixelColor = cloneCol( info.ambient() );
     for (int i = 0; i < lightManager.getNumLights(); i++)
     {
       Light light = lightManager.getLight(i);
@@ -44,7 +44,7 @@ class SamplerRenderingTask implements Task
           }
         }
         float mag = shadowRay.getDirection().getMagnitude();
-        Color lightColor = combineColor( info.primitive().getDiffuseCoeffs(), light.getColor() );
+        Color lightColor = combineColor( info.diffuse(), light.getColor() );
         lightColor.scale( cosine );
         pixelColor.add( lightColor );
       }
