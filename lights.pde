@@ -35,5 +35,10 @@ class PointLight implements Light
   {
     return new Ray( pointFrom, new Vector( pointFrom, m_position ) );
   }
+  
+  public Vector getNormal()
+  {
+    return null;
+  }
 }
 

@@ -166,6 +166,11 @@ class Triangle implements Shape
   {
     return m_boundingBox;
   }
+  
+  public Vector getNormal()
+  {
+    return m_normal;
+  }
 
   //Optimized ray triangle intersection
   private float intersectInternal( Ray ray, float tMin, float tMax )
