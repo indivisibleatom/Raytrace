@@ -71,7 +71,7 @@ class InstancePrimitive implements LightedPrimitive
     Ray rayLocal = m_transform.worldToLocalUnnormalized( ray );
     float scale = 1/rayLocal.getDirection().getMagnitude();
     rayLocal.getDirection().normalize();
-    return m_primitive.intersects( rayLocal, tMin/scale, tMax/scale );
+    return m_primitive.intersects( rayLocal, tMin, tMax );
   }
   
   public IntersectionInfo getIntersectionInfo( Ray ray, float tMin, float tMax ) 
@@ -79,7 +79,7 @@ class InstancePrimitive implements LightedPrimitive
     Ray rayLocal = m_transform.worldToLocalUnnormalized( ray );
     float scale = 1/rayLocal.getDirection().getMagnitude();
     rayLocal.getDirection().normalize();
-    IntersectionInfo localInfo = m_primitive.getIntersectionInfo( rayLocal, tMin/scale, tMax/scale );
+    IntersectionInfo localInfo = m_primitive.getIntersectionInfo( rayLocal, tMin, tMax );
     if ( localInfo == null )
     {
       return null;

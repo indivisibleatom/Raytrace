@@ -1,4 +1,4 @@
-int maxDepth = 20;
+int maxDepth = 25;
 int numSamples = 8;
 int coreMultiplier = 2;
 int numNodesForSwitch = 32;
@@ -6,7 +6,7 @@ float traversalCost = 1;
 float intersectionCost = 1;
 
 //The cap on the number of adaptive and non-adaptive samples of the cost function
-int numNASamples = 7;
+int numNASamples = 15;
 int numASamples = 4;
 
 //TODO msati3: Cleanup memory usage stuff from all these data-structures
@@ -944,13 +944,13 @@ class KDTree implements Primitive
         printTree( nodeIndex );
         print("\n");
       }
-      IntersectionInfo info = getIntersectionInfoRecursive( nearChild, ray, tMin, tSplit + c_epsilon );
+      IntersectionInfo info = getIntersectionInfoRecursive( nearChild, ray, tMin, tSplit );
       if ( info != null )
       {
         //print(info);
         return info;
       }
-      IntersectionInfo ret = getIntersectionInfoRecursive( farChild, ray, tSplit - c_epsilon, tMax );
+      IntersectionInfo ret = getIntersectionInfoRecursive( farChild, ray, tSplit, tMax );
       //print(ret);
       return ret;
     }
@@ -995,12 +995,12 @@ class KDTree implements Primitive
     }
     else
     {
-      boolean intersects = intersectsRecursive( nearChild, ray, tMin, tSplit + c_epsilon );
+      boolean intersects = intersectsRecursive( nearChild, ray, tMin, tSplit );
       if ( intersects != false )
       {
         return intersects;
       }
-      return intersectsRecursive( farChild, ray, tSplit - c_epsilon, tMax );
+      return intersectsRecursive( farChild, ray, tSplit, tMax );
     }
   }
 

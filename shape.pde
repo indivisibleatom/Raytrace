@@ -24,9 +24,10 @@ class Sphere implements Shape
   {
     Vector OA = new Vector( c_origin, ray.getOrigin() );    
     float scale = 1/ray.getDirection().getMagnitude();
-    ray.getDirection().normalize();
+    Vector dirNorm = cloneVec( ray.getDirection() );
+    dirNorm.normalize();
 
-    float b = 2*OA.dot(ray.getDirection());
+    float b = 2*OA.dot(dirNorm);
     float a = 1;
     float c = OA.getMagnitudeSquare() - 1;
     float delta = b*b - 4*a*c;
@@ -34,8 +35,8 @@ class Sphere implements Shape
       return false;
 
     float sqrtDelta = sqrt( delta );
-    float root1 = (-b + sqrtDelta) / ( 2 * a );
-    float root2 = (-b - sqrtDelta) / ( 2 * a );
+    float root1 = (-b + sqrtDelta) / 2;
+    float root2 = (-b - sqrtDelta) / 2;
     if (root1 < c_epsilon && root2 < c_epsilon)
     {
       return false;
@@ -52,7 +53,7 @@ class Sphere implements Shape
     }
 
     float minTScaled = minT * scale;
-    if ( minTScaled < tMin || minTScaled > tMax )
+    if ( minTScaled < c_epsilon || minTScaled < tMin || minTScaled > tMax )
     {
       return false;
     }
@@ -63,9 +64,10 @@ class Sphere implements Shape
   {
     Vector OA = new Vector( c_origin, ray.getOrigin() );
     float scale = 1/ray.getDirection().getMagnitude();
-    ray.getDirection().normalize();
+    Vector dirNorm = cloneVec( ray.getDirection() );
+    dirNorm.normalize();
 
-    float b = 2*OA.dot(ray.getDirection());
+    float b = 2*OA.dot(dirNorm);
     float a = 1;
     float c = OA.getMagnitudeSquare() - 1;
     float delta = b*b - 4*a*c;
@@ -76,8 +78,8 @@ class Sphere implements Shape
     else
     {
       float sqrtDelta = sqrt( delta );
-      float root1 = (-b + sqrtDelta) / ( 2 * a );
-      float root2 = (-b - sqrtDelta) / ( 2 * a );
+      float root1 = (-b + sqrtDelta) / 2;
+      float root2 = (-b - sqrtDelta) / 2;
       if (root1 < c_epsilon && root2 < c_epsilon)
       {
         return null;
@@ -94,12 +96,12 @@ class Sphere implements Shape
       }
 
       float minTScaled = minT * scale;
-      if ( minTScaled < tMin || minTScaled > tMax )
+      if ( minT < c_epsilon || minTScaled < tMin || minTScaled > tMax )
       {
         return null;
       }
 
-      Point intersectionPointLocal = new Point( ray, minT );
+      Point intersectionPointLocal = new Point( ray, minTScaled );
       Vector normalLocal = new Vector( c_origin, intersectionPointLocal );
 
       //Now go to world space
@@ -121,7 +123,7 @@ class Sphere implements Shape
       return false;
     }*/
     Ray rayLocal = m_transformation.worldToLocalUnnormalized( ray );
-    return intersectsCanonical( rayLocal, tMin - c_epsilon, tMax + c_epsilon );
+    return intersectsCanonical( rayLocal, tMin, tMax );
   }
 
   public ShapeIntersectionInfo getIntersectionInfo( Ray ray, float tMin, float tMax )
@@ -131,7 +133,7 @@ class Sphere implements Shape
       return null;
     }*/
     Ray rayLocal = m_transformation.worldToLocalUnnormalized( ray );
-    return intersectionInfoCanonical( rayLocal, tMin - c_epsilon, tMax + c_epsilon);
+    return intersectionInfoCanonical( rayLocal, tMin, tMax );
   }
 }
 

@@ -62,10 +62,10 @@ class Scene
     long startTime = System.currentTimeMillis();
     m_sceneManager.buildScene();
     long createTime = System.currentTimeMillis();
-    print( "Time taken for tree creation " + (createTime - startTime)/1000.0 + "seconds\n");
+    print( "Diagnostic self log : Time taken for tree creation " + (createTime - startTime)/1000.0 + "seconds\n");
     m_renderer.render( this );
     long endTime = System.currentTimeMillis();
-    print( "Time taken for render " + (endTime - createTime)/1000.0 + "seconds\n");
+    print( "Diagnostic self log : Time for rendering " + (endTime - createTime)/1000.0 + "seconds\n");
   }
   
   //Light commands

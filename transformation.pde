@@ -92,6 +92,26 @@ class Transformation
     return new PVector( retVal[0], retVal[1], retVal[2] );
   }
 
+  public Point localToWorld( Point pointLocal )
+  {
+    PVector local = new PVector( pointLocal.X(), pointLocal.Y(), pointLocal.Z() );
+    PVector world = localToWorld( local, false );
+    Point worldPoint = new Point( world.x, world.y, world.z );
+    return worldPoint;
+  }
+  
+  public Vector localToWorldNormal( Vector normal )
+  {
+    PMatrix inverse = m_inverse.get();
+    inverse.transpose();
+    float[] localArray = { normal.X(), normal.Y(), normal.Z(), 0 };
+    float[] values = new float[4];
+    m_transformation.mult( localArray, values );
+    Vector worldNormal = new Vector( values[0], values[1], values[2] );
+    worldNormal.normalize();
+    return worldNormal;
+  }
+  
   private PVector worldToLocal ( PVector world, boolean fIsVector )
   {
     float[] worldArray = { world.x, world.y, world.z, 1 };
@@ -103,28 +123,7 @@ class Transformation
     m_inverse.mult( worldArray, retVal );
     return new PVector( retVal[0], retVal[1], retVal[2] );
   }
-  
-  public Point localToWorld( Point pointLocal )
-  {
-    PVector local = new PVector( pointLocal.X(), pointLocal.Y(), pointLocal.Z() );
-    PVector world = localToWorld( local, false );
-    Point worldPoint = new Point( world.x, world.y, world.z );
-    return worldPoint;
-  }
-  
-  public Vector localToWorldNormal( Vector normal )
-  {
-    PVector normalLocal = new PVector( normal.X(), normal.Y(), normal.Z() );
-    PMatrix inverse = m_inverse.get();
-    inverse.transpose();
-    float[] localArray = { normalLocal.x, normalLocal.y, normalLocal.z, 0 };
-    float[] values = new float[4];
-    m_transformation.mult( localArray, values );
-    Vector worldNormal = new Vector( values[0], values[1], values[2] );
-    worldNormal.normalize();
-    return worldNormal;
-  }
-  
+    
   public Point worldToLocal( Point pointWorld )
   {
     PVector world = new PVector( pointWorld.X(), pointWorld.Y(), pointWorld.Z() );
