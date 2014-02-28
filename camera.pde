@@ -61,12 +61,7 @@ class Film
   
   public void setRadiance( Sample sample, Color col )
   {
-    if ( times < 50 )
-    {
-      times++;
-      col.debugPrint();
-    }
-    col.scale(1/sample.getSamplesPerPixel());
+    col.scale(1.0/sample.getSamplesPerPixel());
     m_screenColor[m_screenDim.height() - sample.getPixelY() - 1][sample.getPixelX()].add(col);
   }
   

@@ -2,7 +2,6 @@ interface Task extends Runnable
 {
 }
 
-int numI = 0;
 class SamplerRenderingTask implements Task
 {
   private Scene m_scene;
@@ -20,9 +19,8 @@ class SamplerRenderingTask implements Task
     IntersectionInfo info = m_scene.getIntersectionInfo( ray );
     if ( info == null ) // Can be the case when the t value is negative
     {
-      return lightManager.getAmbient();
+      return cloneCol( lightManager.getAmbient() );
     }
-    numI++;
     Color pixelColor = cloneCol( info.ambient() );
     for (int i = 0; i < lightManager.getNumLights(); i++)
     {
@@ -55,14 +53,11 @@ class SamplerRenderingTask implements Task
   public void run()
   {
     Sample sample = m_sampler.getNextSample();
-    int count = 0;
     do
     {
       Ray ray = m_scene.getCamera().getRay(sample);
-      m_scene.getCamera().getFilm().setRadiance(sample, computeRadiance(ray));
-      sample = m_sampler.getNextSample();
-      count++;
-    } while ( sample != null );
-    print("Num times run " + count + "\n");
+      Color radiance = computeRadiance(ray);
+      m_scene.getCamera().getFilm().setRadiance(sample, radiance);
+      sample = m_sampler.getNextSample();    } while ( sample != null );
   }
 }
