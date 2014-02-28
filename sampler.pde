@@ -8,6 +8,7 @@ class Sampler
   Sampler( Rect sampleRect )
   {
     m_sampleRect = sampleRect;
+    m_samplesPerPixel = 1;
   }
   
   public void setSamplesPerPixel( int spp )

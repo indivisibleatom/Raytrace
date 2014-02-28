@@ -39,8 +39,9 @@ class Sample
   
   private void subSample()
   {
-    m_xSample = random(1) - 0.5;
-    m_ySample = random(1) - 0.5;
+    m_currentNumRays++;
+    m_xSample = m_x ;//+ random(1) - 0.5;
+    m_ySample = m_y ;//+ random(1) - 0.5;
   }
   
   public void advance()
@@ -53,6 +54,7 @@ class Sample
       }
       else
       {
+        m_currentNumRays = 0;
         m_x++;
         if ( m_x >= m_sampleRect.X() + m_sampleRect.width() )
         {
@@ -64,9 +66,9 @@ class Sample
           else
           {        
             m_x = m_sampleRect.X();
+            subSample();
           }
         }
-        subSample();
       }
     }
   }

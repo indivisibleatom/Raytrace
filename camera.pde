@@ -37,6 +37,8 @@ class Camera
   }
 }
 
+int times = 0;
+
 class Film
 {
   private Rect m_screenDim;
@@ -46,15 +48,21 @@ class Film
   {
     m_screenDim = screenDim;
     m_screenColor = new Color[ m_screenDim.height() ][ m_screenDim.width() ];
+    
+    for (int i = 0; i < m_screenDim.height(); i++)
+    {
+      for (int j = 0; j < m_screenDim.width(); j++)
+      {
+        m_screenColor[i][j] = new Color(0,0,0);  
+      }
+    }
   }
 
   public Rect getDim() { return m_screenDim; }
   
   public void setRadiance( Sample sample, Color col )
   {
-    //TODO msati3: Remove hardcoding of single color being equated
     col.scale(1/sample.getSamplesPerPixel());
-    col.debugLog();
     m_screenColor[m_screenDim.height() - sample.getPixelY() - 1][sample.getPixelX()].add(col);
   }
   
