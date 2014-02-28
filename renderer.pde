@@ -5,6 +5,7 @@ import java.util.concurrent.TimeUnit;
 interface Renderer
 {
   public void render( Scene scene );
+  public void setRaysPerPixel( int rpp );
 }
 
 class SamplerRenderer implements Renderer
@@ -19,7 +20,7 @@ class SamplerRenderer implements Renderer
   
   public void setRaysPerPixel( int rpp )
   {
-    m_sampler.setRaysPerPixel( rpp );
+    m_sampler.setSamplesPerPixel( rpp );
   }
   
   public void render( Scene scene )

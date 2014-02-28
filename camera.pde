@@ -53,7 +53,8 @@ class Film
   public void setRadiance( Sample sample, Color col )
   {
     //TODO msati3: Remove hardcoding of single color being equated
-    m_screenColor[m_screenDim.height() - sample.getY() - 1][sample.getX()] = col;
+    col.scale(1/sample.getSamplesPerPixel());
+    m_screenColor[m_screenDim.height() - sample.getPixelY() - 1][sample.getPixelX()].add(col);
   }
   
   public void draw()

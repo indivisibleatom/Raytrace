@@ -10,7 +10,7 @@ class Sampler
     m_sampleRect = sampleRect;
   }
   
-  public void setSamplerPerPixel( int spp )
+  public void setSamplesPerPixel( int spp )
   {
     m_samplesPerPixel = spp;
   }
@@ -33,7 +33,7 @@ class Sampler
     //TODO msati3: See how to best adapt the Sampler interface to get samples correctly. Right now, just one sample per pixel
     if ( m_currentSample == null )
     {
-      m_currentSample = new Sample( m_sampleRect );
+      m_currentSample = new Sample( m_sampleRect, m_samplesPerPixel );
     }
     else
     {
