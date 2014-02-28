@@ -17,6 +17,11 @@ class SamplerRenderer implements Renderer
     m_sampler = new Sampler( samplerRect );
   }
   
+  public void setRaysPerPixel( int rpp )
+  {
+    m_sampler.setRaysPerPixel( rpp );
+  }
+  
   public void render( Scene scene )
   {
     int cores = Runtime.getRuntime().availableProcessors();

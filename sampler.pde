@@ -3,12 +3,16 @@ class Sampler
 {
   private Rect m_sampleRect;
   private Sample m_currentSample;
-  private int m_numberSamplesPerPixel;
+  private int m_samplesPerPixel;
   
   Sampler( Rect sampleRect )
   {
     m_sampleRect = sampleRect;
-    m_numberSamplesPerPixel = 1; //TODO msati3: Change this to settable number at a later time
+  }
+  
+  public void setSamplerPerPixel( int spp )
+  {
+    m_samplesPerPixel = spp;
   }
   
   public Sampler getSubsampler( int numTasks, int taskNum )

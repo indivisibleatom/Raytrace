@@ -42,6 +42,11 @@ class Scene
     m_camera.setFov( fov );
   }
   
+  public void setRaysPerPixel( int rpp )
+  {
+    m_renderer.setRaysPerPixel( rpp );
+  }
+  
   public void addNamedObject( String name )
   {
     m_sceneManager.addNamedPrimitive( name );
