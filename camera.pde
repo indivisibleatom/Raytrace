@@ -54,6 +54,7 @@ class Film
   {
     //TODO msati3: Remove hardcoding of single color being equated
     col.scale(1/sample.getSamplesPerPixel());
+    col.debugLog();
     m_screenColor[m_screenDim.height() - sample.getPixelY() - 1][sample.getPixelX()].add(col);
   }
   

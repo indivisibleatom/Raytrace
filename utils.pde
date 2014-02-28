@@ -302,6 +302,13 @@ class Color
     m_g = clamp( m_g * scale );
     m_b = clamp( m_b * scale );
   }
+  
+  void debugPrint()
+  {
+    print("Begin Col : \n");
+    print("Red, green, blue " + m_r + " " + m_g + " " + m_b + "\n");
+    print("End Col \n");
+  }
 
   public float R() { return m_r; }
   public float G() { return m_g; }
