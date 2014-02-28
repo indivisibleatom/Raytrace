@@ -61,6 +61,8 @@ class SamplerRenderingTask implements Task
       Ray ray = m_scene.getCamera().getRay(sample);
       m_scene.getCamera().getFilm().setRadiance(sample, computeRadiance(ray));
       sample = m_sampler.getNextSample();
+      count++;
     } while ( sample != null );
+    print("Num times run " + count + "\n");
   }
 }

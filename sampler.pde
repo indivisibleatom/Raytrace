@@ -2,13 +2,14 @@
 class Sampler
 {
   private Rect m_sampleRect;
-  private Sample m_currentSample;
+  private SampleManager m_sampleManager;
   private int m_samplesPerPixel;
   
   Sampler( Rect sampleRect )
   {
     m_sampleRect = sampleRect;
     m_samplesPerPixel = 1;
+    m_sampleManager = null;
   }
   
   public void setSamplesPerPixel( int spp )
@@ -18,7 +19,6 @@ class Sampler
   
   public Sampler getSubsampler( int numTasks, int taskNum )
   {
-    //TODO msati3: Change the sumsampling code to be more robust later
     int tasksPerRow = (int)sqrt(numTasks);
     int tasksPerCol = (int)sqrt(numTasks);
     int widthPerSubSample = m_sampleRect.width() / tasksPerCol;
@@ -26,25 +26,19 @@ class Sampler
     int rowForTask = taskNum / tasksPerRow;
     int colForTask = taskNum - (rowForTask * tasksPerRow);
     Rect subSampleRect = new Rect( colForTask * widthPerSubSample, rowForTask * heightPerSubSample, widthPerSubSample, heightPerSubSample );
-    return new Sampler( subSampleRect );
+    Sampler subSampler = new Sampler( subSampleRect );
+    subSampler.setSamplesPerPixel( m_samplesPerPixel );
+    return subSampler;
   }
   
   public Sample getNextSample()
   {
     //TODO msati3: See how to best adapt the Sampler interface to get samples correctly. Right now, just one sample per pixel
-    if ( m_currentSample == null )
+    if ( m_sampleManager == null )
     {
-      m_currentSample = new Sample( m_sampleRect, m_samplesPerPixel );
+      m_sampleManager = new SampleManager( m_sampleRect, m_samplesPerPixel );
     }
-    else
-    {
-      m_currentSample.advance();
-      if ( !m_currentSample.hasNextSample() )
-      {
-        return null;
-      }
-    }
-    return m_currentSample;
+    return m_sampleManager.advance();
   }
   
   public void debugPrint()

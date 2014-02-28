@@ -1,3 +1,4 @@
+int times = 0;
 class Camera
 {
   private Film m_film;
@@ -37,8 +38,6 @@ class Camera
   }
 }
 
-int times = 0;
-
 class Film
 {
   private Rect m_screenDim;
@@ -62,6 +61,11 @@ class Film
   
   public void setRadiance( Sample sample, Color col )
   {
+    if ( times < 50 )
+    {
+      times++;
+      col.debugPrint();
+    }
     col.scale(1/sample.getSamplesPerPixel());
     m_screenColor[m_screenDim.height() - sample.getPixelY() - 1][sample.getPixelX()].add(col);
   }

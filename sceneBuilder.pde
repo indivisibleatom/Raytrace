@@ -113,7 +113,7 @@ class SceneBuilder
         Color bgColor = new Color( Float.parseFloat(token[1]), Float.parseFloat(token[2]), Float.parseFloat(token[3]) );
         setBackgroundColor(bgColor);
       }
-      else if (token[0].equals("rays_per_pixel num"))
+      else if (token[0].equals("rays_per_pixel"))
       {
         int raysPerPixel = Integer.parseInt(token[1]);
         m_scene.setRaysPerPixel( raysPerPixel );
