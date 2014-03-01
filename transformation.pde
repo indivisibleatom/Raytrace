@@ -26,6 +26,17 @@ class Transformation
     clone(other);
   }
   
+  void setOrientation( Vector v1, Vector v2, Vector v3 )
+  {
+    float[] contents = new float[16];
+    m_transformation.get( contents );
+    contents[0] = v1.X(); contents[1] = v2.Y(); contents[2] = v3.Z();
+    contents[4] = v1.Y(); contents[5] = v2.Y(); contents[6] = v3.Y();
+    contents[8] = v1.Z(); contents[9] = v2.Z(); contents[10] = v3.Z();
+    m_transformation.set( contents );
+    setInverse();
+  }
+  
   void clone( Transformation other )
   {
     m_transformation.set( other.m_transformation );

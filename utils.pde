@@ -73,6 +73,16 @@ class Point
     m_p[2] /= scaleZ;
   }
   
+  float distanceFrom( Point other )
+  {
+    return sqrt( squaredDistanceFrom( other ) );
+  }
+  
+  float squaredDistanceFrom( Point other )
+  {
+    return ( (m_p[0] - other.m_p[0])*(m_p[0] - other.m_p[0]) + (m_p[1] - other.m_p[1])*(m_p[1] - other.m_p[1]) + (m_p[2] - other.m_p[2])*(m_p[2] - other.m_p[2]) );
+  }
+  
   void debugPrint()
   {
     print( "Point : " + m_p[0] + " " + m_p[1] + " " + m_p[2] + "\n" );
@@ -115,6 +125,13 @@ class Vector
     return m_v[index];
   }
   
+  public void subtract(Vector other)
+  {   
+    m_v[0] -= other.m_v[0];
+    m_v[1] -= other.m_v[1];
+    m_v[2] -= other.m_v[2];
+  }
+  
   void set( int index, float value ) { m_v[index] = value; }
   void setX( float x ) { m_v[0] = x; }
   void setY( float y ) { m_v[1] = y; }
@@ -154,6 +171,13 @@ class Vector
     {
       m_v[i] *= invDenom;
     }
+  }
+
+  public void scale(float scale)
+  {
+    m_v[0] *= scale;
+    m_v[1] *= scale;
+    m_v[2] *= scale;
   }
   
   void debugPrint()

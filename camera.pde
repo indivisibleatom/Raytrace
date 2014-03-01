@@ -1,4 +1,3 @@
-int times = 0;
 class Camera
 {
   private Film m_film;

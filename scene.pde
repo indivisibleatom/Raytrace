@@ -98,6 +98,11 @@ class Scene
   {
     m_lightManager.addLight( new PointLight(pt, col) );
   }
+  
+  public void addDiskLight( Point pt, float center, Vector normal, Color col )
+  {
+    m_lightManager.addLight( new DiskLight( pt, center, normal, col ) );
+  }
    
   //Material handling commands
   public void setCoeffs( Color ambient, Color diffuse )
