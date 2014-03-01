@@ -2,11 +2,20 @@ class Camera
 {
   private Film m_film;
   private float m_fov;
+  private float m_focalLength;
+  private float m_aperture;
   
   Camera( float fov, int zNear, Rect screenDim )
   {
     m_fov = fov * (PI / 180);
     m_film = new Film( screenDim );
+    m_aperture = 0;
+  }
+  
+  public void setLensParams( float aperture, float distance )
+  {
+    m_focalLength = distance;
+    m_aperture = aperture;
   }
   
   public void setFov( float fov )
@@ -19,9 +28,34 @@ class Camera
     return m_film;
   }
   
-  public Point toCamera( Point screenPoint )
+  private Point sampleAperture()
   {
-    Point p = clonePt(screenPoint);
+    //Rejection sampling of disk corresponding to aperture
+    Point randomPoint;
+    while ( true )
+    {
+      float randX = random(-m_aperture, m_aperture);
+      float randY = random(-m_aperture, m_aperture);
+      randomPoint = new Point( randX, randY, 0 );
+      if ( randomPoint.squaredDistanceFrom( c_origin ) <= m_aperture * m_aperture )
+      {
+        break;
+      }
+    }
+    return randomPoint;
+  }
+
+  public Point getPointOnFocalPlane( Point screenPointWorld )
+  {
+    Vector originToScreen = new Vector( c_origin, screenPointWorld );
+    float tz = -m_focalLength / originToScreen.Z();    
+    Point pOnFocalPlane = new Point( c_origin, originToScreen, tz );
+    return pOnFocalPlane;
+  }
+  
+  public Point toCamera( Point screenPointLocal )
+  {
+    Point p = clonePt(screenPointLocal);
     Rect dimension = m_film.getDim();
     p.subtract(new Point(dimension.width()/2, dimension.height()/2, 0));
     p.toNormalizedCoordinates(dimension.width()/2, dimension.height()/2, 1);
@@ -31,8 +65,17 @@ class Camera
   
   public Ray getRay( Sample sample )
   {
-    Point p = toCamera( new Point(sample.getX(), sample.getY(), 0) );
-    Ray r = new Ray( c_origin, p );
+    Ray r;
+    if ( m_aperture == 0 )
+    {
+      Point p = toCamera( new Point(sample.getX(), sample.getY(), 0) );
+      r = new Ray( c_origin, p );
+    }
+    else
+    {
+      Point p = getPointOnFocalPlane( toCamera( new Point(sample.getX(), sample.getY(), 0) ) );
+      r = new Ray( sampleAperture(), p );
+    }
     return r;
   }
 }

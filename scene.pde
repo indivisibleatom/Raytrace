@@ -79,8 +79,13 @@ class Scene
   
   public void raytrace()
   {
+    long startTime = System.currentTimeMillis();
     m_sceneManager.buildScene();
+    long createTime = System.currentTimeMillis();
+    print( "Diagnostic self log : Time taken for tree creation " + (createTime - startTime)/1000.0 + "seconds\n");
     m_renderer.render( this );
+    long endTime = System.currentTimeMillis();
+    print( "Diagnostic self log : Time for rendering " + (endTime - createTime)/1000.0 + "seconds\n");
   }
   
   //Light commands
@@ -92,6 +97,11 @@ class Scene
   public void setBackgroundColor( Color bgColor )
   {
     m_lightManager.setAmbient( bgColor );  
+  }
+  
+  public void setLensParams( float radius, float center )
+  {
+    m_camera.setLensParams( radius, center );
   }
 
   public void addPointLight( Point pt, Color col )

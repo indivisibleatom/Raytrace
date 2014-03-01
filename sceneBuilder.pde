@@ -132,6 +132,12 @@ class SceneBuilder
         Color col = new Color( Float.parseFloat(token[8]), Float.parseFloat(token[9]), Float.parseFloat(token[10]) );
         m_scene.addDiskLight( center, radius, normal, col );
       }
+      else if (token[0].equals("lens"))
+      {
+        float radius = Float.parseFloat(token[1]);
+        float distance = Float.parseFloat(token[2]);
+        m_scene.setLensParams( radius, distance );
+      }
       else if (token[0].equals("diffuse"))
       {
         float[] diffuseCoeffs = {Float.parseFloat(token[1]), Float.parseFloat(token[2]), Float.parseFloat(token[3])};
