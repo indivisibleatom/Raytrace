@@ -19,6 +19,7 @@ void setup() {
   noStroke();
   colorMode (RGB, 1.0);
   background (0, 0, 0);
+  noLoop();
 }
 
 // Press key 1 to 9 and 0 to run different test cases.

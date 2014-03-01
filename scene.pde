@@ -86,6 +86,8 @@ class Scene
     m_renderer.render( this );
     long endTime = System.currentTimeMillis();
     print( "Diagnostic self log : Time for rendering " + (endTime - createTime)/1000.0 + "seconds\n");
+    print( "Count of logged info " + count + "\n");
+    redraw();
   }
   
   //Light commands

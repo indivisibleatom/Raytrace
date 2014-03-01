@@ -1,28 +1,32 @@
-int count = 0;
-
 class Transformation
 {
   PMatrix m_transformation;
   PMatrix m_inverse;
+  PMatrix m_invTranspose;
   
   private void setInverse()
   {
     m_inverse = m_transformation.get();
     m_inverse.invert();
+    m_invTranspose = m_inverse.get();
+    m_invTranspose.invert();
   }
   
   Transformation()
   {
     m_transformation = new PMatrix3D();
     m_inverse = new PMatrix3D();
+    m_invTranspose = new PMatrix3D();
     m_transformation.set( 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 );
     m_inverse.set( 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 );
+    m_invTranspose.set( 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 );
   }
   
   Transformation( Transformation other )
   {
     m_transformation = new PMatrix3D();
     m_inverse = new PMatrix3D();
+    m_invTranspose = new PMatrix3D();
     clone(other);
   }
   
@@ -91,80 +95,52 @@ class Transformation
     setInverse();
   } 
 
-  private PVector localToWorld( PVector local, boolean fIsVector )
-  {
-    float[] localArray = { local.x, local.y, local.z, 1 };
-    if ( fIsVector )
-    {
-      localArray[3] = 0;
-    }
-    float[] retVal = new float[4];
-    m_transformation.mult( localArray, retVal );
-    return new PVector( retVal[0], retVal[1], retVal[2] );
-  }
-
   public Point localToWorld( Point pointLocal )
   {
-    PVector local = new PVector( pointLocal.X(), pointLocal.Y(), pointLocal.Z() );
-    PVector world = localToWorld( local, false );
-    Point worldPoint = new Point( world.x, world.y, world.z );
-    return worldPoint;
+    float[] local = { pointLocal.X(), pointLocal.Y(), pointLocal.Z(), 1 };
+    float[] world = new float[4];
+    m_transformation.mult( local, world );
+    return new Point( world );
   }
   
   public Vector localToWorldNormal( Vector normal )
   {
-    PMatrix inverse = m_inverse.get();
-    inverse.transpose();
     float[] localArray = { normal.X(), normal.Y(), normal.Z(), 0 };
     float[] values = new float[4];
-    inverse.mult( localArray, values );
-    Vector worldNormal = new Vector( values[0], values[1], values[2] );
+    m_invTranspose.mult( localArray, values );
+    Vector worldNormal = new Vector( values );
     worldNormal.normalize();
     return worldNormal;
-  }
-  
-  private PVector worldToLocal ( PVector world, boolean fIsVector )
-  {
-    float[] worldArray = { world.x, world.y, world.z, 1 };
-    if ( fIsVector )
-    {
-      worldArray[3] = 0;
-    }   
-    float[] retVal = new float[4];
-    m_inverse.mult( worldArray, retVal );
-    return new PVector( retVal[0], retVal[1], retVal[2] );
   }
     
   public Point worldToLocal( Point pointWorld )
   {
-    PVector world = new PVector( pointWorld.X(), pointWorld.Y(), pointWorld.Z() );
-    PVector local = worldToLocal( world, false );  
-    Point localPoint = new Point( local.x, local.y, local.z );
-    return localPoint;
+    float[] world = { pointWorld.X(), pointWorld.Y(), pointWorld.Z(), 1 };
+    float[] local = new float[4];
+    m_inverse.mult( world, local );
+    return new Point( local );
   }
   
   public Vector worldToLocal( Vector vectorWorld )
   {
-    PVector world = new PVector( vectorWorld.X(), vectorWorld.Y(), vectorWorld.Z() );
-    PVector local = worldToLocal( world, true );
-    Vector localVector = new Vector( local.x, local.y, local.z );
-    return localVector;
+    float[] world = { vectorWorld.X(), vectorWorld.Y(), vectorWorld.Z(), 0 };
+    float[] local = new float[4];
+    m_inverse.mult( world, local );
+    return new Vector( local );
   }
 
   public Ray worldToLocal( Ray rayLocal )
   {
     Point originPoint = worldToLocal( rayLocal.getOrigin() );
     Vector directionVector = worldToLocal( rayLocal.getDirection() );
-    Ray worldRay = new Ray( originPoint, directionVector );
-    return worldRay;
+    return new Ray( originPoint, directionVector );
   }
   
   public Ray worldToLocalUnnormalized( Ray rayLocal )
   {
     Point originPoint = worldToLocal( rayLocal.getOrigin() );
     Vector directionVector = worldToLocal( rayLocal.getDirection() );
-    Ray worldRay = new Ray( originPoint, directionVector, false );
-    return worldRay;
+    return new Ray( originPoint, directionVector, false );
   }
 }
 

@@ -1,4 +1,5 @@
 float c_epsilon = 0.00001;
+int count = 0;
 
 boolean compare( float n1, float n2 )
 {
@@ -26,6 +27,11 @@ class Point
     m_p[0] = init.X() + t * direction.X();
     m_p[1] = init.Y() + t * direction.Y();
     m_p[2] = init.Z() + t * direction.Z();
+  }
+  
+  Point(float[] values)
+  {
+    m_p = values;
   }
   
   Point(Ray r, float t)
@@ -110,6 +116,11 @@ class Vector
     m_v[2] = other.Z();
   }
   
+  Vector(float[] values)
+  {
+    m_v = values;
+  }
+  
   Vector(Point pA, Point pB)
   {
     m_v[0] = pB.X() - pA.X();
@@ -163,9 +174,12 @@ class Vector
 
   public void normalize()
   {
-    float denom = getMagnitude();
+    float denom = getMagnitude();    
     if ( denom == 0 || denom == 1  )
+    {
+      count++;
       return;
+    }
     float invDenom = 1/denom;
     for (int i = 0; i < 3; i++)
     {
