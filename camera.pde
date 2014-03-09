@@ -103,8 +103,19 @@ class Film
   
   public void setRadiance( Sample sample, Color col )
   {
-    col.scale(1.0/sample.getSamplesPerPixel());
-    m_screenColor[m_screenDim.height() - sample.getPixelY() - 1][sample.getPixelX()].add(col);
+    m_screenColor[m_screenDim.height() - sample.getPixelY() - 1][sample.getPixelX()].addUnclamped(col);
+  }
+  
+  public void scaleExposure(int numSamples)
+  {
+    float scale = 1.0/numSamples;
+    for (int i = 0; i < m_screenDim.height(); i++)
+    {
+      for (int j = 0; j < m_screenDim.width(); j++)
+      {
+        m_screenColor[i][j].scale(scale);
+      }
+    }
   }
   
   public void draw()
@@ -117,8 +128,7 @@ class Film
         Color col = m_screenColor[i][j];
         if ( col != null )
         {
-          color colProcessing = color( col.R(), col.G(), col.B() );
-          stroke( colProcessing  );
+          stroke( col.R(), col.G(), col.B() );
           point( j, i );
         }
       }

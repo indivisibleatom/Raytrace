@@ -56,8 +56,16 @@ class SceneBuilder
   
   private void addSphere( float radius, Point center )
   {
-    //TODO msati3: Add radius and center into the transformation of the object
-    Sphere s = new Sphere( radius, center, m_scene.getCurrentTransformation() );
+    Shape s = null;
+    if ( m_scene.getCurrentTransformation().hasScale() )
+    {
+      s = new Sphere( radius, center, m_scene.getCurrentTransformation() );
+    }
+    else
+    {
+      Point centerWorld = m_scene.getCurrentTransformation().localToWorld(center);
+      s = new NonCanonSphere( radius, centerWorld );
+    }
     m_scene.addObject( new GeometricPrimitive( s, m_scene.getCurrentMaterial() ) );
   }
   

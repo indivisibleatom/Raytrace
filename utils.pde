@@ -215,18 +215,24 @@ class Ray
   
   Ray(Point orig, Point other)
   {
-    m_orig = orig;
-    m_dir = new Vector(orig, other);
-    m_dir.normalize();
+    this( orig, other, true );
   }
   
   Ray(Point orig, Vector direction)
   {
-    m_orig = orig;
-    m_dir = direction;
-    m_dir.normalize();
+    this( orig, direction, true );
   }
 
+  Ray(Point orig, Point other, boolean fNormalize)
+  {
+    m_orig = orig;
+    m_dir = new Vector(orig, other);
+    if ( fNormalize )
+    {
+      m_dir.normalize();
+    }
+  }
+  
   Ray(Point orig, Vector direction, boolean fNormalize)
   {
     m_orig = orig;
@@ -332,6 +338,13 @@ class Color
     m_r = clamp( m_r + other.m_r );
     m_g = clamp( m_g + other.m_g );
     m_b = clamp( m_b + other.m_b );
+  }
+  
+  public void addUnclamped(Color other)
+  {
+    m_r = ( m_r + other.m_r );
+    m_g = ( m_g + other.m_g );
+    m_b = ( m_b + other.m_b );
   }
   
   public void scale(float scale)

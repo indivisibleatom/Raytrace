@@ -17,6 +17,11 @@ class Sampler
     m_samplesPerPixel = spp;
   }
   
+  public int getSamplesPerPixel()
+  {
+    return m_samplesPerPixel;
+  }
+  
   public Sampler getSubsampler( int numTasks, int taskNum )
   {
     int tasksPerRow = (int)sqrt(numTasks);

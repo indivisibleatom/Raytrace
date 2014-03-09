@@ -3,20 +3,14 @@ class Transformation
   PMatrix m_transformation;
   PMatrix m_inverse;
   PMatrix m_invTranspose;
-  
-  private void setInverse()
-  {
-    m_inverse = m_transformation.get();
-    m_inverse.invert();
-    m_invTranspose = m_inverse.get();
-    m_invTranspose.invert();
-  }
+  boolean m_hasScale = false;
   
   Transformation()
   {
     m_transformation = new PMatrix3D();
     m_inverse = new PMatrix3D();
     m_invTranspose = new PMatrix3D();
+    m_hasScale = false;
     m_transformation.set( 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 );
     m_inverse.set( 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 );
     m_invTranspose.set( 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 );
@@ -41,10 +35,19 @@ class Transformation
     setInverse();
   }
   
+  private void setInverse()
+  {
+    m_inverse = m_transformation.get();
+    m_inverse.invert();
+    m_invTranspose = m_inverse.get();
+    m_invTranspose.invert();
+  }
+  
   void clone( Transformation other )
   {
     m_transformation.set( other.m_transformation );
-    m_inverse.set(other.m_inverse);
+    m_hasScale = other.m_hasScale;
+    setInverse();
   }
   
   public void translate( Vector v )
@@ -80,20 +83,28 @@ class Transformation
   public void scale( float scale )
   {
     m_transformation.scale( scale );
+    m_hasScale = true;
     setInverse();
   }
   
   public void scale( Vector scale )
   {
     m_transformation.scale( scale.X(), scale.Y(), scale.Z() );
+    m_hasScale = true;
     setInverse();
   }
 
   public void apply( Transformation other )
   {
     m_transformation.apply( other.m_transformation );
+    m_hasScale = other.m_hasScale;
     setInverse();
-  } 
+  }
+  
+  public boolean hasScale()
+  {
+    return m_hasScale;
+  }
 
   public Point localToWorld( Point pointLocal )
   {
@@ -128,7 +139,7 @@ class Transformation
     m_inverse.mult( world, local );
     return new Vector( local );
   }
-
+  
   public Ray worldToLocal( Ray rayLocal )
   {
     Point originPoint = worldToLocal( rayLocal.getOrigin() );

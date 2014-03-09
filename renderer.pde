@@ -42,6 +42,7 @@ class SamplerRenderer implements Renderer
     {
       print("Exception occurred! SampleRenderer render!");
     }
+    scene.getCamera().getFilm().scaleExposure(m_sampler.getSamplesPerPixel());
     scene.getCamera().getFilm().draw();
   }
 }

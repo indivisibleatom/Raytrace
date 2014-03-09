@@ -129,34 +129,32 @@ class Sphere implements Shape
   }
 }
 
-/*class NonCanonSphere implements Shape
+class NonCanonSphere implements Shape
 {
   Box m_boundingBox;
+  Point m_center;
+  float m_radius2;
 
-  Sphere( float radius, Point center, Transformation transformation )
+  NonCanonSphere( float radius, Point center )
   {
-    //TODO msati3: Ignoring the transformation for now. Is this correct?
-    m_transformation = new Transformation( transformation );
-    m_transformation.translate( new Vector( c_origin, center ) );
-    m_transformation.scale( radius );
-
-    m_boundingBox = new Box( new Point(-1, -1, -1), new Point(1, 1, 1), m_transformation );
-    m_boundingBox = m_boundingBox.getBoundingBox();
+    m_radius2 = radius * radius;
+    m_center = center;
+  
+    m_boundingBox = new Box( new Point(m_center.X() - radius, m_center.Y() - radius, m_center.Z() - radius), new Point(m_center.X() + radius, m_center.Y() + radius, m_center.Z() + radius), null );
   }
 
-  private boolean intersectsCanonical( Ray ray, float tMin, float tMax )
+  public boolean intersects( Ray ray, float tMin, float tMax )
   {
-    Vector OA = new Vector( c_origin, ray.getOrigin() );    
-    float scale = 1/ray.getDirection().getMagnitude();
-    Vector dirNorm = cloneVec( ray.getDirection() );
-    dirNorm.normalize();
+    Vector OA = new Vector( m_center, ray.getOrigin() );
 
-    float b = 2*OA.dot(dirNorm);
+    float b = 2*OA.dot(ray.getDirection());
     float a = 1;
-    float c = OA.getMagnitudeSquare() - 1;
+    float c = OA.getMagnitudeSquare() - m_radius2;
     float delta = b*b - 4*a*c;
     if ( delta < 0 )
+    {
       return false;
+    }
 
     float sqrtDelta = sqrt( delta );
     float root1 = (-b + sqrtDelta) / 2;
@@ -176,24 +174,20 @@ class Sphere implements Shape
       minT = root2;
     }
 
-    float minTScaled = minT * scale;
-    if ( minT < 0 || minTScaled < tMin || minTScaled > tMax )
+    if ( minT < 0 || minT < tMin || minT > tMax )
     {
       return false;
     }
     return true;
   }
 
-  private ShapeIntersectionInfo intersectionInfoCanonical( Ray ray, float tMin, float tMax )
+  public ShapeIntersectionInfo getIntersectionInfo( Ray ray, float tMin, float tMax )
   {
-    Vector OA = new Vector( c_origin, ray.getOrigin() );
-    float scale = 1/ray.getDirection().getMagnitude();
-    Vector dirNorm = cloneVec( ray.getDirection() );
-    dirNorm.normalize();
+    Vector OA = new Vector( m_center, ray.getOrigin() );
 
-    float b = 2*OA.dot(dirNorm);
+    float b = 2*OA.dot(ray.getDirection());
     float a = 1;
-    float c = OA.getMagnitudeSquare() - 1;
+    float c = OA.getMagnitudeSquare() - m_radius2;
     float delta = b*b - 4*a*c;
     if ( delta < 0 )
     {
@@ -219,19 +213,16 @@ class Sphere implements Shape
         minT = root2;
       }
 
-      float minTScaled = minT * scale;
-      if ( minT < 0 || minTScaled < tMin || minTScaled > tMax )
+      if ( minT < 0 || minT < tMin || minT > tMax )
       {
         return null;
       }
 
-      Point intersectionPointLocal = new Point( ray, minTScaled );
-      Vector normalLocal = new Vector( c_origin, intersectionPointLocal );
+      Point intersectionPoint = new Point( ray, minT );
+      Vector normal = new Vector( m_center, intersectionPoint );
+      normal.normalize();
 
-      //Now go to world space
-      Point intersectionPoint = m_transformation.localToWorld( intersectionPointLocal );
-      Vector normal = m_transformation.localToWorldNormal( normalLocal );
-      return new ShapeIntersectionInfo( intersectionPoint, normal, minTScaled, false );
+      return new ShapeIntersectionInfo( intersectionPoint, normal, minT, false );
     }
   }
 
@@ -239,19 +230,7 @@ class Sphere implements Shape
   {
     return m_boundingBox;
   }
-
-  public boolean intersects( Ray ray, float tMin, float tMax )
-  {
-    Ray rayLocal = m_transformation.worldToLocalUnnormalized( ray );
-    return intersectsCanonical( rayLocal, tMin, tMax );
-  }
-
-  public ShapeIntersectionInfo getIntersectionInfo( Ray ray, float tMin, float tMax )
-  {
-    Ray rayLocal = m_transformation.worldToLocalUnnormalized( ray );
-    return intersectionInfoCanonical( rayLocal, tMin, tMax );
-  }
-}*/
+}
 
 class Triangle implements Shape
 {

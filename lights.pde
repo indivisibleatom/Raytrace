@@ -1,7 +1,7 @@
 interface Light extends Primitive
 {
   //Get a ray from the passed in point to the light
-  Ray getRay( Point fromFrom );
+  Ray getUnnormalizedRay( Point fromFrom );
   Color getColor();
 }
 
@@ -31,11 +31,11 @@ class PointLight implements Light
     return m_color;
   }
   
-  public Ray getRay( Point pointFrom )
+  public Ray getUnnormalizedRay( Point pointFrom )
   {
     Vector direction = new Vector( pointFrom, m_position );
     Point displacedPoint = new Point( pointFrom, direction, c_epsilon );
-    return new Ray( displacedPoint, direction );
+    return new Ray( displacedPoint, direction, false );
   }
 }
 
@@ -104,10 +104,10 @@ class DiskLight implements Light
     return world;
   }
   
-  public Ray getRay( Point pointFrom )
+  public Ray getUnnormalizedRay( Point pointFrom )
   {
     Vector direction = new Vector( pointFrom, sampleSource() );
     Point displacedPoint = new Point( pointFrom, direction, c_epsilon );
-    return new Ray( displacedPoint, direction );
+    return new Ray( displacedPoint, direction, false );
   }
 }
