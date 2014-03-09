@@ -13,7 +13,7 @@ class SamplerRenderingTask implements Task
     m_sampler = sampler.getSubsampler( numTasks, taskNum );
   }
    
-  private Color computeRadiance( Ray ray )
+  private Color computeRadiance( Ray ray, LightedPrimitive[] lastIntersectPrim )
   {
     LightManager lightManager = m_scene.getLightManager();
     IntersectionInfo info = m_scene.getIntersectionInfo( ray );
@@ -27,7 +27,17 @@ class SamplerRenderingTask implements Task
       Light light = lightManager.getLight(i);
       Ray shadowRay = light.getRay( info.point() );
       
-      if ( !m_scene.intersects( shadowRay ) )
+      //Temporal coherence for shadow rays
+      if ( lastIntersectPrim[i] != null )
+      {
+        lastIntersectPrim[i] = lastIntersectPrim[i].intersects( shadowRay, Float.MIN_VALUE, Float.MAX_VALUE );
+        if ( lastIntersectPrim[i] != null )
+        {
+          continue;
+        }
+      }
+      lastIntersectPrim[i] = m_scene.intersects( shadowRay );
+      if ( lastIntersectPrim[i] == null )
       {
         float cosine = info.normal().dot( shadowRay.getDirection() );
         if ( cosine < 0 ) //Dual sided lighting
@@ -53,11 +63,13 @@ class SamplerRenderingTask implements Task
   {
     try
     {
+     //Perf: utilize temporal coherence
+      LightedPrimitive[] lastIntersectPrim = new LightedPrimitive[m_scene.getLightManager().getNumLights()];
       Sample sample = m_sampler.getNextSample();
       do
       {
         Ray ray = m_scene.getCamera().getRay(sample);
-        Color radiance = computeRadiance(ray);
+        Color radiance = computeRadiance(ray, lastIntersectPrim);
         m_scene.getCamera().getFilm().setRadiance(sample, radiance);
         sample = m_sampler.getNextSample();    
       } while ( sample != null );

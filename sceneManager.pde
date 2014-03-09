@@ -58,7 +58,7 @@ class SceneManager
     return m_currentMaterial;
   }
   
-  public boolean intersects( Ray ray )
+  public LightedPrimitive intersects( Ray ray )
   {
     return m_primitiveManager.intersects( ray );
   }

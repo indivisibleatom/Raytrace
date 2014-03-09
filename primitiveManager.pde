@@ -65,7 +65,7 @@ class PrimitiveManager
     m_kdTree = creator.create();
   }
   
-  public boolean intersects( Ray ray )
+  public LightedPrimitive intersects( Ray ray )
   {
     return m_kdTree.intersects( ray, Float.MIN_VALUE, Float.MAX_VALUE );
   }

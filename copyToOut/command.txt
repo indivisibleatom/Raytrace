@@ -1,0 +1,3 @@
+processing-java.exe --force --sketch=C:\Users\Mukul\Desktop\test\test --output=C:\Users\Mukul\Desktop\test\test\output1 --build
+
+java -XX:+UnlockDiagnosticVMOptions -XX :+PrintAssembly -XX:PrintAssemblyOptions=intel -cp "c:\Users\Mukul\Desktop\MS Project\processing 2.3\core\library\core.jar;." test > 1.txt

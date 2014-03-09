@@ -413,19 +413,21 @@ class BoundingBox implements LightedPrimitive
     }
   }
   
-  public boolean intersects( Ray ray, float tMin, float tMax )
+  public LightedPrimitive intersects( Ray ray, float tMin, float tMax )
   {
-     if ( m_box.intersects( ray, tMin, tMax ) )
+    LightedPrimitive intersectingPrim = null; 
+    if ( m_box.intersects( ray, tMin, tMax ) )
      {
        for (int i = 0; i < m_objects.size(); i++)
        {
-         if ( m_objects.get(i).intersects( ray, tMin, tMax ) )
+         intersectingPrim = m_objects.get(i).intersects( ray, tMin, tMax );
+         if  ( intersectingPrim != null )
          {
-           return true;
+           return intersectingPrim;
          }
        }
      }
-     return false;
+     return null;
   }
   
   public IntersectionInfo getIntersectionInfo( Ray ray, float tMin, float tMax )

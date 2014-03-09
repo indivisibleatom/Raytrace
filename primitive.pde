@@ -1,6 +1,6 @@
 interface Primitive
 {
-  public boolean intersects( Ray ray, float tMin, float tMax ); 
+  public LightedPrimitive intersects( Ray ray, float tMin, float tMax ); 
   public IntersectionInfo getIntersectionInfo( Ray ray, float tMin, float tMax );
 }
 
@@ -27,9 +27,13 @@ class GeometricPrimitive implements LightedPrimitive
     return m_shape.getBoundingBox();
   }
    
-  public boolean intersects( Ray ray, float tMin, float tMax )
+  public LightedPrimitive intersects( Ray ray, float tMin, float tMax )
   {
-    return m_shape.intersects( ray, tMin, tMax );
+    if ( m_shape.intersects( ray, tMin, tMax ) )
+    {
+      return this;
+    }
+    return null;
   }
   
   public IntersectionInfo getIntersectionInfo( Ray ray, float tMin, float tMax )
@@ -66,12 +70,16 @@ class InstancePrimitive implements LightedPrimitive
     m_boundingBox = new Box( m_primitive.getBoundingBox().extent1(), m_primitive.getBoundingBox().extent2(), m_transform );
   }
   
-  public boolean intersects( Ray ray, float tMin, float tMax ) 
+  public LightedPrimitive intersects( Ray ray, float tMin, float tMax ) 
   {
     Ray rayLocal = m_transform.worldToLocalUnnormalized( ray );
     float scale = 1/rayLocal.getDirection().getMagnitude();
     rayLocal.getDirection().normalize();
-    return m_primitive.intersects( rayLocal, tMin/scale, tMax/scale );
+    if ( m_primitive.intersects( rayLocal, tMin/scale, tMax/scale ) != null )
+    {
+      return this;
+    }
+    return null;
   }
   
   public IntersectionInfo getIntersectionInfo( Ray ray, float tMin, float tMax ) 

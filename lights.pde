@@ -16,9 +16,9 @@ class PointLight implements Light
     m_color = col;
   }
 
-  public boolean intersects( Ray ray, float tMin, float tMax )
+  public LightedPrimitive intersects( Ray ray, float tMin, float tMax )
   {
-    return false;
+    return null;
   }
   
   public IntersectionInfo getIntersectionInfo( Ray ray, float tMin, float tMax )
@@ -71,9 +71,9 @@ class DiskLight implements Light
     m_transformation.setOrientation( firstAxis, secondAxis, m_normal );
   }
 
-  public boolean intersects( Ray ray, float tMin, float tMax )
+  public LightedPrimitive intersects( Ray ray, float tMin, float tMax )
   {
-    return false;
+    return null;
   }
   
   public IntersectionInfo getIntersectionInfo( Ray ray, float tMin, float tMax )

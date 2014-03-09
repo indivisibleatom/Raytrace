@@ -821,19 +821,19 @@ class KDTree implements LightedPrimitive
     return info;
   }
 
-  private boolean intersectsLeaf( Integer nodeIndex, Ray ray, float tMin, float tMax )
+  private LightedPrimitive intersectsLeaf( Integer nodeIndex, Ray ray, float tMin, float tMax )
   {
     ArrayList<Integer> indices = m_nodes.get(nodeIndex).getIndices();
     boolean intersect = false;
     for ( int index : indices )
     {
-      intersect = m_objects.get( index ).intersects( ray, tMin, tMax );
-      if ( intersect == true )
+      LightedPrimitive intersectPrim = m_objects.get( index ).intersects( ray, tMin, tMax );
+      if ( intersectPrim != null )
       {
-        break;
+        return intersectPrim;
       }
     }
-    return intersect;
+    return null;
   } 
 
   private void printTree( int nodeIndex )
@@ -937,7 +937,7 @@ class KDTree implements LightedPrimitive
     }
   }
 
-  private boolean intersectsRecursive( Integer nodeIndex, Ray ray, float tMin, float tMax )
+  private LightedPrimitive intersectsRecursive( Integer nodeIndex, Ray ray, float tMin, float tMax )
   {
     /*if (m_nodes.get(nodeIndex).getIndices() == null)
     {
@@ -976,24 +976,24 @@ class KDTree implements LightedPrimitive
     }
     else
     {
-      boolean intersects = intersectsRecursive( nearChild, ray, tMin, tSplit );
-      if ( intersects )
+      LightedPrimitive intersectPrim = intersectsRecursive( nearChild, ray, tMin, tSplit );
+      if ( intersectPrim != null )
       {
-        return intersects;
+        return intersectPrim;
       }
       return intersectsRecursive( farChild, ray, tSplit, tMax );
     }
   }
 
-  public boolean intersects( Ray ray, float tMin, float tMax )
+  public LightedPrimitive intersects( Ray ray, float tMin, float tMax )
   {
     float[] tExtents = m_boundingBox.getIntersectionExtents( ray );
-    boolean intersects = false;
+    LightedPrimitive intersectPrim = null;
     if ( tExtents != null )
     {
-      intersects = intersectsRecursive( 0, ray, tExtents[0], tExtents[1] );
+      intersectPrim = intersectsRecursive( 0, ray, tExtents[0], tExtents[1] );
     }
-    return intersects;
+    return intersectPrim;
   }
 
   public IntersectionInfo getIntersectionInfo( Ray ray, float tMin, float tMax )

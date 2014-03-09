@@ -27,7 +27,7 @@ class Scene
     return m_camera;
   }
   
-  public boolean intersects( Ray ray )
+  public LightedPrimitive intersects( Ray ray )
   {
     return m_sceneManager.intersects( ray );
   }

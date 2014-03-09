@@ -20,25 +20,27 @@ boolean compare( float n1, float n2 )
 
 class Point
 {
-  private float[] m_p = new float[3];
+  private float[] m_p;
 
   Point(float x, float y, float z)
   {
-    set(x, y, z);
+    float[] p = {x, y, z};
+    m_p = p;
   }
   
   Point(Point other)
   {
-    m_p[0] = other.X();
-    m_p[1] = other.Y();
-    m_p[2] = other.Z();
+    float[] p = {other.m_p[0], other.m_p[1], other.m_p[2]};
+    m_p = p;
   }
   
   Point(Point init, Vector direction, float t)
   {
-    m_p[0] = init.X() + t * direction.X();
-    m_p[1] = init.Y() + t * direction.Y();
-    m_p[2] = init.Z() + t * direction.Z();
+    float[] p = { init.m_p[0], init.m_p[1], init.m_p[2] };
+    p[0] += t * direction.m_v[0];
+    p[1] += t * direction.m_v[1];
+    p[2] += t * direction.m_v[2];
+    m_p = p;
   }
   
   Point(float[] values)
@@ -61,16 +63,16 @@ class Point
   
   void add( Vector direction, float t )
   {
-    m_p[0] += t * direction.X();
-    m_p[1] += t * direction.Y();
-    m_p[2] += t * direction.Z();
+    m_p[0] += t * direction.m_v[0];
+    m_p[1] += t * direction.m_v[1];
+    m_p[2] += t * direction.m_v[2];
   }
     
   void subtract(Point other)
   {
-    m_p[0] -= other.X();
-    m_p[1] -= other.Y();
-    m_p[2] -= other.Z();
+    m_p[0] -= other.m_p[0];
+    m_p[1] -= other.m_p[1];
+    m_p[2] -= other.m_p[2];
   }
   
   void subtract(float[] values)
@@ -101,7 +103,7 @@ class Point
   
   float distanceFrom( Point other )
   {
-    return (float)Math.sqrt( squaredDistanceFrom( other ) );
+    return sqrt( squaredDistanceFrom( other ) );
   }
   
   float squaredDistanceFrom( Point other )
@@ -196,12 +198,6 @@ class Vector
 
   public void normalize()
   {
-    float denom = getMagnitudeSquare();    
-    if ( denom == 0 || denom == 1  )
-    {
-      count++;
-      return;
-    }
     float invDenom = getInvMagnitude();
     for (int i = 0; i < 3; i++)
     {
@@ -228,12 +224,6 @@ class Ray
 {
   private Point m_orig;
   private Vector m_dir;
-  
-  Ray(Ray other)
-  {
-    m_orig  = clonePt(other.m_orig);
-    m_dir = cloneVec(other.m_dir);
-  }
   
   Ray(Point orig, Point other)
   {
@@ -289,53 +279,47 @@ class Ray
   } 
 }
 
-Ray clone(Ray other) { return new Ray(other); }
-
 class Color
 {
-  private float m_r;
-  private float m_g;
-  private float m_b;
+  private float[] m_c;
   
   private float clamp( float val )
   {
-    val = Math.min( val, 1.0 );
-    val = Math.max( val, 0.0 );
-    /*if ( val < 0 )
+    if ( val < 0 )
     {
       val = 0;
     }
     else if ( val > 1 )
     {
       val = 1;
-    }*/
+    }
     return val;
+  }
+  
+  private void clamp()
+  {
+    m_c[0] = clamp(m_c[0]);
+    m_c[1] = clamp(m_c[1]);
+    m_c[2] = clamp(m_c[2]);
   }
   
   Color(float r, float g, float b)
   {
-    m_r = clamp(r);
-    m_g = clamp(g);
-    m_b = clamp(b);
+    float[] c = { r, g, b };
+    m_c = c;
+    clamp();
   }
   
   Color(Color other)
   {
-    m_r = other.m_r;
-    m_g = other.m_g;
-    m_b = other.m_b;
+    float[] c = { other.m_c[0], other.m_c[1], other.m_c[2] };
+    m_c = c;
   }
   
   Color( float[] colors )
   {
-    this(colors[0], colors[1], colors[2]);
-    if ( colors.length != 3 )
-    {
-      if ( DEBUG && DEBUG_MODE >= LOW )
-      {
-        print ("Constructing colors from a coefficient array that is not size 4!!");
-      }
-    }
+    m_c = colors;
+    clamp();
   }
   
   private int toInt( float f )
@@ -351,48 +335,50 @@ class Color
   
   public int getIntColor() 
   {
-    int r = toInt(m_r);
-    int g = toInt(m_g);
-    int b = toInt(m_b);
+    int r = toInt(m_c[0]);
+    int g = toInt(m_c[1]);
+    int b = toInt(m_c[2]);
     return ((r&0x0ff)<<16)|((g&0x0ff)<<8)|(b&0x0ff); 
   }
   
   public void add(Color other)
   {
-    m_r = clamp( m_r + other.m_r );
-    m_g = clamp( m_g + other.m_g );
-    m_b = clamp( m_b + other.m_b );
+    m_c[0] += other.m_c[0];
+    m_c[1] += other.m_c[1];
+    m_c[2] += other.m_c[2];
+    clamp();
   }
   
   public void addUnclamped(Color other)
   {
-    m_r = ( m_r + other.m_r );
-    m_g = ( m_g + other.m_g );
-    m_b = ( m_b + other.m_b );
+    m_c[0] += other.m_c[0];
+    m_c[1] += other.m_c[1];
+    m_c[2] += other.m_c[2];
   }
   
   public void scale(float scale)
   {
-    m_r = clamp( m_r * scale );
-    m_g = clamp( m_g * scale );
-    m_b = clamp( m_b * scale );
+    m_c[0] *= scale;
+    m_c[1] *= scale;
+    m_c[2] *= scale;
+    clamp();
   }
   
   void debugPrint()
   {
     print("Begin Col : \n");
-    print("Red, green, blue " + m_r + " " + m_g + " " + m_b + "\n");
+    print("Red, green, blue " + m_c[0] + " " + m_c[1] + " " + m_c[2] + "\n");
     print("End Col \n");
   }
 
-  public float R() { return m_r; }
-  public float G() { return m_g; }
-  public float B() { return m_b; } 
+  public float R() { return m_c[0]; }
+  public float G() { return m_c[1]; }
+  public float B() { return m_c[2]; } 
 }
 
 public Color combineColor(Color c1, Color c2)
 {
-  return new Color( c1.R() * c2.R(), c1.G() * c2.G(), c1.B() * c2.B() );
+  return new Color( c1.m_c[0] * c2.m_c[0], c1.m_c[1] * c2.m_c[1], c1.m_c[2] * c2.m_c[2] );
 }
 
 Color cloneCol(Color other) { return new Color(other); }
