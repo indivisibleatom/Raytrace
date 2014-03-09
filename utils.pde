@@ -1,6 +1,18 @@
 float c_epsilon = 0.00001;
 int count = 0;
 
+public static float invSqrt(float x)
+{
+  float xhalf = 0.5f*x;
+  int i = Float.floatToIntBits(x);
+  i = 0x5f3759df - (i>>1);
+  x = Float.intBitsToFloat(i);
+  x *= (1.5f - xhalf*x*x);
+  x *= (1.5f - xhalf*x*x);
+  x *= (1.5f - xhalf*x*x);
+  return x;
+}
+
 boolean compare( float n1, float n2 )
 {
   return (abs(n1 - n2) < c_epsilon);
@@ -74,6 +86,7 @@ class Point
     m_p[1] = y;
     m_p[2] = z;
   }
+
   void set( int index, float value ) { m_p[index] = value; }
   void setX( float x ) { m_p[0] = x; }
   void setY( float y ) { m_p[1] = y; }
@@ -174,6 +187,11 @@ class Vector
     return sqrt( getMagnitudeSquare() );
   }
   
+  public float getInvMagnitude()
+  {
+    return 1/getMagnitude();
+  }
+  
   public float getMagnitudeSquare()
   {
     return dot( this );
@@ -181,13 +199,13 @@ class Vector
 
   public void normalize()
   {
-    float denom = getMagnitude();    
+    float denom = getMagnitudeSquare();    
     if ( denom == 0 || denom == 1  )
     {
       count++;
       return;
     }
-    float invDenom = 1/denom;
+    float invDenom = getInvMagnitude();
     for (int i = 0; i < 3; i++)
     {
       m_v[i] *= invDenom;

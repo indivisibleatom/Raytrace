@@ -287,25 +287,6 @@ class KDTreeCreator
     m_nodes = new ArrayList<KDTreeNode>();
   }
   
-  /*private void cullBackFaces()
-  {
-    Vector viewVector = new Vector(0,0,-1);
-    for (int i = 0; i < m_nodes.size(); i++)
-    {
-      if (m_nodes.get(i).getType() == 3)
-      {
-        int indices = m_nodes.get(i).indices();
-        for (int j = 0; j < indices.size() ; j++)
-        {
-          if (m_objects.get(indices.get(j)).getNormal().dot(viewVector) > 0)
-          {
-            m_fSkipNode = false;
-          }
-        }
-      }
-    }
-  }*/
-  
   public KDTree create()
   {
     int threadsSpawned = 0;
@@ -829,9 +810,9 @@ class KDTree implements LightedPrimitive
     ArrayList<Integer> indices = m_nodes.get(nodeIndex).getIndices();
     IntersectionInfo info = null;
     IntersectionInfo localInfo = null;
-    for ( int i = 0; i < indices.size(); i++ )
+    for ( int index : indices )
     {
-      localInfo = m_objects.get( indices.get(i) ).getIntersectionInfo( ray, tMin, tMax );
+      localInfo = m_objects.get( index ).getIntersectionInfo( ray, tMin, tMax );
       if ( localInfo != null && ( info == null || localInfo.t() < info.t() ) )
       {
         info = localInfo;
@@ -844,9 +825,9 @@ class KDTree implements LightedPrimitive
   {
     ArrayList<Integer> indices = m_nodes.get(nodeIndex).getIndices();
     boolean intersect = false;
-    for ( int i = 0; i < indices.size(); i++ )
+    for ( int index : indices )
     {
-      intersect = m_objects.get( indices.get(i) ).intersects( ray, tMin, tMax );
+      intersect = m_objects.get( index ).intersects( ray, tMin, tMax );
       if ( intersect == true )
       {
         break;
@@ -996,7 +977,7 @@ class KDTree implements LightedPrimitive
     else
     {
       boolean intersects = intersectsRecursive( nearChild, ray, tMin, tSplit );
-      if ( intersects != false )
+      if ( intersects )
       {
         return intersects;
       }

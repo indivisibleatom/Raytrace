@@ -67,12 +67,25 @@ class Sample
   {
     m_x = x;
     m_y = y;
-    randomSample();
+    if ( samplesPerPixel == 1 )
+    {
+      centerSample();
+    }
+    else
+    {
+      randomSample();
+    }
   }
   
   public void debugPrint()
   {
     print("Sample x: " + m_x + " y: " + m_y + "\n");
+  }
+  
+  private void centerSample()
+  {
+    m_xSample = m_x;
+    m_ySample = m_y;
   }
   
   private void randomSample()

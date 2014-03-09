@@ -32,7 +32,7 @@ class Sampler
     int colForTask = taskNum - (rowForTask * tasksPerRow);
     Rect subSampleRect = new Rect( colForTask * widthPerSubSample, rowForTask * heightPerSubSample, widthPerSubSample, heightPerSubSample );
     Sampler subSampler = new Sampler( subSampleRect );
-    subSampler.setSamplesPerPixel( m_samplesPerPixel );
+    subSampler.m_samplesPerPixel = m_samplesPerPixel;
     return subSampler;
   }
   
