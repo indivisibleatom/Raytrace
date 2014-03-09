@@ -4,6 +4,7 @@ class Camera
   private float m_fov;
   private float m_focalLength;
   private float m_aperture;
+  private float m_fovTan;
   
   Camera( float fov, int zNear, Rect screenDim )
   {
@@ -21,6 +22,7 @@ class Camera
   public void setFov( float fov )
   {
     m_fov = fov * (PI / 180);
+    m_fovTan = tan(m_fov/2);
   }
   
   public Film getFilm()
@@ -53,14 +55,13 @@ class Camera
     return pOnFocalPlane;
   }
   
-  public Point toCamera( Point screenPointLocal )
+  public void toCamera( Point point )
   {
-    Point p = clonePt(screenPointLocal);
     Rect dimension = m_film.getDim();
-    p.subtract(new Point(dimension.width()/2, dimension.height()/2, 0));
-    p.toNormalizedCoordinates(dimension.width()/2, dimension.height()/2, 1);
-    p.set( p.X() * tan(m_fov/2), p.Y() * tan(m_fov/2), -1 );
-    return p;
+    float[] subtractCoeffs = {dimension.width()/2, dimension.height()/2, 0};
+    point.subtract(subtractCoeffs);
+    point.toNormalizedCoordinates(dimension.width()/2, dimension.height()/2, 1);
+    point.set( point.X() * m_fovTan, point.Y() * m_fovTan, -1 );
   }
   
   public Ray getRay( Sample sample )
@@ -68,13 +69,16 @@ class Camera
     Ray r;
     if ( m_aperture == 0 )
     {
-      Point p = toCamera( new Point(sample.getX(), sample.getY(), 0) );
-      r = new Ray( c_origin, p );
+      Point point = new Point(sample.getX(), sample.getY(), 0);
+      toCamera( point );
+      r = new Ray( c_origin, point, true );
     }
     else
     {
-      Point p = getPointOnFocalPlane( toCamera( new Point(sample.getX(), sample.getY(), 0) ) );
-      r = new Ray( sampleAperture(), p );
+      Point point = new Point(sample.getX(), sample.getY(), 0);
+      toCamera( point );
+      Point focalPoint = getPointOnFocalPlane( point );
+      r = new Ray( sampleAperture(), focalPoint, true );
     }
     return r;
   }

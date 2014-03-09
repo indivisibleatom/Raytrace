@@ -123,7 +123,7 @@ class Transformation
     worldNormal.normalize();
     return worldNormal;
   }
-    
+
   public Point worldToLocal( Point pointWorld )
   {
     float[] world = { pointWorld.X(), pointWorld.Y(), pointWorld.Z(), 1 };

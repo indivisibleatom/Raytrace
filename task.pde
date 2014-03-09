@@ -25,11 +25,10 @@ class SamplerRenderingTask implements Task
     for (int i = 0; i < lightManager.getNumLights(); i++)
     {
       Light light = lightManager.getLight(i);
-      Ray shadowRay = light.getUnnormalizedRay( info.point() );
+      Ray shadowRay = light.getRay( info.point() );
       
       if ( !m_scene.intersects( shadowRay ) )
       {
-        shadowRay.getDirection().normalize();
         float cosine = info.normal().dot( shadowRay.getDirection() );
         if ( cosine < 0 ) //Dual sided lighting
         {

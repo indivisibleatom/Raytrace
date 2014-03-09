@@ -56,7 +56,6 @@ class Sample
   private float m_ySample;
   int m_x;
   int m_y;
-  int m_samplesPerPixel;
     
   public float getX() { return m_xSample; }
   public float getY() { return m_ySample; }
@@ -68,13 +67,7 @@ class Sample
   {
     m_x = x;
     m_y = y;
-    m_samplesPerPixel = samplesPerPixel;
     randomSample();
-  }
-  
-  public int getSamplesPerPixel()
-  {
-    return m_samplesPerPixel;
   }
   
   public void debugPrint()

@@ -61,6 +61,13 @@ class Point
     m_p[2] -= other.Z();
   }
   
+  void subtract(float[] values)
+  {
+    m_p[0] -= values[0];
+    m_p[1] -= values[1];
+    m_p[2] -= values[2];
+  }
+  
   void set( float x, float y, float z )
   {
     m_p[0] = x;
