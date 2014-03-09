@@ -5,6 +5,11 @@ class Camera
   private float m_focalLength;
   private float m_aperture;
   private float m_fovTan;
+
+  //Increments in ray direction in camera spaer per pixel movement in file space
+  private float m_xDir;
+  private float m_yDir;
+  private Vector m_initDirection;
   
   Camera( float fov, int zNear, Rect screenDim )
   {
@@ -23,6 +28,10 @@ class Camera
   {
     m_fov = fov * (PI / 180);
     m_fovTan = tan(m_fov/2);
+    
+    m_xDir = 2 * m_fovTan / m_film.getDim().width();
+    m_yDir = 2 * m_fovTan / m_film.getDim().height();
+    m_initDirection = new Vector( new Point(m_fovTan, m_fovTan, 0), new Point(0, 0, -1) );
   }
   
   public Film getFilm()
@@ -47,21 +56,17 @@ class Camera
     return randomPoint;
   }
 
-  public Point getPointOnFocalPlane( Point screenPointWorld )
+  public Point getPointOnFocalPlane( Vector rayDirection )
   {
-    Vector originToScreen = new Vector( c_origin, screenPointWorld );
-    float tz = -m_focalLength / originToScreen.Z();    
-    Point pOnFocalPlane = new Point( c_origin, originToScreen, tz );
+    float tz = -m_focalLength / rayDirection.Z();    
+    Point pOnFocalPlane = new Point( c_origin, rayDirection, tz );
     return pOnFocalPlane;
   }
   
-  public void toCamera( Point point )
+  public Vector directionInCameraSpaceTowards( Point point )
   {
-    Rect dimension = m_film.getDim();
-    float[] subtractCoeffs = {dimension.width()/2, dimension.height()/2, 0};
-    point.subtract(subtractCoeffs);
-    point.toNormalizedCoordinates(dimension.width()/2, dimension.height()/2, 1);
-    point.set( point.X() * m_fovTan, point.Y() * m_fovTan, -1 );
+    Vector direction = new Vector(m_initDirection.X() + point.X()*m_xDir, m_initDirection.Y() + point.Y()*m_yDir, m_initDirection.Z());
+    return direction;
   }
   
   public Ray getRay( Sample sample )
@@ -70,14 +75,15 @@ class Camera
     if ( m_aperture == 0 )
     {
       Point point = new Point(sample.getX(), sample.getY(), 0);
-      toCamera( point );
-      r = new Ray( c_origin, point, true );
+      Vector rayDirection = directionInCameraSpaceTowards( point );
+      r = new Ray( c_origin, rayDirection, true );
     }
     else
     {
+      r = null;
       Point point = new Point(sample.getX(), sample.getY(), 0);
-      toCamera( point );
-      Point focalPoint = getPointOnFocalPlane( point );
+      Vector rayDirection = directionInCameraSpaceTowards( point );
+      Point focalPoint = getPointOnFocalPlane( rayDirection );
       r = new Ray( sampleAperture(), focalPoint, true );
     }
     return r;

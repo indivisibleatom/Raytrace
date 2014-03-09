@@ -60,6 +60,10 @@ class Point
   {
     return m_p[index];
   }
+  public float[] get()
+  {
+    return m_p;
+  }
   
   void add( Vector direction, float t )
   {
@@ -188,7 +192,8 @@ class Vector
   
   public float getInvMagnitude()
   {
-    return 1/getMagnitude();
+    return invSqrt( getMagnitudeSquare() );
+    //return 1/getMagnitude();
   }
   
   public float getMagnitudeSquare()

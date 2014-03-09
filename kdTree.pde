@@ -392,9 +392,9 @@ class KDTree implements LightedPrimitive
 
     //Init with first bounding box
     m_boundingBox = cloneBox( objects.get(0).getBoundingBox() );
-    for (int i = 1; i < objects.size(); i++)
+    for (LightedPrimitive prim : m_objects)
     {
-      m_boundingBox.grow( objects.get(i).getBoundingBox() );
+      m_boundingBox.grow( prim.getBoundingBox() );
     }
     m_boundingBox.setSurfaceArea();
   }
@@ -474,9 +474,8 @@ class KDTree implements LightedPrimitive
       }
       leftIndices = new ArrayList<Integer>();
       rightIndices = new ArrayList<Integer>();
-      for (int i = 0; i < indices.size(); i++)
+      for (int index : indices)
       {
-        int index = indices.get(i);
         float leftFace = m_objects.get( index ).getBoundingBox().getPlaneOfLowerFaceForDim(maxAxis);
         float rightFace = m_objects.get( index ).getBoundingBox().getPlaneOfUpperFaceForDim(maxAxis);
         
@@ -634,9 +633,8 @@ class KDTree implements LightedPrimitive
     {
       binIndices[i] = new ArrayList<Integer>();
     }
-    for (int i = 0; i < indices.size(); i++)
+    for (int index : indices)
     {
-      int index = indices.get(i);
       int bin = findBinFor( maxAxis, index, proposedPlanes );
       binIndices[bin].add( index );
     }
@@ -663,9 +661,8 @@ class KDTree implements LightedPrimitive
     }
 
     //Evaluate objects to left and right of minimum splitting plane
-    for (int i = 0; i < indices.size(); i++)
+    for (int index : indices )
     {
-      int index = indices.get(i);
       float leftFace = m_objects.get( index ).getBoundingBox().getPlaneOfLowerFaceForDim(maxAxis);
       float rightFace = m_objects.get( index ).getBoundingBox().getPlaneOfUpperFaceForDim(maxAxis);
        

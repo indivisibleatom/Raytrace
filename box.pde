@@ -131,7 +131,10 @@ class Box implements Shape
   //Optimized box ray intersection. Implemented with the aid of paper http://people.csail.mit.edu/amy/papers/box-jgt.pdf. Nifty tricks include +/0 = float.MAX, -/0 = float.MIN
   private BoxIntersectionInfoInternal internalIntersect( Ray ray )
   {
-    Point rayOrigin = ray.getOrigin();
+    Point rayOrigin = ray.getOrigin();    
+    float[] rayOriginArray = rayOrigin.get();
+    float[] boundBoxLowArray = m_boundingBox.m_extent1.get();
+    float[] boundBoxHighArray = m_boundingBox.m_extent2.get();
     Vector rayDirection = ray.getDirection();
     BoxIntersectionInfoInternal info = new BoxIntersectionInfoInternal();
     info.largestT1Index = 0;
@@ -144,24 +147,24 @@ class Box implements Shape
 
     if ( div[0] >= 0 )
     {
-      info.t1[0] = (m_boundingBox.m_extent1.get(0) - rayOrigin.get(0)) * div[0];
-      info.t2[0] = (m_boundingBox.m_extent2.get(0) - rayOrigin.get(0)) * div[0];
+      info.t1[0] = (boundBoxLowArray[0] - rayOriginArray[0]) * div[0];
+      info.t2[0] = (boundBoxHighArray[0] - rayOriginArray[0]) * div[0];
     }
     else
     {
-      info.t1[0] = (m_boundingBox.m_extent2.get(0) - rayOrigin.get(0)) * div[0];
-      info.t2[0] = (m_boundingBox.m_extent1.get(0) - rayOrigin.get(0)) * div[0];
+      info.t1[0] = (boundBoxHighArray[0] - rayOriginArray[0]) * div[0];
+      info.t2[0] = (boundBoxLowArray[0] - rayOriginArray[0]) * div[0];
     }
     
     if ( div[1] >= 0 )
     {
-      info.t1[1] = (m_boundingBox.m_extent1.get(1) - rayOrigin.get(1)) * div[1];
-      info.t2[1] = (m_boundingBox.m_extent2.get(1) - rayOrigin.get(1)) * div[1];
+      info.t1[1] = (boundBoxLowArray[1] - rayOriginArray[1]) * div[1];
+      info.t2[1] = (boundBoxHighArray[1] - rayOriginArray[1]) * div[1];
     }
     else
     {
-      info.t1[1] = (m_boundingBox.m_extent2.get(1) - rayOrigin.get(1)) * div[1];
-      info.t2[1] = (m_boundingBox.m_extent1.get(1) - rayOrigin.get(1)) * div[1];
+      info.t1[1] = (boundBoxHighArray[1] - rayOriginArray[1]) * div[1];
+      info.t2[1] = (boundBoxLowArray[1] - rayOriginArray[1]) * div[1];
     }
     if ( (info.t1[0] > info.t2[1]) || (info.t1[1] > info.t2[0]) )
     {
@@ -180,13 +183,13 @@ class Box implements Shape
     
     if ( div[2] >= 0 )
     {
-      info.t1[2] = (m_boundingBox.m_extent1.get(2) - rayOrigin.get(2)) * div[2];
-      info.t2[2] = (m_boundingBox.m_extent2.get(2) - rayOrigin.get(2)) * div[2];
+      info.t1[2] = (boundBoxLowArray[2] - rayOriginArray[2]) * div[2];
+      info.t2[2] = (boundBoxHighArray[2] - rayOriginArray[2]) * div[2];
     }
     else
     {
-      info.t1[2] = (m_boundingBox.m_extent2.get(2) - rayOrigin.get(2)) * div[2];
-      info.t2[2] = (m_boundingBox.m_extent1.get(2) - rayOrigin.get(2)) * div[2];
+      info.t1[2] = (boundBoxHighArray[2] - rayOriginArray[2]) * div[2];
+      info.t2[2] = (boundBoxLowArray[2] - rayOriginArray[2]) * div[2];
     }
     if ( (info.t1[0] > info.t2[2]) || (info.t1[2] > info.t2[0]) )
     {
