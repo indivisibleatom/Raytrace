@@ -101,7 +101,7 @@ class Point
   
   float distanceFrom( Point other )
   {
-    return sqrt( squaredDistanceFrom( other ) );
+    return (float)Math.sqrt( squaredDistanceFrom( other ) );
   }
   
   float squaredDistanceFrom( Point other )
@@ -120,20 +120,18 @@ final Point c_origin = new Point(0,0,0);
 
 class Vector
 {
-  private float[] m_v = new float[3];
+  private float[] m_v;
   
   Vector(float x, float y, float z)
   {
-    m_v[0] = x;
-    m_v[1] = y;
-    m_v[2] = z;
+    float[] v = {x, y, z, 0};
+    m_v = v;
   } 
   
   Vector(Vector other)
   {
-    m_v[0] = other.X();
-    m_v[1] = other.Y();
-    m_v[2] = other.Z();
+    float[] v = {other.m_v[0], other.m_v[1], other.m_v[2], other.m_v[3]};
+    m_v = v;
   }
   
   Vector(float[] values)
@@ -143,9 +141,8 @@ class Vector
   
   Vector(Point pA, Point pB)
   {
-    m_v[0] = pB.X() - pA.X();
-    m_v[1] = pB.Y() - pA.Y();
-    m_v[2] = pB.Z() - pA.Z();
+    float[] v = {pB.m_p[0] - pA.m_p[0], pB.m_p[1] - pA.m_p[1], pB.m_p[2] - pA.m_p[2], 0};
+    m_v = v;
   }
   
   public float X() { return m_v[0]; }
@@ -302,14 +299,16 @@ class Color
   
   private float clamp( float val )
   {
-    if ( val < 0 )
+    val = Math.min( val, 1.0 );
+    val = Math.max( val, 0.0 );
+    /*if ( val < 0 )
     {
       val = 0;
     }
     else if ( val > 1 )
     {
       val = 1;
-    }
+    }*/
     return val;
   }
   
