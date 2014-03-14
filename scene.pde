@@ -115,6 +115,11 @@ class Scene
   {
     m_lightManager.addLight( new DiskLight( pt, center, normal, col ) );
   }
+  
+  public void setAnimated()
+  {
+    m_camera.enableShutterSpeed();
+  }
    
   //Material handling commands
   public void setCoeffs( Color ambient, Color diffuse )

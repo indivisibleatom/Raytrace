@@ -232,6 +232,116 @@ class NonCanonSphere implements Shape
   }
 }
 
+class MovingSphere implements Shape
+{
+  Box m_boundingBox;
+  Point m_center1;
+  Point m_center2;
+  Vector m_totalMotion;
+  float m_radius2;
+
+  MovingSphere( float radius, Point center1, Point center2 )
+  {
+    m_radius2 = radius * radius;
+    m_center = center1;
+    m_center2 = center2;
+    m_totalMotion = new Vector( m_center, m_center2 );
+    
+    //TODO msati3: Handle reverse order of specification of centers.
+    m_boundingBox = new Box( new Point(m_center1.X() - radius, m_center1.Y() - radius, m_center1.Z() - radius), new Point(m_center2.X() + radius, m_center2.Y() + radius, m_center2.Z() + radius), null );
+  }
+
+  public boolean intersects( Ray ray, float tMin, float tMax )
+  {
+    Point centerCurrent = new Point( ray, m_totalMotion, m_centerray.getTime() );
+    Vector OA = new Vector( centerCurrent, ray.getOrigin() );   
+
+    float b = 2*OA.dot(ray.getDirection());
+    float a = 1;
+    float c = OA.getMagnitudeSquare() - m_radius2;
+    float delta = b*b - 4*a*c;
+    if ( delta < 0 )
+    {
+      return false;
+    }
+
+    float sqrtDelta = sqrt( delta );
+    float root1 = (-b + sqrtDelta) / 2;
+    float root2 = (-b - sqrtDelta) / 2;
+    if (root1 < c_epsilon && root2 < c_epsilon)
+    {
+      return false;
+    }
+
+    float minT;
+    if ( root1 > c_epsilon && ( root1 < root2 || root2 < 0 ) )
+    {
+      minT = root1;
+    }
+    else
+    {
+      minT = root2;
+    }
+
+    if ( minT < 0 || minT < tMin || minT > tMax )
+    {
+      return false;
+    }
+    return true;
+  }
+
+  public ShapeIntersectionInfo getIntersectionInfo( Ray ray, float tMin, float tMax )
+  {
+    Point centerCurrent = new Point( ray, m_totalMotion, m_centerray.getTime() );
+    Vector OA = new Vector( centerCurrent, ray.getOrigin() );   
+
+    float b = 2*OA.dot(ray.getDirection());
+    float a = 1;
+    float c = OA.getMagnitudeSquare() - m_radius2;
+    float delta = b*b - 4*a*c;
+    if ( delta < 0 )
+    {
+      return null;
+    }
+    else
+    {
+      float sqrtDelta = sqrt( delta );
+      float root1 = (-b + sqrtDelta) / 2;
+      float root2 = (-b - sqrtDelta) / 2;
+      if (root1 < c_epsilon && root2 < c_epsilon)
+      {
+        return null;
+      }
+
+      float minT;
+      if ( root1 > 0 && ( root1 < root2 || root2 < 0 ) )
+      {
+        minT = root1;
+      }
+      else
+      {
+        minT = root2;
+      }
+
+      if ( minT < 0 || minT < tMin || minT > tMax )
+      {
+        return null;
+      }
+
+      Point intersectionPoint = new Point( ray, minT );
+      Vector normal = new Vector( centerCurrent, intersectionPoint );
+      normal.normalize();
+
+      return new ShapeIntersectionInfo( intersectionPoint, normal, minT, false );
+    }
+  }
+
+  public Box getBoundingBox()
+  {
+    return m_boundingBox;
+  }
+}
+
 class Triangle implements Shape
 {
   Transformation m_transformation;

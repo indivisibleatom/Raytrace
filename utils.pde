@@ -229,19 +229,23 @@ class Ray
 {
   private Point m_orig;
   private Vector m_dir;
+  private float m_time;
   
   Ray(Point orig, Point other)
   {
+    m_time = 0;
     this( orig, other, true );
   }
   
   Ray(Point orig, Vector direction)
   {
+    m_time = 0;
     this( orig, direction, true );
   }
 
   Ray(Point orig, Point other, boolean fNormalize)
   {
+    m_time = 0;
     m_orig = orig;
     m_dir = new Vector(orig, other);
     if ( fNormalize )
@@ -252,12 +256,23 @@ class Ray
   
   Ray(Point orig, Vector direction, boolean fNormalize)
   {
+    m_time = 0;
     m_orig = orig;
     m_dir = direction;
     if ( fNormalize )
     {
       m_dir.normalize();
     }
+  }
+  
+  void setTime( float time )
+  {
+    m_time = time;
+  }
+  
+  float getTime()
+  {
+    return m_time;
   }
 
   Point getOrigin() { return m_orig; }

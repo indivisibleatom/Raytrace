@@ -69,6 +69,23 @@ class SceneBuilder
     m_scene.addObject( new GeometricPrimitive( s, m_scene.getCurrentMaterial() ) );
   }
   
+  private void addMovingSphere( float rad, Point center1, Point center2 )
+  {
+    Shape s = null;
+    if ( m_scene.getCurrentTransformation().hasScale() )
+    {
+      print("addMoving sphere - transformations not implemented! \n");
+    }
+    else
+    {
+      Point centerWorld1 = m_scene.getCurrentTransformation().localToWorld(center1);
+      Point centerWorld2 = m_scene.getCurrentTransformation().localToWorld(center2);
+      s = new MovingSphere( radius, centerWorld1, centerWorld2 );
+    }
+    m_scene.setAnimated();
+    m_scene.addObject( new GeometricPrimitive( s, m_scene.getCurrentMaterial() ) );
+  }
+  
   private void addBox( Point p1, Point p2 )
   {
     Box b = new Box( p1, p2, m_scene.getCurrentTransformation() );
@@ -177,6 +194,13 @@ class SceneBuilder
         float radius = Float.parseFloat(token[1]);
         Point center = new Point( Float.parseFloat(token[2]), Float.parseFloat(token[3]), Float.parseFloat(token[4]) );
         addSphere(radius, center);
+      }
+      else if (token[0].equals("moving_sphere"))
+      {
+        float radius = Float.parseFloat(token[1]);
+        Point center1 = new Point( Float.parseFloat(token[2]), Float.parseFloat(token[3]), Float.parseFloat(token[4]) );
+        Point center2 = new Point( Float.parseFloat(token[5]), Float.parseFloat(token[6]), Float.parseFloat(token[7]) );
+        addMovingSphere( radius, center1, center2 );
       }
       else if (token[0].equals("box"))
       {

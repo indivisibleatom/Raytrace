@@ -5,6 +5,7 @@ class Camera
   private float m_focalLength;
   private float m_aperture;
   private float m_fovTan;
+  //private boolean m_shutterEnabled;
 
   //Increments in ray direction in camera spaer per pixel movement in file space
   private float m_xDir;
@@ -16,6 +17,7 @@ class Camera
     m_fov = fov * (PI / 180);
     m_film = new Film( screenDim );
     m_aperture = 0;
+    m_shutterEnabled = false;
   }
   
   public void setLensParams( float aperture, float distance )
@@ -86,7 +88,17 @@ class Camera
       Point focalPoint = getPointOnFocalPlane( rayDirection );
       r = new Ray( sampleAperture(), focalPoint, true );
     }
+    if ( m_shutterEnabled )
+    {
+      r.setTime( random(0, 1) );
+    }
+
     return r;
+  }
+  
+  public void enableShutterSpeed()
+  {
+    m_shutterEnabled = true;
   }
 }
 
