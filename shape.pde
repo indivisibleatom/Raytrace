@@ -247,6 +247,9 @@ class MovingSphere implements Shape
     m_center2 = center2;
     m_totalMotion = new Vector( m_center1, m_center2 );
     
+    center1.debugPrint();
+    center2.debugPrint();
+    
     //TODO msati3: Handle reverse order of specification of centers.
     m_boundingBox = new Box( new Point(m_center1.X() - radius, m_center1.Y() - radius, m_center1.Z() - radius), new Point(m_center2.X() + radius, m_center2.Y() + radius, m_center2.Z() + radius), null );
   }

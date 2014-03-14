@@ -192,8 +192,8 @@ class Vector
   
   public float getInvMagnitude()
   {
-    return invSqrt( getMagnitudeSquare() );
-    //return 1/getMagnitude();
+    //return invSqrt( getMagnitudeSquare() );
+    return 1/getMagnitude();
   }
   
   public float getMagnitudeSquare()
