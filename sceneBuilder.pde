@@ -69,7 +69,7 @@ class SceneBuilder
     m_scene.addObject( new GeometricPrimitive( s, m_scene.getCurrentMaterial() ) );
   }
   
-  private void addMovingSphere( float rad, Point center1, Point center2 )
+  private void addMovingSphere( float radius, Point center1, Point center2 )
   {
     Shape s = null;
     if ( m_scene.getCurrentTransformation().hasScale() )

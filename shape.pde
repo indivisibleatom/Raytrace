@@ -243,9 +243,9 @@ class MovingSphere implements Shape
   MovingSphere( float radius, Point center1, Point center2 )
   {
     m_radius2 = radius * radius;
-    m_center = center1;
+    m_center1 = center1;
     m_center2 = center2;
-    m_totalMotion = new Vector( m_center, m_center2 );
+    m_totalMotion = new Vector( m_center1, m_center2 );
     
     //TODO msati3: Handle reverse order of specification of centers.
     m_boundingBox = new Box( new Point(m_center1.X() - radius, m_center1.Y() - radius, m_center1.Z() - radius), new Point(m_center2.X() + radius, m_center2.Y() + radius, m_center2.Z() + radius), null );
@@ -253,7 +253,7 @@ class MovingSphere implements Shape
 
   public boolean intersects( Ray ray, float tMin, float tMax )
   {
-    Point centerCurrent = new Point( ray, m_totalMotion, m_centerray.getTime() );
+    Point centerCurrent = new Point( m_center1, m_totalMotion, ray.getTime() );
     Vector OA = new Vector( centerCurrent, ray.getOrigin() );   
 
     float b = 2*OA.dot(ray.getDirection());
@@ -292,7 +292,7 @@ class MovingSphere implements Shape
 
   public ShapeIntersectionInfo getIntersectionInfo( Ray ray, float tMin, float tMax )
   {
-    Point centerCurrent = new Point( ray, m_totalMotion, m_centerray.getTime() );
+    Point centerCurrent = new Point( m_center1, m_totalMotion, ray.getTime() );
     Vector OA = new Vector( centerCurrent, ray.getOrigin() );   
 
     float b = 2*OA.dot(ray.getDirection());

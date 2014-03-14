@@ -233,14 +233,14 @@ class Ray
   
   Ray(Point orig, Point other)
   {
-    m_time = 0;
     this( orig, other, true );
+    m_time = 0;
   }
   
   Ray(Point orig, Vector direction)
   {
-    m_time = 0;
     this( orig, direction, true );
+    m_time = 0;
   }
 
   Ray(Point orig, Point other, boolean fNormalize)

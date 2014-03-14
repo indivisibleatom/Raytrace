@@ -5,7 +5,7 @@ class Camera
   private float m_focalLength;
   private float m_aperture;
   private float m_fovTan;
-  //private boolean m_shutterEnabled;
+  private boolean m_shutterEnabled;
 
   //Increments in ray direction in camera spaer per pixel movement in file space
   private float m_xDir;
