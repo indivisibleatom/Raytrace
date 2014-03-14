@@ -26,6 +26,7 @@ class SamplerRenderingTask implements Task
     {
       Light light = lightManager.getLight(i);
       Ray shadowRay = light.getRay( info.point() );
+      shadowRay.setTime( ray.getTime() );
       
       //Temporal coherence for shadow rays
       if ( lastIntersectPrim[i] != null )
