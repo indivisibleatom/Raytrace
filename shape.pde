@@ -387,23 +387,15 @@ class Triangle implements Shape
     return m_boundingBox;
   }
   
-  private Point getTextureCoordScaled( float u, float v )
+  private float[] getTextureCoordScaled( float u, float v )
   {
-    float[] textureCoordinates1 = { m_textureCoords[0].X(), m_textureCoords[0].Y(), m_textureCoords[0].Z() };
-    float[] textureCoordinates2 = { m_textureCoords[1].X(), m_textureCoords[1].Y(), m_textureCoords[1].Z() };
-    float[] textureCoordinates3 = { m_textureCoords[2].X(), m_textureCoords[2].Y(), m_textureCoords[2].Z() };
+    float[] textureCoordinates = new float[2];  
     
-    print( "Coords " + textureCoordinates1[0] + " " + textureCoordinates2[0] + " " + textureCoordinates3[0] + " " + u + " " + v + " ");
+    textureCoordinates[0] = (1-u-v)*m_textureCoords[0].X() + u*m_textureCoords[1].X() + v*m_textureCoords[2].X();
+    textureCoordinates[1] = (1-u-v)*m_textureCoords[0].Y() + u*m_textureCoords[1].Y() + v*m_textureCoords[2].Y();
     
-    float delta1 = u * (textureCoordinates2[0] - textureCoordinates1[0]);
-    float delta2 = u * (textureCoordinates2[1] - textureCoordinates1[1]);
-    float delta3 = v * (textureCoordinates3[0] - textureCoordinates1[0]);
-    float delta4 = v * (textureCoordinates3[1] - textureCoordinates1[1]);
-    textureCoordinates1[0] += delta1 + delta3;
-    textureCoordinates1[1] += delta1 + delta4;
-    
-    print( textureCoordinates1[0] + " " );
-    return new Point( textureCoordinates1[0], textureCoordinates1[1], 1 );
+    print( "Coords " + u + " " + v + " " + textureCoordinates[0] + " " + textureCoordinates[1] + " " );
+    return textureCoordinates;
   }
  
   //Optimized ray triangle intersection
@@ -450,8 +442,8 @@ class Triangle implements Shape
     {
       u = abs(u);
       v = abs(v);
-      Point textureCoordScaled = getTextureCoordScaled( u, v );
-      textureCoord.set( textureCoordScaled.X(), textureCoordScaled.Y(), 1 );
+      float textureCoords[] = getTextureCoordScaled( u, v );
+      textureCoord.set( textureCoords[0], textureCoords[1], 1 );
     }
     return tIntersection;
   }

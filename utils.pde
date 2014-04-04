@@ -279,8 +279,8 @@ class Ray
     float projection = 2*direction.dot( normal );
     scaledNormal.scale( projection );
     direction.subtract( scaledNormal );
-    Point displacedPoint = new Point( m_orig, direction, c_epsilon );
-    return new Ray( displacedPoint, direction );
+    //Point displacedPoint = new Point( m_orig, direction, c_epsilon );
+    return new Ray( m_orig, direction );
   }
   
   void setTime( float time )
