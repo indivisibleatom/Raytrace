@@ -1,19 +1,33 @@
-# motion-blurred spheres, just one sample per pixel
-
-rays_per_pixel 1
+# two textured triangles (making a square)
 
 fov 60
-background .4 .4 1
-point_light 5 5 5 1 1 1
+point_light 0 0 0 1 1 1
+background 0.1 0.1 0.2
 
-translate 0 0 -4
+diffuse   0.8 0.8 0.8   0.1 0.1 0.1
+image_texture  world_map_small.jpg
 
-diffuse   0.5 0 0  0.2 0 0
- 
-moving_sphere 0.5  0 1.4 0  0 1.4 0
+translate -1 -0.5 -2
+scale 2 1 1
 
-moving_sphere 0.5  -.2 0 0  .2 0 0
+begin
+texture_coord 0 0
+vertex  0 0 0
+texture_coord 0 1
+vertex  0 1 0
+texture_coord 1 0
+vertex   1 0 0
+end
 
-moving_sphere 0.5  -.4 -1.4 0  .4 -1.4 0
+begin
+texture_coord 1 0
+vertex  1 0 0
+texture_coord 1 1
+vertex  1 1 0
+texture_coord 0 1
+vertex  0 1 0
+end
+
+# sphere 0.5  0 0 -2
 
 write t03.png

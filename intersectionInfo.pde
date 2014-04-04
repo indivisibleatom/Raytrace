@@ -27,14 +27,10 @@ class IntersectionInfo
   private Color m_ambient;
 
   
-  IntersectionInfo( LightedPrimitive primitive, Color diffuse, Color ambient, ShapeIntersectionInfo info )
+  IntersectionInfo( LightedPrimitive primitive, ShapeIntersectionInfo info )
   {
     m_primitive = primitive;
     m_shapeInfo = info;
-    m_diffuse = diffuse;
-    m_ambient = ambient;
-    m_diffuse = diffuse;
-    m_ambient = ambient;
   }
 
   public LightedPrimitive primitive() { return m_primitive; }
@@ -42,6 +38,4 @@ class IntersectionInfo
   public Vector normal() { return m_shapeInfo.normal(); }
   public float t() { return m_shapeInfo.t(); }
   public boolean fDualSided() { return m_shapeInfo.fDualSided(); }
-  public Color diffuse() { return m_diffuse; }
-  public Color ambient() { return m_ambient; }
 }

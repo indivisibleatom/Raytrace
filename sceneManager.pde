@@ -48,6 +48,11 @@ class SceneManager
     m_currentMaterial = new Material( ambient, diffuse );
   }
   
+  public void setMaterial( Color ambient, Color diffuse, Color shiny, float power, float kReflect )
+  {
+    m_currentMaterial = new Material( ambient, diffuse, shiny, power, kReflect );
+  }
+  
   public void buildScene()
   {
     m_primitiveManager.buildScene();

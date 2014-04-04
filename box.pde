@@ -455,12 +455,7 @@ class BoundingBox implements LightedPrimitive
     return m_box;
   }
 
-  public Color getDiffuseCoeffs()
-  {
-    return null;
-  }
-  
-  public Color getAmbientCoeffs()
+  public Material getMaterial()
   {
     return null;
   }

@@ -1004,12 +1004,7 @@ class KDTree implements LightedPrimitive
     return intersectionInfo;
   }
 
-  public Color getDiffuseCoeffs()
-  {
-    return null;
-  }
-  
-  public Color getAmbientCoeffs()
+  public Material getMaterial()
   {
     return null;
   }

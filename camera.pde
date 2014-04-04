@@ -71,6 +71,11 @@ class Camera
     return direction;
   }
   
+  public Ray getRayToEye( Point pointFrom )
+  {
+    return new Ray( pointFrom, c_origin );
+  }
+  
   public Ray getRay( Sample sample )
   {
     Ray r;

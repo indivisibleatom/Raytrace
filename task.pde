@@ -21,7 +21,8 @@ class SamplerRenderingTask implements Task
     {
       return lightManager.getAmbient();
     }
-    Color pixelColor = cloneCol( info.ambient() );
+    Material primitiveMaterial = info.primitive().getMaterial();
+    Color pixelColor = cloneCol( primitiveMaterial.ambient() );
     for (int i = 0; i < lightManager.getNumLights(); i++)
     {
       Light light = lightManager.getLight(i);
@@ -52,9 +53,21 @@ class SamplerRenderingTask implements Task
             cosine = 0;
           }
         }
-        Color lightColor = combineColor( info.diffuse(), light.getColor() );
-        lightColor.scale( cosine );
-        pixelColor.add( lightColor );
+        Color diffuseColor = combineColor( primitiveMaterial.diffuse(), light.getColor() );        
+        diffuseColor.scale( cosine );
+        Color specularColor = new Color(0,0,0);
+        if ( primitiveMaterial.specular() != null )
+        {
+          Ray viewRay = m_scene.getCamera().getRayToEye( info.point() );
+          Vector halfVector = cloneVec( shadowRay.getDirection() );
+          halfVector.add( viewRay.getDirection() );
+          halfVector.normalize();
+          specularColor.add( primitiveMaterial.specular() );
+          float cosineHalf = pow( info.normal().dot( halfVector ), primitiveMaterial.power() ); ;
+          specularColor.scale( cosineHalf );
+        }
+        pixelColor.add( diffuseColor );
+        pixelColor.add( specularColor );
       }
     }
     return pixelColor;

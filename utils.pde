@@ -159,6 +159,13 @@ class Vector
     return m_v[index];
   }
   
+  public void add(Vector other)
+  {   
+    m_v[0] += other.m_v[0];
+    m_v[1] += other.m_v[1];
+    m_v[2] += other.m_v[2];
+  }
+  
   public void subtract(Vector other)
   {   
     m_v[0] -= other.m_v[0];

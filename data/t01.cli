@@ -1,14 +1,12 @@
-# one sphere, stair-step edges
+# one shiny sphere
 
 rays_per_pixel 1
 
 fov 60
-background .4 .4 1
-point_light 5 5 5 1 1 1
+background 0 0 0
+point_light -5 5 5 1 1 1
 
-translate 0 0 -4
-
-diffuse   0.5 0 0  0.2 0 0   
-sphere 1  0 0 0
+shiny   0.5 0 0   0.2 0 0   .7 .7 .7   40  0
+sphere 1  0 0 -4
 
 write t01.png

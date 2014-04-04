@@ -112,6 +112,11 @@ class SceneBuilder
   {
     m_scene.setCoeffs( new Color( ambientCoeffs ), new Color( diffuse ) );
   }
+  
+  private void setShinyCoeffs( float[] ambientCoeffs, float[] diffuseCoeffs, float[] shinyCoeffs, float specPower, float kReflect )
+  {
+    m_scene.setShinyCoeffs( new Color( ambientCoeffs ), new Color( diffuseCoeffs ), new Color( shinyCoeffs), specPower, kReflect );
+  }
    
   void buildScene(String fileName)
   {
@@ -168,6 +173,15 @@ class SceneBuilder
         float[] diffuseCoeffs = {Float.parseFloat(token[1]), Float.parseFloat(token[2]), Float.parseFloat(token[3])};
         float[] ambientCoeffs = {Float.parseFloat(token[4]), Float.parseFloat(token[5]), Float.parseFloat(token[6])};
         setCoeffs( ambientCoeffs, diffuseCoeffs );
+      }
+      else if (token[0].equals("shiny"))
+      {
+        float[] diffuseCoeffs = {Float.parseFloat(token[1]), Float.parseFloat(token[2]), Float.parseFloat(token[3])};
+        float[] ambientCoeffs = {Float.parseFloat(token[4]), Float.parseFloat(token[5]), Float.parseFloat(token[6])};
+        float[] shinyCoeffs = {Float.parseFloat(token[7]), Float.parseFloat(token[8]), Float.parseFloat(token[9])};
+        float specPower = Float.parseFloat(token[10]);
+        float reflect = Float.parseFloat(token[11]);
+        setShinyCoeffs( ambientCoeffs, diffuseCoeffs, shinyCoeffs, specPower, reflect );
       } 
       else if (token[0].equals("begin")) 
       {

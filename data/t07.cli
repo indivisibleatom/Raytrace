@@ -1,87 +1,73 @@
-# testing depth-of-field, one ray per pixel
+# checkerboard on plane and spheres
 
-rays_per_pixel 1
-
-lens  0.08  3
+mipmap off
 
 fov 60
+point_light  -2 3 0  1 1 1
+point_light  3 1 0  .5 .5 .5
+background 0.4 0.4 0.7
 
-# blue background
+shiny  0 0 0  .2 .2 .2  1 1 1  40  .9
 
-background 0.2 0.2 1
+diffuse   0.8 0.8 0.8   0 0 0
+image_texture  checkerboard_small.png
 
-# light sources 
-
-point_light  2 5 0  .8 .8 .8
-point_light -3 4 0  .2 .2 .2
-
-# spheres resting on ground
-
-diffuse  .8 .8 .8  .2 .2 .2
-
-push
-translate -1.5 -1.5 0
-sphere  0.5  0 0 -1
-sphere  0.5  0 0 -2
-sphere  0.5  0 0 -3
-sphere  0.5  0 0 -4
-sphere  0.5  0 0 -5
-sphere  0.5  0 0 -6
-sphere  0.5  0 0 -7
-sphere  0.5  0 0 -8
-sphere  0.5  0 0 -9
-sphere  0.5  0 0 -10
-sphere  0.5  0 0 -11
-sphere  0.5  0 0 -12
-sphere  0.5  0 0 -13
-sphere  0.5  0 0 -14
-sphere  0.5  0 0 -15
-sphere  0.5  0 0 -16
-sphere  0.5  0 0 -17
-sphere  0.5  0 0 -18
-sphere  0.5  0 0 -19
-sphere  0.5  0 0 -20
-pop
+sphere 0.5  1.4 0.5 -2.5
+sphere 0.5  -1.5 0.5 -3.5
+sphere 0.5  1.6 0.5 -5.5
+sphere 0.5  -1.9 0.5 -8.5
+sphere 0.5  1.6 0.5 -10.5
+sphere 0.5  -1.5 0.5 -12.5
+sphere 0.5  1.0 0.5 -14.5
+sphere 0.5  -0.9 0.5 -16.5
+sphere 0.5  0.1 0.5 -22.5
+# sphere 0.5  -0.4 0.5 -26.5
 
 push
-translate 1.5 -1.5 0
-sphere  0.5  0 0 -1
-sphere  0.5  0 0 -2
-sphere  0.5  0 0 -3
-sphere  0.5  0 0 -4
-sphere  0.5  0 0 -5
-sphere  0.5  0 0 -6
-sphere  0.5  0 0 -7
-sphere  0.5  0 0 -8
-sphere  0.5  0 0 -9
-sphere  0.5  0 0 -10
-sphere  0.5  0 0 -11
-sphere  0.5  0 0 -12
-sphere  0.5  0 0 -13
-sphere  0.5  0 0 -14
-sphere  0.5  0 0 -15
-sphere  0.5  0 0 -16
-sphere  0.5  0 0 -17
-sphere  0.5  0 0 -18
-sphere  0.5  0 0 -19
-sphere  0.5  0 0 -20
-pop
 
-# these two triangles acts as a ground plane
-
-diffuse  .8 .8 .8  .2 .2 .2
+translate 0 -1 -4
+scale 6 6 6
+rotate 90  1 0 0
+translate -0.5 -0.5 0
 
 begin
-vertex -100 -2 -100
-vertex  100 -2 -100
-vertex  100 -2  100
+texture_coord 0 0
+vertex  0 0 0
+texture_coord 0 1
+vertex  0 1 0
+texture_coord 1 0
+vertex   1 0 0
 end
 
 begin
-vertex  100 -2  100
-vertex -100 -2  100
-vertex -100 -2 -100
+texture_coord 1 0
+vertex  1 0 0
+texture_coord 1 1
+vertex  1 1 0
+texture_coord 0 1
+vertex  0 1 0
 end
+
+translate 0 -1 0
+
+begin
+texture_coord 0 0
+vertex  0 0 0
+texture_coord 0 1
+vertex  0 1 0
+texture_coord 1 0
+vertex   1 0 0
+end
+
+begin
+texture_coord 1 0
+vertex  1 0 0
+texture_coord 1 1
+vertex  1 1 0
+texture_coord 0 1
+vertex  0 1 0
+end
+
+pop
 
 write t07.png
-

@@ -6,8 +6,7 @@ interface Primitive
 
 interface LightedPrimitive extends Primitive
 {
-  public Color getDiffuseCoeffs();
-  public Color getAmbientCoeffs();
+  public Material getMaterial();
   public Box getBoundingBox();
 }
 
@@ -47,11 +46,10 @@ class GeometricPrimitive implements LightedPrimitive
       }
       return null;
     }
-    return new IntersectionInfo( this, getDiffuseCoeffs(), getAmbientCoeffs(), shapeInfo );
+    return new IntersectionInfo( this, shapeInfo );
   }
   
-  public Color getDiffuseCoeffs() { return m_material.getDiffuse(); }
-  public Color getAmbientCoeffs() { return m_material.getAmbient(); }
+  public Material getMaterial() { return m_material; }
 }
 
 //Stores a reference to the actual primitive and a reference to a transform to take
@@ -96,17 +94,12 @@ class InstancePrimitive implements LightedPrimitive
     Point point = m_transform.localToWorld( localInfo.point() );
     Vector normal = m_transform.localToWorldNormal( localInfo.normal() );
     ShapeIntersectionInfo intersectionInfo = new ShapeIntersectionInfo( point, normal, localInfo.t()*scale, localInfo.fDualSided() );
-    return new IntersectionInfo( this, getDiffuseCoeffs(), getAmbientCoeffs(), intersectionInfo );
+    return new IntersectionInfo( this, intersectionInfo );
   }
   
-  public Color getDiffuseCoeffs()
+  public Material getMaterial()
   {
-    return m_primitive.getDiffuseCoeffs(); 
-  }
-  
-  public Color getAmbientCoeffs() 
-  {
-    return m_primitive.getAmbientCoeffs(); 
+    return m_primitive.getMaterial(); 
   }
   
   public Box getBoundingBox()
