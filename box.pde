@@ -270,7 +270,7 @@ class Box implements Shape
     Vector normal = new Vector( normalValues[0], normalValues[1], normalValues[2] );
 
     Point intersectionPoint = new Point( ray, info.t1[info.largestT1Index] );
-    return new ShapeIntersectionInfo( intersectionPoint, normal, info.t1[info.largestT1Index], false );
+    return new ShapeIntersectionInfo( intersectionPoint, normal, null, info.t1[info.largestT1Index], false ); //texture mapping of boxes not supported right now
   }
   
   //Face numbers - 0 -> left x, 2 -> lower y, 4 -> backz

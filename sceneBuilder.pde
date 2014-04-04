@@ -2,10 +2,14 @@ class SceneBuilder
 {
   Scene m_scene;
   ArrayList<Point> m_verticesCached;
+  ArrayList<Point> m_textureCoordinates;
+  Point m_currentTextureCoord;
   
   SceneBuilder()
   {
     m_scene = new Scene();
+    m_verticesCached = new ArrayList<Point>();
+    m_textureCoordinates = new ArrayList<Point>();
   }
   
   private void setCameraFov(int angle)
@@ -40,17 +44,20 @@ class SceneBuilder
   
   private void startPolygon()
   {
-    m_verticesCached = new ArrayList<Point>();
+    m_verticesCached.clear();
+    m_textureCoordinates.clear();
   }
   
   private void addVertex( Point vertex )
   {
     m_verticesCached.add( vertex );
+    m_textureCoordinates.add( m_currentTextureCoord );
+    m_currentTextureCoord = null;
   }
   
   private void endPolygon()
   {
-    Triangle t = new Triangle( m_verticesCached.get(0), m_verticesCached.get(1), m_verticesCached.get(2),  m_scene.getCurrentTransformation() );
+    Triangle t = new Triangle( m_verticesCached.get(0), m_verticesCached.get(1), m_verticesCached.get(2), m_textureCoordinates.get(0), m_textureCoordinates.get(1), m_textureCoordinates.get(2), m_scene.getCurrentTransformation() );
     m_scene.addObject( new GeometricPrimitive( t, m_scene.getCurrentMaterial() ) );
   }
   
@@ -116,8 +123,13 @@ class SceneBuilder
   private void setShinyCoeffs( float[] ambientCoeffs, float[] diffuseCoeffs, float[] shinyCoeffs, float specPower, float kReflect )
   {
     m_scene.setShinyCoeffs( new Color( ambientCoeffs ), new Color( diffuseCoeffs ), new Color( shinyCoeffs), specPower, kReflect );
+  }  
+  
+  private void setMaterialTexture( String fileName )
+  {
+    m_scene.setMaterialTexture( fileName ); 
   }
-   
+
   void buildScene(String fileName)
   {
     int timer = 0;
@@ -199,6 +211,10 @@ class SceneBuilder
       {
         instantiateObject(token[1]);
       }
+      else if (token[0].equals("texture_coord"))
+      {
+        m_currentTextureCoord = new Point( Float.parseFloat(token[1]), Float.parseFloat(token[2]), 0 );
+      }
       else if (token[0].equals("vertex")) 
       {
         addVertex( new Point( Float.parseFloat(token[1]), Float.parseFloat(token[2]), Float.parseFloat(token[3]) ) );
@@ -246,6 +262,10 @@ class SceneBuilder
       {
         Vector translate = new Vector( Float.parseFloat(token[1]), Float.parseFloat(token[2]), Float.parseFloat(token[3]) );
         setTranslate( translate );
+      }
+      else if (token[0].equals("image_texture"))
+      {
+        setMaterialTexture(token[1]);
       }
       else if (token[0].equals("rotate"))
       {

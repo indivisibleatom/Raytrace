@@ -53,9 +53,21 @@ class SamplerRenderingTask implements Task
             cosine = 0;
           }
         }
-        Color diffuseColor = combineColor( primitiveMaterial.diffuse(), light.getColor() );        
+
+        Color diffuseColor = null;
+        if ( primitiveMaterial.fHasTexture() )
+        {
+          info.textureCoord().debugPrint();
+          diffuseColor = primitiveMaterial.getTextureColor( info.textureCoord() );
+        }
+        else
+        {
+          diffuseColor = combineColor( primitiveMaterial.diffuse(), light.getColor() );
+        }        
         diffuseColor.scale( cosine );
+
         Color specularColor = new Color(0,0,0);
+        Color reflectedRayColor = new Color(0,0,0);
         if ( primitiveMaterial.specular() != null )
         {
           Ray viewRay = m_scene.getCamera().getRayToEye( info.point() );
@@ -65,9 +77,14 @@ class SamplerRenderingTask implements Task
           specularColor.add( primitiveMaterial.specular() );
           float cosineHalf = pow( info.normal().dot( halfVector ), primitiveMaterial.power() ); ;
           specularColor.scale( cosineHalf );
+          Ray reflectedRay = ray.reflect( info.normal() );
+          reflectedRayColor = computeRadiance( reflectedRay, null );
+          reflectedRayColor.scale( primitiveMaterial.reflectConst() );
         }
+
         pixelColor.add( diffuseColor );
         pixelColor.add( specularColor );
+        pixelColor.add( reflectedRayColor );
       }
     }
     return pixelColor;

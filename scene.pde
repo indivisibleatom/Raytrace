@@ -127,6 +127,11 @@ class Scene
     m_sceneManager.setMaterial( ambient, diffuse );
   }
   
+  public void setMaterialTexture( String fileName )
+  {
+    m_sceneManager.setMaterialTexture( fileName );
+  }
+  
   public void setShinyCoeffs( Color ambient, Color diffuse, Color shiny, float power, float kReflect )
   {
     m_sceneManager.setMaterial( ambient, diffuse, shiny, power, kReflect );

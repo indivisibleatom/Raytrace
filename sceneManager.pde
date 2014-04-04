@@ -3,12 +3,14 @@ class SceneManager
   private SceneGraph m_sceneGraph;
   private PrimitiveManager m_primitiveManager;
   private Material m_currentMaterial;
+  private HashMap<String, ImageTexture> m_textures;
   
   SceneManager()
   {
     //TODO msati3: See if we need to implement a scenegraph
     m_primitiveManager = new PrimitiveManager();
     m_currentMaterial = new Material( new Color(0,0,0), new Color(0,0,0) );
+    m_textures = new HashMap<String, ImageTexture>();
   }
   
   public void addPrimitive(LightedPrimitive p)
@@ -46,6 +48,16 @@ class SceneManager
   public void setMaterial( Color ambient, Color diffuse )
   {
     m_currentMaterial = new Material( ambient, diffuse );
+  }
+  
+  public void setMaterialTexture( String fileName )
+  {
+    ImageTexture imageTexture = m_textures.get( fileName );
+    if ( imageTexture == null )
+    { 
+      imageTexture = new ImageTexture( fileName );
+    }
+    m_currentMaterial.setTexture( imageTexture );
   }
   
   public void setMaterial( Color ambient, Color diffuse, Color shiny, float power, float kReflect )

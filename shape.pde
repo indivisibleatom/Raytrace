@@ -107,7 +107,7 @@ class Sphere implements Shape
       //Now go to world space
       Point intersectionPoint = m_transformation.localToWorld( intersectionPointLocal );
       Vector normal = m_transformation.localToWorldNormal( normalLocal );
-      return new ShapeIntersectionInfo( intersectionPoint, normal, minTScaled, false );
+      return new ShapeIntersectionInfo( intersectionPoint, normal, null, minTScaled, false ); //texture mapping of sphere not supported right now
     }
   }
 
@@ -222,7 +222,11 @@ class NonCanonSphere implements Shape
       Vector normal = new Vector( m_center, intersectionPoint );
       normal.normalize();
 
-      return new ShapeIntersectionInfo( intersectionPoint, normal, minT, false );
+      Vector intersectToOrigin = new Vector( intersectionPoint, m_center );
+      intersectToOrigin.normalize();
+      float u = 0.5 + atan2(intersectToOrigin.Z(), intersectToOrigin.X())/(2*PI);
+      float v = 0.5 - asin(intersectToOrigin.Y())/PI;
+      return new ShapeIntersectionInfo( intersectionPoint, normal, new Point(u,v,1), minT, false ); //Texture mapping of non canon sphere not supported right now
     }
   }
 
@@ -335,7 +339,7 @@ class MovingSphere implements Shape
       Vector normal = new Vector( centerCurrent, intersectionPoint );
       normal.normalize();
 
-      return new ShapeIntersectionInfo( intersectionPoint, normal, minT, false );
+      return new ShapeIntersectionInfo( intersectionPoint, normal, null, minT, false ); //Texture mapping of moving sphere not supported right now
     }
   }
 
@@ -349,18 +353,28 @@ class Triangle implements Shape
 {
   Transformation m_transformation;
   Point[] m_vertices;
+  Point[] m_textureCoords;
   Vector m_normal;
   Vector m_e1;
   Vector m_e2;
   Box m_boundingBox;
 
-  Triangle( Point p1, Point p2, Point p3, Transformation transformation )
+  Triangle( Point p1, Point p2, Point p3, Point texCoords1, Point texCoords2, Point texCoords3, Transformation transformation )
   {
     m_vertices = new Point[3];
     m_transformation = new Transformation( transformation );
     m_vertices[0] = m_transformation.localToWorld( p1 );
     m_vertices[1] = m_transformation.localToWorld( p2 );
     m_vertices[2] = m_transformation.localToWorld( p3 );
+
+    m_textureCoords = null;
+    if ( texCoords1 != null )
+    {
+      m_textureCoords = new Point[3];
+      m_textureCoords[0] = texCoords1;
+      m_textureCoords[1] = texCoords2;
+      m_textureCoords[2] = texCoords3;
+    }
 
     m_e1 = new Vector( m_vertices[0], m_vertices[1] );
     m_e2 = new Vector( m_vertices[0], m_vertices[2] );
@@ -375,9 +389,24 @@ class Triangle implements Shape
   {
     return m_boundingBox;
   }
-
+  
+  private Point getTextureCoordScaled( float u, float v )
+  {
+    float[] textureCoordinates1 = { m_textureCoords[0].X(), m_textureCoords[0].Y(), m_textureCoords[0].Z() };
+    float[] textureCoordinates2 = { m_textureCoords[1].X(), m_textureCoords[1].Y(), m_textureCoords[1].Z() };
+    float[] textureCoordinates3 = { m_textureCoords[2].X(), m_textureCoords[2].Y(), m_textureCoords[2].Z() };
+    
+    float delta1 = u * (textureCoordinates2[0] - textureCoordinates1[0]);
+    float delta2 = u * (textureCoordinates2[1] - textureCoordinates1[1]);
+    float delta3 = v * (textureCoordinates3[0] - textureCoordinates1[0]);
+    float delta4 = v * (textureCoordinates3[1] - textureCoordinates1[1]);
+    textureCoordinates1[0] += delta1 + delta3;
+    textureCoordinates1[1] += delta1 + delta4;
+    return new Point( textureCoordinates1[0], textureCoordinates1[1], 1 );
+  }
+ 
   //Optimized ray triangle intersection
-  private float intersectInternal( Ray ray, float tMin, float tMax )
+  private float intersectInternal( Ray ray, float tMin, float tMax, Point textureCoord )
   {
     Vector p = ray.getDirection().cross( m_e2 );
     Vector tVec, q;
@@ -416,22 +445,33 @@ class Triangle implements Shape
     {
       return 0;
     }
+    if ( textureCoord != null )
+    {
+      Point textureCoordScaled = getTextureCoordScaled( u, v );
+      textureCoord.set( textureCoordScaled.X(), textureCoordScaled.Y(), 1 );
+    }
     return tIntersection;
   }
 
   public boolean intersects( Ray ray, float tMin, float tMax )
   {
-    return ( intersectInternal( ray, tMin, tMax ) != 0 );
+    Point textureCoord = null;
+    return ( intersectInternal( ray, tMin, tMax, textureCoord ) != 0 );
   }
 
 
   public ShapeIntersectionInfo getIntersectionInfo( Ray ray, float tMin, float tMax )
-  {  
-    float t = intersectInternal( ray, tMin, tMax );
+  {
+    Point textureCoord = null;
+    if (m_textureCoords != null)
+    {
+      textureCoord = new Point(0,0,0);
+    }
+    float t = intersectInternal( ray, tMin, tMax, textureCoord );
     if ( t != 0 )
     {
       Point inPlane = new Point( ray, t );
-      return new ShapeIntersectionInfo( inPlane, m_normal, t, true );
+      return new ShapeIntersectionInfo( inPlane, m_normal, textureCoord, t, true );
     }
     return null;
   }
