@@ -213,7 +213,7 @@ class SceneBuilder
       }
       else if (token[0].equals("texture_coord"))
       {
-        m_currentTextureCoord = new Point( Float.parseFloat(token[1]), Float.parseFloat(token[2]), 0 );
+        m_currentTextureCoord = new Point( Float.parseFloat(token[1]), Float.parseFloat(token[2]), 1 );
       }
       else if (token[0].equals("vertex")) 
       {

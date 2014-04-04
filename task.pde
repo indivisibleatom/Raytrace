@@ -57,7 +57,6 @@ class SamplerRenderingTask implements Task
         Color diffuseColor = null;
         if ( primitiveMaterial.fHasTexture() )
         {
-          info.textureCoord().debugPrint();
           diffuseColor = primitiveMaterial.getTextureColor( info.textureCoord() );
         }
         else

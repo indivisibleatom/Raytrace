@@ -251,9 +251,6 @@ class MovingSphere implements Shape
     m_center2 = center2;
     m_totalMotion = new Vector( m_center1, m_center2 );
     
-    center1.debugPrint();
-    center2.debugPrint();
-    
     //TODO msati3: Handle reverse order of specification of centers.
     m_boundingBox = new Box( new Point(m_center1.X() - radius, m_center1.Y() - radius, m_center1.Z() - radius), new Point(m_center2.X() + radius, m_center2.Y() + radius, m_center2.Z() + radius), null );
   }
@@ -396,12 +393,16 @@ class Triangle implements Shape
     float[] textureCoordinates2 = { m_textureCoords[1].X(), m_textureCoords[1].Y(), m_textureCoords[1].Z() };
     float[] textureCoordinates3 = { m_textureCoords[2].X(), m_textureCoords[2].Y(), m_textureCoords[2].Z() };
     
+    print( "Coords " + textureCoordinates1[0] + " " + textureCoordinates2[0] + " " + textureCoordinates3[0] + " " + u + " " + v + " ");
+    
     float delta1 = u * (textureCoordinates2[0] - textureCoordinates1[0]);
     float delta2 = u * (textureCoordinates2[1] - textureCoordinates1[1]);
     float delta3 = v * (textureCoordinates3[0] - textureCoordinates1[0]);
     float delta4 = v * (textureCoordinates3[1] - textureCoordinates1[1]);
     textureCoordinates1[0] += delta1 + delta3;
     textureCoordinates1[1] += delta1 + delta4;
+    
+    print( textureCoordinates1[0] + " " );
     return new Point( textureCoordinates1[0], textureCoordinates1[1], 1 );
   }
  
@@ -447,6 +448,8 @@ class Triangle implements Shape
     }
     if ( textureCoord != null )
     {
+      u = abs(u);
+      v = abs(v);
       Point textureCoordScaled = getTextureCoordScaled( u, v );
       textureCoord.set( textureCoordScaled.X(), textureCoordScaled.Y(), 1 );
     }
