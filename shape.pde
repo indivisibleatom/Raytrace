@@ -394,7 +394,6 @@ class Triangle implements Shape
     textureCoordinates[0] = (1-u-v)*m_textureCoords[0].X() + u*m_textureCoords[1].X() + v*m_textureCoords[2].X();
     textureCoordinates[1] = (1-u-v)*m_textureCoords[0].Y() + u*m_textureCoords[1].Y() + v*m_textureCoords[2].Y();
     
-    print( "Coords " + u + " " + v + " " + textureCoordinates[0] + " " + textureCoordinates[1] + " " );
     return textureCoordinates;
   }
  
@@ -440,10 +439,10 @@ class Triangle implements Shape
     }
     if ( textureCoord != null )
     {
-      u = abs(u);
-      v = abs(v);
+      u /= det;
+      v /= det;
       float textureCoords[] = getTextureCoordScaled( u, v );
-      textureCoord.set( textureCoords[0], textureCoords[1], 1 );
+      textureCoord.set( textureCoords[0], textureCoords[1], 0 );
     }
     return tIntersection;
   }
