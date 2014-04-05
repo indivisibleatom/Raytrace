@@ -65,7 +65,7 @@ class SamplerRenderingTask implements Task
         float cosineHalf = pow( info.normal().dot( halfVector ), primitiveMaterial.power() ); ;
         specularColor.scale( cosineHalf );
         
-        Ray reflectedRay = ray.reflect( info.normal() );
+        Ray reflectedRay = ray.reflect( info.normal(), info.point() );
         reflectedRayColor = computeRadiance( reflectedRay );
         reflectedRayColor.scale( primitiveMaterial.reflectConst() );
       }

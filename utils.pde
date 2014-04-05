@@ -272,15 +272,15 @@ class Ray
     }
   }
   
-  Ray reflect( Vector normal )
+  Ray reflect( Vector normal, Point point )
   {
     Vector direction = cloneVec( m_dir );
     Vector scaledNormal = cloneVec( normal );
     float projection = 2*direction.dot( normal );
     scaledNormal.scale( projection );
     direction.subtract( scaledNormal );
-    //Point displacedPoint = new Point( m_orig, direction, c_epsilon );
-    return new Ray( m_orig, direction );
+    Point displacedPoint = new Point( point, direction, 2*c_epsilon );
+    return new Ray( displacedPoint, direction );
   }
   
   void setTime( float time )
