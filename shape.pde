@@ -140,6 +140,8 @@ class NonCanonSphere implements Shape
     m_radius2 = radius * radius;
     m_center = center;
   
+    print("Creating non-canon sphere " + radius + " ");
+    center.debugPrint();
     m_boundingBox = new Box( new Point(m_center.X() - radius, m_center.Y() - radius, m_center.Z() - radius), new Point(m_center.X() + radius, m_center.Y() + radius, m_center.Z() + radius), null );
   }
 

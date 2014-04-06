@@ -2,6 +2,8 @@ interface Task extends Runnable
 {
 }
 
+int MAX_DEPTH = 10; //Max depth of recursive ray-tracing
+
 class SamplerRenderingTask implements Task
 {
   private Scene m_scene;
@@ -13,7 +15,7 @@ class SamplerRenderingTask implements Task
     m_sampler = sampler.getSubsampler( numTasks, taskNum );
   }
    
-  private Color computeRadiance( Ray ray )
+  private Color computeRadiance( Ray ray, int depth )
   {
     LightManager lightManager = m_scene.getLightManager();
     IntersectionInfo info = m_scene.getIntersectionInfo( ray );
@@ -65,9 +67,12 @@ class SamplerRenderingTask implements Task
         float cosineHalf = pow( info.normal().dot( halfVector ), primitiveMaterial.power() ); ;
         specularColor.scale( cosineHalf );
         
-        Ray reflectedRay = ray.reflect( info.normal(), info.point() );
-        reflectedRayColor = computeRadiance( reflectedRay );
-        reflectedRayColor.scale( primitiveMaterial.reflectConst() );
+        if ( depth < MAX_DEPTH )
+        {
+          Ray reflectedRay = ray.reflect( info.normal(), info.point() );
+          reflectedRayColor = cloneCol( computeRadiance( reflectedRay, depth+1 ) );
+          reflectedRayColor.scale( primitiveMaterial.reflectConst() );
+        }
       }
 
       pixelColor.add( diffuseColor );
@@ -81,12 +86,11 @@ class SamplerRenderingTask implements Task
   {
     try
     {
-     //Perf: utilize temporal coherence
       Sample sample = m_sampler.getNextSample();
       do
       {
         Ray ray = m_scene.getCamera().getRay(sample);
-        Color radiance = computeRadiance(ray);
+        Color radiance = computeRadiance(ray, 0);
         m_scene.getCamera().getFilm().setRadiance(sample, radiance);
         sample = m_sampler.getNextSample();    
       } while ( sample != null );

@@ -27,6 +27,17 @@ class Box implements Shape
       m_transformation.apply(transformation);
       m_extent1 = transformation.localToWorld( point1 );
       m_extent2 = transformation.localToWorld( point2 );
+      
+      for (int i = 0; i < 3; i++)
+      {
+        if ( m_extent1.get(i) > m_extent2.get(i) )
+        {
+          float temp = m_extent1.get(i); 
+          m_extent1.set(i, m_extent2.get(i));
+          m_extent2.set(i, temp);
+        }
+      }
+
       calculateAxisAligned();
     }
     m_surfaceArea = -1;
