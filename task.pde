@@ -53,7 +53,7 @@ class SamplerRenderingTask implements Task
         {
           if ( ray.getDelta(0) != null )
           {
-            info.textureCoord().set(2, ray.getDelta(0).getMagnitude() * ( 2 * tan(PI/3) / 600 ));
+            info.textureCoord().set(2, ray.getDelta(1).getMagnitude() * ( 2 * tan(PI/3) / 600 ));
             //print("Here" + info.textureCoord().get(2));
           }
           diffuseColor = primitiveMaterial.getTextureColor( info.textureCoord() );

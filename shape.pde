@@ -228,7 +228,7 @@ class NonCanonSphere implements Shape
       intersectToOrigin.normalize();
       float u = 0.5 + atan2(intersectToOrigin.Y(), intersectToOrigin.X())/(2*PI);
       float v = 0.5 - asin(intersectToOrigin.Z())/PI;
-      return new ShapeIntersectionInfo( intersectionPoint, normal, new Point(u,v,1), minT, false ); //Texture mapping of non canon sphere not supported right now
+      return new ShapeIntersectionInfo( intersectionPoint, normal, new Point(u,v,0), minT, false ); //Texture mapping of non canon sphere not supported right now
     }
   }
 
