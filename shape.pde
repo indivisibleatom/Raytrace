@@ -255,7 +255,7 @@ class NonCanonSphere implements Shape
     Point shiftedY = clonePt( intersectionPoint );
     Point deltaX = ray.getDeltaX();
     Point deltaY = ray.getDeltaY();
-    float delta = 0.1;
+    float delta = 0.05;
     shiftedX.set( shiftedX.X() + delta * deltaX.X(), shiftedX.Y() + delta * deltaX.Y(), shiftedX.Z() + delta * deltaX.Z() );
     Point uvDeltaX = getTextureCoords( shiftedX );
     shiftedY.set( shiftedY.X() + delta * deltaY.X(), shiftedY.Y() + delta * deltaY.Y(), shiftedY.Z() + delta * deltaY.Z() );
@@ -273,9 +273,9 @@ class NonCanonSphere implements Shape
     m2 = abs(m2);
     if  ( m2 > 1 ) m2 = 2 - m2;
     
-    if ( m1 > 1 || m2 > 1 )
+    //if ( m1 > 1 || m2 > 1 )
     {
-      //print( m1 + " " + m2 + "    ");
+      print( m1 + " " + m2 + "    ");
     }
     return m1 < m2 ? m1 : m2;
   }
@@ -505,7 +505,7 @@ class Triangle implements Shape
   
   public float getTextureDifferential( Ray ray, IntersectionInfo info )
   {
-    return ray.getDelta(1).getMagnitude() * ( 2 * tan(PI/3) / 600 );
+    return 0.2 * ray.getDelta(1).getMagnitude() * ( 2 * tan(PI/3) / 600 );
   }
 
   public boolean intersects( Ray ray, float tMin, float tMax )

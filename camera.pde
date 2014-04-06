@@ -88,12 +88,15 @@ class Camera
       Point deltaXOrig = new Point(0, 0, 0);
       Vector deltaXDir = new Vector( (sample.getX() - m_film.getDim().width()/2) * ( 2 * m_fovTan / m_film.getDim().width() ), 0, 0 );
       Vector deltaYDir = new Vector( 0, (sample.getY() - m_film.getDim().height()/2) * ( 2 * m_fovTan / m_film.getDim().height() ), 0 );
-      Vector scaledXDirRay = cloneVec( r.getDirection() ); 
-      scaledXDirRay.scale( r.getDirection().dot(deltaXDir) );
-      Vector scaledYDirRay = cloneVec( r.getDirection() ); 
-      scaledYDirRay.scale( r.getDirection().dot(deltaYDir) );
+      float denom = 1/pow(rayDirection.dot(rayDirection), 1.5);
+      Vector scaledXDirRay = cloneVec( rayDirection ); 
+      scaledXDirRay.scale( rayDirection.dot(deltaXDir) );
+      Vector scaledYDirRay = cloneVec( rayDirection ); 
+      scaledYDirRay.scale( rayDirection.dot(deltaYDir) );
       deltaXDir.subtract( scaledXDirRay );
       deltaYDir.subtract( scaledYDirRay );
+      deltaXDir.scale( denom );
+      deltaYDir.scale( denom );
 
       if ( ( sample.getY() == 300 || sample.getY() == 100 ) && sample.getX() > 290 && sample.getX() < 310 )
       {
@@ -101,10 +104,11 @@ class Camera
         Vector rayDirection1 = directionInCameraSpaceTowards( point1 ); 
         Ray ray = new Ray( c_origin, rayDirection, true );
         Vector deltaXDir1 = new Vector( (sample.getX() + 1 - m_film.getDim().width()/2) * ( 2 * m_fovTan / m_film.getDim().width() ), 0, 0 );
-        Vector scaledXDirRay1 = cloneVec( ray.getDirection() ); 
-        scaledXDirRay.scale( ray.getDirection().dot(deltaXDir1) );
+        Vector scaledXDirRay1 = cloneVec( rayDirection1 ); 
+        scaledXDirRay.scale( rayDirection1.dot(deltaXDir1) );
         deltaXDir1.subtract( scaledXDirRay1 );
-        deltaXDir1.subtract(deltaXDir);
+        denom = 1/pow(rayDirection1.dot(rayDirection1), 1.5);
+        deltaXDir1.scale( denom );
         float deltaX = deltaXDir1.getMagnitude();
         print(sample.getX() + " " + deltaX + "\n");
       }
