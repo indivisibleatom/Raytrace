@@ -31,6 +31,11 @@ class PointLight implements Light
     return m_color;
   }
   
+  public float getTextureDifferential( Ray r, IntersectionInfo info )
+  {
+    return -1;
+  }
+  
   public Ray getRay( Point pointFrom )
   {
     Vector direction = new Vector( pointFrom, m_position );

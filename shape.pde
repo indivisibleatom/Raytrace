@@ -3,6 +3,7 @@ interface Shape
   public Box getBoundingBox();
   public boolean intersects( Ray ray, float tMin, float tMax );
   public ShapeIntersectionInfo getIntersectionInfo( Ray ray, float tMin, float tMax );
+  public float getTextureDifferential( Ray r, IntersectionInfo info );
 }
 
 class Sphere implements Shape
@@ -121,6 +122,11 @@ class Sphere implements Shape
     Ray rayLocal = m_transformation.worldToLocalUnnormalized( ray );
     return intersectsCanonical( rayLocal, tMin, tMax );
   }
+  
+  public float getTextureDifferential( Ray r, IntersectionInfo info )
+  {
+    return -1;
+  }
 
   public ShapeIntersectionInfo getIntersectionInfo( Ray ray, float tMin, float tMax )
   {
@@ -182,7 +188,17 @@ class NonCanonSphere implements Shape
     }
     return true;
   }
-
+  
+  private Point getTextureCoords( Point onSphere )
+  {
+    Vector intersectToOrigin = new Vector( onSphere, m_center );
+    intersectToOrigin.normalize();
+      
+    float u = 0.5 + atan2(intersectToOrigin.Y(), intersectToOrigin.X())/(2*PI);
+    float v = 0.5 - asin(intersectToOrigin.Z())/PI;
+    return new Point(u,v,0);
+  }
+  
   public ShapeIntersectionInfo getIntersectionInfo( Ray ray, float tMin, float tMax )
   {
     Vector OA = new Vector( m_center, ray.getOrigin() );
@@ -224,12 +240,44 @@ class NonCanonSphere implements Shape
       Vector normal = new Vector( m_center, intersectionPoint );
       normal.normalize();
 
-      Vector intersectToOrigin = new Vector( intersectionPoint, m_center );
-      intersectToOrigin.normalize();
-      float u = 0.5 + atan2(intersectToOrigin.Y(), intersectToOrigin.X())/(2*PI);
-      float v = 0.5 - asin(intersectToOrigin.Z())/PI;
-      return new ShapeIntersectionInfo( intersectionPoint, normal, new Point(u,v,0), minT, false ); //Texture mapping of non canon sphere not supported right now
+      Point uv = getTextureCoords( intersectionPoint );
+      
+      return new ShapeIntersectionInfo( intersectionPoint, normal, uv, minT, false ); //Texture mapping of non canon sphere not supported right now
     }
+  }
+  
+  public float getTextureDifferential( Ray ray, IntersectionInfo info )
+  {
+    Point intersectionPoint = info.point();
+    Point uv = info.textureCoord();
+
+    Point shiftedX = clonePt( intersectionPoint );
+    Point shiftedY = clonePt( intersectionPoint );
+    Point deltaX = ray.getDeltaX();
+    Point deltaY = ray.getDeltaY();
+    float delta = 0.1;
+    shiftedX.set( shiftedX.X() + delta * deltaX.X(), shiftedX.Y() + delta * deltaX.Y(), shiftedX.Z() + delta * deltaX.Z() );
+    Point uvDeltaX = getTextureCoords( shiftedX );
+    shiftedY.set( shiftedY.X() + delta * deltaY.X(), shiftedY.Y() + delta * deltaY.Y(), shiftedY.Z() + delta * deltaY.Z() );
+    Point uvDeltaY = getTextureCoords( shiftedY );
+
+    Vector v1 = new Vector( uv, uvDeltaX );
+    v1.scale(1.0/delta);
+    Vector v2 = new Vector( uv, uvDeltaY );
+    v2.scale(1.0/delta);
+
+    float m1 = delta * v1.getMagnitude();
+    m1 = abs(m1);
+    if  ( m1 > 1 ) m1 = 2 - m1;
+    float m2 = delta * v2.getMagnitude();
+    m2 = abs(m2);
+    if  ( m2 > 1 ) m2 = 2 - m2;
+    
+    if ( m1 > 1 || m2 > 1 )
+    {
+      //print( m1 + " " + m2 + "    ");
+    }
+    return m1 < m2 ? m1 : m2;
   }
 
   public Box getBoundingBox()
@@ -342,6 +390,11 @@ class MovingSphere implements Shape
     }
   }
 
+  public float getTextureDifferential( Ray r, IntersectionInfo info )
+  {
+    return -1;
+  }
+
   public Box getBoundingBox()
   {
     return m_boundingBox;
@@ -448,6 +501,11 @@ class Triangle implements Shape
       textureCoord.set( textureCoords[0], textureCoords[1], textureCoords[2] );
     }
     return tIntersection;
+  }
+  
+  public float getTextureDifferential( Ray ray, IntersectionInfo info )
+  {
+    return ray.getDelta(1).getMagnitude() * ( 2 * tan(PI/3) / 600 );
   }
 
   public boolean intersects( Ray ray, float tMin, float tMax )

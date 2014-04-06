@@ -328,13 +328,13 @@ class Ray
         delPTDelDX.set( i, m_deltaOrig[0].get(i) + t * m_deltaDir[0].get(i) );
         delPTDelDY.set( i, m_deltaOrig[1].get(i) + t * m_deltaDir[1].get(i) );
       }
-      float delTDelX = -delPTDelDX.dot(normal);
-      float delTDelY = -delPTDelDY.dot(normal);
+      float delTDelX = -delPTDelDX.dot(normal) / m_dir.dot(normal);
+      float delTDelY = -delPTDelDY.dot(normal) / m_dir.dot(normal);
       
       for (int i = 0; i < 3; i++)
       {
-        m_deltaOrig[0].set( i, delPTDelDX.get(i) + delTDelX * m_deltaDir[0].get(i) );
-        m_deltaOrig[1].set( i, delPTDelDY.get(i) + delTDelY * m_deltaDir[1].get(i) );
+        m_deltaOrig[0].set( i, delPTDelDX.get(i) + delTDelX * m_dir.get(i) );
+        m_deltaOrig[1].set( i, delPTDelDY.get(i) + delTDelY * m_dir.get(i) );
       }
     }
   }

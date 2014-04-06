@@ -11,7 +11,7 @@ class Camera
   private float m_xDir;
   private float m_yDir;
   private Vector m_initDirection;
-  
+
   Camera( float fov, int zNear, Rect screenDim )
   {
     m_fov = fov * (PI / 180);
@@ -19,28 +19,28 @@ class Camera
     m_aperture = 0;
     m_shutterEnabled = false;
   }
-  
+
   public void setLensParams( float aperture, float distance )
   {
     m_focalLength = distance;
     m_aperture = aperture;
   }
-  
+
   public void setFov( float fov )
   {
     m_fov = fov * (PI / 180);
     m_fovTan = tan(m_fov/2);
-    
+
     m_xDir = 2 * m_fovTan / m_film.getDim().width();
     m_yDir = 2 * m_fovTan / m_film.getDim().height();
     m_initDirection = new Vector( new Point(m_fovTan, m_fovTan, 0), new Point(0, 0, -1) );
   }
-  
+
   public Film getFilm()
   {
     return m_film;
   }
-  
+
   private Point sampleAperture()
   {
     //Rejection sampling of disk corresponding to aperture
@@ -64,18 +64,18 @@ class Camera
     Point pOnFocalPlane = new Point( c_origin, rayDirection, tz );
     return pOnFocalPlane;
   }
-  
+
   public Vector directionInCameraSpaceTowards( Point point )
   {
     Vector direction = new Vector(m_initDirection.X() + point.X()*m_xDir, m_initDirection.Y() + point.Y()*m_yDir, m_initDirection.Z());
     return direction;
   }
-  
+
   public Ray getRayToEye( Point pointFrom )
   {
     return new Ray( pointFrom, c_origin );
   }
-  
+
   public Ray getRay( Sample sample )
   {
     Ray r;
@@ -85,14 +85,31 @@ class Camera
       Vector rayDirection = directionInCameraSpaceTowards( point );
       r = new Ray( c_origin, rayDirection, true );
 
-      Point deltaXOrig = new Point(0,0,0);
-      Vector deltaXDir = new Vector( (sample.getX() - m_film.getDim().width()/2) * ( 2 * m_fovTan / m_film.getDim().width() ) , 0, 0 );
-      Vector deltaYDir = new Vector( 0, (sample.getY() - m_film.getDim().height()/2) * ( 2 * m_fovTan / m_film.getDim().height() ) , 0 );
-      Vector scaledXDirRay = cloneVec( r.getDirection() ); scaledXDirRay.scale( r.getDirection().dot(deltaXDir) );
-      Vector scaledYDirRay = cloneVec( r.getDirection() ); scaledYDirRay.scale( r.getDirection().dot(deltaYDir) );
+      Point deltaXOrig = new Point(0, 0, 0);
+      Vector deltaXDir = new Vector( (sample.getX() - m_film.getDim().width()/2) * ( 2 * m_fovTan / m_film.getDim().width() ), 0, 0 );
+      Vector deltaYDir = new Vector( 0, (sample.getY() - m_film.getDim().height()/2) * ( 2 * m_fovTan / m_film.getDim().height() ), 0 );
+      Vector scaledXDirRay = cloneVec( r.getDirection() ); 
+      scaledXDirRay.scale( r.getDirection().dot(deltaXDir) );
+      Vector scaledYDirRay = cloneVec( r.getDirection() ); 
+      scaledYDirRay.scale( r.getDirection().dot(deltaYDir) );
       deltaXDir.subtract( scaledXDirRay );
       deltaYDir.subtract( scaledYDirRay );
-      r.setDifferentials( deltaXOrig, deltaXOrig,  deltaXDir, deltaYDir );
+
+      if ( ( sample.getY() == 300 || sample.getY() == 100 ) && sample.getX() > 290 && sample.getX() < 310 )
+      {
+        Point point1 = new Point(sample.getX() + 1, sample.getY(), 0);
+        Vector rayDirection1 = directionInCameraSpaceTowards( point1 ); 
+        Ray ray = new Ray( c_origin, rayDirection, true );
+        Vector deltaXDir1 = new Vector( (sample.getX() + 1 - m_film.getDim().width()/2) * ( 2 * m_fovTan / m_film.getDim().width() ), 0, 0 );
+        Vector scaledXDirRay1 = cloneVec( ray.getDirection() ); 
+        scaledXDirRay.scale( ray.getDirection().dot(deltaXDir1) );
+        deltaXDir1.subtract( scaledXDirRay1 );
+        deltaXDir1.subtract(deltaXDir);
+        float deltaX = deltaXDir1.getMagnitude();
+        print(sample.getX() + " " + deltaX + "\n");
+      }
+
+      r.setDifferentials( deltaXOrig, deltaXOrig, deltaXDir, deltaYDir );
       //r.debugPrintDifferentials();
     }
     else
@@ -110,7 +127,7 @@ class Camera
 
     return r;
   }
-  
+
   public void enableShutterSpeed()
   {
     m_shutterEnabled = true;
@@ -121,28 +138,30 @@ class Film
 {
   private Rect m_screenDim;
   private Color[][] m_screenColor;
-  
+
   Film( Rect screenDim )
   {
     m_screenDim = screenDim;
     m_screenColor = new Color[ m_screenDim.height() ][ m_screenDim.width() ];
-    
+
     for (int i = 0; i < m_screenDim.height(); i++)
     {
       for (int j = 0; j < m_screenDim.width(); j++)
       {
-        m_screenColor[i][j] = new Color(0,0,0);  
+        m_screenColor[i][j] = new Color(0, 0, 0);
       }
     }
   }
 
-  public Rect getDim() { return m_screenDim; }
-  
+  public Rect getDim() { 
+    return m_screenDim;
+  }
+
   public void setRadiance( Sample sample, Color col )
   {
     m_screenColor[m_screenDim.height() - sample.getPixelY() - 1][sample.getPixelX()].addUnclamped(col);
   }
-  
+
   public void scaleExposure(int numSamples)
   {
     float scale = 1.0/numSamples;
@@ -154,7 +173,7 @@ class Film
       }
     }
   }
-  
+
   public void draw()
   {
     background (0, 0, 0);
@@ -172,3 +191,4 @@ class Film
     }
   }
 }
+
