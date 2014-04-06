@@ -25,60 +25,69 @@ class SamplerRenderingTask implements Task
     }
     Material primitiveMaterial = info.primitive().getMaterial();
     Color pixelColor = cloneCol( primitiveMaterial.ambient() );
+    
+    ray.updateDifferentialsTransfer( info.t(), info.normal() );
     for (int i = 0; i < lightManager.getNumLights(); i++)
     {
       Light light = lightManager.getLight(i);
       Ray shadowRay = light.getRay( info.point() );
       shadowRay.setTime( ray.getTime() );
       
-      float cosine = info.normal().dot( shadowRay.getDirection() );
-      if ( cosine < 0 ) //Dual sided lighting
+      //if ( m_scene.intersects( shadowRay ) == null )
       {
-        if ( info.fDualSided() )
+        float cosine = info.normal().dot( shadowRay.getDirection() );
+        if ( cosine < 0 ) //Dual sided lighting
         {
-          cosine = -cosine;
+          if ( info.fDualSided() )
+          {
+            cosine = -cosine;
+          }
+          else
+          {
+            cosine = 0;
+          }
+        }
+  
+        Color diffuseColor = null;
+        if ( primitiveMaterial.fHasTexture() )
+        {
+          if ( ray.getDelta(0) != null )
+          {
+            info.textureCoord().set(2, ray.getDelta(0).getMagnitude() * ( 2 * tan(PI/3) / 600 ));
+            //print("Here" + info.textureCoord().get(2));
+          }
+          diffuseColor = primitiveMaterial.getTextureColor( info.textureCoord() );
         }
         else
         {
-          cosine = 0;
-        }
-      }
-
-      Color diffuseColor = null;
-      if ( primitiveMaterial.fHasTexture() )
-      {
-        diffuseColor = primitiveMaterial.getTextureColor( info.textureCoord() );
-      }
-      else
-      {
-        diffuseColor = combineColor( primitiveMaterial.diffuse(), light.getColor() );
-      }        
-      diffuseColor.scale( cosine );
-
-      Color specularColor = new Color(0,0,0);
-      Color reflectedRayColor = new Color(0,0,0);
-      if ( primitiveMaterial.specular() != null )
-      {
-        Ray viewRay = m_scene.getCamera().getRayToEye( info.point() );
-        Vector halfVector = cloneVec( shadowRay.getDirection() );
-        halfVector.add( viewRay.getDirection() );
-        halfVector.normalize();
-        specularColor.add( primitiveMaterial.specular() );
-        float cosineHalf = pow( info.normal().dot( halfVector ), primitiveMaterial.power() ); ;
-        specularColor.scale( cosineHalf );
-        
-        if ( depth < MAX_DEPTH )
+          diffuseColor = combineColor( primitiveMaterial.diffuse(), light.getColor() );
+        }        
+        diffuseColor.scale( cosine );
+  
+        Color specularColor = new Color(0,0,0);
+        if ( primitiveMaterial.specular() != null )
         {
-          Ray reflectedRay = ray.reflect( info.normal(), info.point() );
-          reflectedRayColor = cloneCol( computeRadiance( reflectedRay, depth+1 ) );
-          reflectedRayColor.scale( primitiveMaterial.reflectConst() );
+          Ray viewRay = m_scene.getCamera().getRayToEye( info.point() );
+          Vector halfVector = cloneVec( shadowRay.getDirection() );
+          halfVector.add( viewRay.getDirection() );
+          halfVector.normalize();
+          specularColor.add( primitiveMaterial.specular() );
+          float cosineHalf = pow( info.normal().dot( halfVector ), primitiveMaterial.power() ); ;
+          specularColor.scale( cosineHalf );        
         }
-      }
 
-      pixelColor.add( diffuseColor );
-      pixelColor.add( specularColor );
-      pixelColor.add( reflectedRayColor );
+        pixelColor.add( diffuseColor );
+        pixelColor.add( specularColor );
+      }
     }
+    Color reflectedRayColor = new Color(0,0,0);
+    if ( primitiveMaterial.specular() != null && depth < MAX_DEPTH )
+    {
+       Ray reflectedRay = ray.reflect( info.normal(), info.point() );
+       reflectedRayColor = cloneCol( computeRadiance( reflectedRay, depth+1 ) );
+       reflectedRayColor.scale( primitiveMaterial.reflectConst() );
+    }
+    pixelColor.add( reflectedRayColor );
     return pixelColor;
   }
   

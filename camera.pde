@@ -84,6 +84,16 @@ class Camera
       Point point = new Point(sample.getX(), sample.getY(), 0);
       Vector rayDirection = directionInCameraSpaceTowards( point );
       r = new Ray( c_origin, rayDirection, true );
+
+      Point deltaXOrig = new Point(0,0,0);
+      Vector deltaXDir = new Vector( (sample.getX() - m_film.getDim().width()/2) * ( 2 * m_fovTan / m_film.getDim().width() ) , 0, 0 );
+      Vector deltaYDir = new Vector( 0, (sample.getY() - m_film.getDim().height()/2) * ( 2 * m_fovTan / m_film.getDim().height() ) , 0 );
+      Vector scaledXDirRay = cloneVec( r.getDirection() ); scaledXDirRay.scale( r.getDirection().dot(deltaXDir) );
+      Vector scaledYDirRay = cloneVec( r.getDirection() ); scaledYDirRay.scale( r.getDirection().dot(deltaYDir) );
+      deltaXDir.subtract( scaledXDirRay );
+      deltaYDir.subtract( scaledYDirRay );
+      r.setDifferentials( deltaXOrig, deltaXOrig,  deltaXDir, deltaYDir );
+      //r.debugPrintDifferentials();
     }
     else
     {

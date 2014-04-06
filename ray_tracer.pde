@@ -5,8 +5,8 @@
 ///////////////////////////////////////////////////////////////////////
 
 
-int screen_width = 300;
-int screen_height = 300;
+int screen_width = 600;
+int screen_height = 600;
 
 // the current active file name
 SceneBuilder gCurrentFile;

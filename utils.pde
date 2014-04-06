@@ -93,6 +93,20 @@ class Point
     m_p[2] = z;
   }
 
+  public float getMagnitude()
+  {
+    return sqrt( getMagnitudeSquare() );
+  }
+  
+  public float getMagnitudeSquare()
+  {
+    float[] val = new float[3];
+    val[0] = m_p[0] * m_p[0];
+    val[1] = m_p[1] * m_p[1];
+    val[2] = m_p[2] * m_p[2];
+    return val[0] + val[1] + val[2];
+  }
+
   void set( int index, float value ) { m_p[index] = value; }
   void setX( float x ) { m_p[0] = x; }
   void setY( float y ) { m_p[1] = y; }
@@ -238,23 +252,33 @@ class Ray
   private Vector m_dir;
   private float m_time;
   
+  //Ray differentials
+  private Point[] m_deltaOrig;
+  private Vector[] m_deltaDir;
+  
   Ray(Point orig, Point other)
   {
     this( orig, other, true );
     m_time = 0;
+    m_deltaOrig = null;
+    m_deltaDir = null;
   }
   
   Ray(Point orig, Vector direction)
   {
     this( orig, direction, true );
     m_time = 0;
+    m_deltaOrig = null;
+    m_deltaDir = null;
   }
-
+  
   Ray(Point orig, Point other, boolean fNormalize)
   {
     m_time = 0;
     m_orig = orig;
     m_dir = new Vector(orig, other);
+    m_deltaOrig = null;
+    m_deltaDir = null;
     if ( fNormalize )
     {
       m_dir.normalize();
@@ -266,6 +290,8 @@ class Ray
     m_time = 0;
     m_orig = orig;
     m_dir = direction;
+    m_deltaOrig = null;
+    m_deltaDir = null;
     if ( fNormalize )
     {
       m_dir.normalize();
@@ -283,6 +309,36 @@ class Ray
     return new Ray( displacedPoint, direction );
   }
   
+  void setDifferentials( Point dx, Point dy, Vector dDirX, Vector dDirY )
+  {
+    m_deltaOrig = new Point[2];
+    m_deltaDir = new Vector[2];
+    m_deltaOrig[0] = dx; m_deltaOrig[1] = dy;
+    m_deltaDir[0] = dDirX; m_deltaDir[1] = dDirY;
+  }
+  
+  void updateDifferentialsTransfer( float t, Vector normal )
+  {
+    if (m_deltaOrig != null)
+    { 
+      Vector delPTDelDX =  new Vector(0,0,0);
+      Vector delPTDelDY = new Vector(0,0,0);
+      for (int i = 0; i < 3; i++)
+      {
+        delPTDelDX.set( i, m_deltaOrig[0].get(i) + t * m_deltaDir[0].get(i) );
+        delPTDelDY.set( i, m_deltaOrig[1].get(i) + t * m_deltaDir[1].get(i) );
+      }
+      float delTDelX = -delPTDelDX.dot(normal);
+      float delTDelY = -delPTDelDY.dot(normal);
+      
+      for (int i = 0; i < 3; i++)
+      {
+        m_deltaOrig[0].set( i, delPTDelDX.get(i) + delTDelX * m_deltaDir[0].get(i) );
+        m_deltaOrig[1].set( i, delPTDelDY.get(i) + delTDelY * m_deltaDir[1].get(i) );
+      }
+    }
+  }
+  
   void setTime( float time )
   {
     m_time = time;
@@ -296,6 +352,26 @@ class Ray
   Point getOrigin() { return m_orig; }
   
   Vector getDirection() { return m_dir; }
+  
+  Point getDeltaX() { if (m_deltaOrig == null) return null; return m_deltaOrig[0]; }
+  Point getDeltaY() { if (m_deltaOrig == null) return null; return m_deltaOrig[1]; }
+  Vector getDeltaDirX() { if (m_deltaDir == null) return null; return m_deltaDir[0]; }
+  Vector getDeltaDirY() { if (m_deltaDir == null) return null; return m_deltaDir[1]; }
+  Point getDelta(int index) { if (m_deltaOrig == null) return null; return m_deltaOrig[index]; }
+  Vector getDeltaDir(int index) { if (m_deltaDir == null) return null; return m_deltaDir[index]; }
+  
+  void debugPrintDifferentials()
+  {
+    if ( count++ < 100 )
+    {
+      print("Begin Ray Differential : \n");
+      m_deltaOrig[0].debugPrint();
+      m_deltaOrig[1].debugPrint();
+      m_deltaDir[0].debugPrint();
+      m_deltaDir[1].debugPrint();
+      print("End Ray Differential : \n");
+    }
+  }
   
   void debugPrint()
   {

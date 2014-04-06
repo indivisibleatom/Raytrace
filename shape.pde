@@ -226,8 +226,8 @@ class NonCanonSphere implements Shape
 
       Vector intersectToOrigin = new Vector( intersectionPoint, m_center );
       intersectToOrigin.normalize();
-      float u = 0.5 + atan2(intersectToOrigin.Z(), intersectToOrigin.X())/(2*PI);
-      float v = 0.5 - asin(intersectToOrigin.Y())/PI;
+      float u = 0.5 + atan2(intersectToOrigin.Y(), intersectToOrigin.X())/(2*PI);
+      float v = 0.5 - asin(intersectToOrigin.Z())/PI;
       return new ShapeIntersectionInfo( intersectionPoint, normal, new Point(u,v,1), minT, false ); //Texture mapping of non canon sphere not supported right now
     }
   }
@@ -389,12 +389,13 @@ class Triangle implements Shape
     return m_boundingBox;
   }
   
-  private float[] getTextureCoordScaled( float u, float v )
+  private float[] getTextureCoordScaled( float u, float v, Ray r )
   {
-    float[] textureCoordinates = new float[2];  
+    float[] textureCoordinates = new float[3];  
     
     textureCoordinates[0] = (1-u-v)*m_textureCoords[0].X() + u*m_textureCoords[1].X() + v*m_textureCoords[2].X();
     textureCoordinates[1] = (1-u-v)*m_textureCoords[0].Y() + u*m_textureCoords[1].Y() + v*m_textureCoords[2].Y();
+    textureCoordinates[2] = 0;
     
     return textureCoordinates;
   }
@@ -443,8 +444,8 @@ class Triangle implements Shape
     {
       u /= det;
       v /= det;
-      float textureCoords[] = getTextureCoordScaled( u, v );
-      textureCoord.set( textureCoords[0], textureCoords[1], 0 );
+      float textureCoords[] = getTextureCoordScaled( u, v, ray );
+      textureCoord.set( textureCoords[0], textureCoords[1], textureCoords[2] );
     }
     return tIntersection;
   }
