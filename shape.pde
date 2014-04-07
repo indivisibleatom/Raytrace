@@ -255,7 +255,7 @@ class NonCanonSphere implements Shape
     Point shiftedY = clonePt( intersectionPoint );
     Point deltaX = ray.getDeltaX();
     Point deltaY = ray.getDeltaY();
-    float delta = 0.05;
+    float delta = 0.1;
     shiftedX.set( shiftedX.X() + delta * deltaX.X(), shiftedX.Y() + delta * deltaX.Y(), shiftedX.Z() + delta * deltaX.Z() );
     Point uvDeltaX = getTextureCoords( shiftedX );
     shiftedY.set( shiftedY.X() + delta * deltaY.X(), shiftedY.Y() + delta * deltaY.Y(), shiftedY.Z() + delta * deltaY.Z() );
@@ -266,10 +266,10 @@ class NonCanonSphere implements Shape
     Vector v2 = new Vector( uv, uvDeltaY );
     v2.scale(1.0/delta);
 
-    float m1 = delta * v1.getMagnitude();
+    float m1 = ( 2 * tan(PI/6) / 600 ) * v1.getMagnitude();
     m1 = abs(m1);
     if  ( m1 > 1 ) m1 = 2 - m1;
-    float m2 = delta * v2.getMagnitude();
+    float m2 = ( 2 * tan(PI/6) / 600 ) * v2.getMagnitude();
     m2 = abs(m2);
     if  ( m2 > 1 ) m2 = 2 - m2;
     
