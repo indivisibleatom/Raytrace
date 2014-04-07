@@ -266,18 +266,18 @@ class NonCanonSphere implements Shape
     Vector v2 = new Vector( uv, uvDeltaY );
     v2.scale(1.0/delta);
 
-    float m1 = ( 2 * tan(PI/6) / 600 ) * v1.getMagnitude();
+    float m1 = v1.getMagnitude();
     m1 = abs(m1);
     if  ( m1 > 1 ) m1 = 2 - m1;
-    float m2 = ( 2 * tan(PI/6) / 600 ) * v2.getMagnitude();
+    float m2 = v2.getMagnitude();
     m2 = abs(m2);
     if  ( m2 > 1 ) m2 = 2 - m2;
     
     //if ( m1 > 1 || m2 > 1 )
     {
-      print( m1 + " " + m2 + "    ");
+      //print( info.t() + " " + m1 + " " + m2 + "    ");
     }
-    return m1 < m2 ? m1 : m2;
+    return m1 > m2 ? m1 : m2;
   }
 
   public Box getBoundingBox()

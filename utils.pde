@@ -336,6 +336,7 @@ class Ray
         m_deltaOrig[0].set( i, delPTDelDX.get(i) + delTDelX * m_dir.get(i) );
         m_deltaOrig[1].set( i, delPTDelDY.get(i) + delTDelY * m_dir.get(i) );
       }
+      //print(t + " " + m_deltaOrig[0].X() + " " + m_deltaOrig[0].Y() + " " + m_deltaOrig[0].Z() + "    "); 
     }
   }
   
