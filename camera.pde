@@ -6,18 +6,32 @@ class Camera
   private float m_aperture;
   private float m_fovTan;
   private boolean m_shutterEnabled;
+  private Point m_position; 
 
   //Increments in ray direction in camera spaer per pixel movement in file space
   private float m_xDir;
   private float m_yDir;
   private Vector m_initDirection;
-
+  
   Camera( float fov, int zNear, Rect screenDim )
   {
     m_fov = fov * (PI / 180);
     m_film = new Film( screenDim );
     m_aperture = 0;
     m_shutterEnabled = false;
+    m_position = new Point(0,0,0);
+  }
+  
+  public void moveForward()
+  {
+    m_position.setZ( m_position.Z() - 0.1 );
+    g_scene.reRender();
+  }
+  
+  public void moveBackward()
+  {
+    m_position.setZ( m_position.Z() + 0.1 );
+    g_scene.reRender();
   }
 
   public void setLensParams( float aperture, float distance )
@@ -61,7 +75,7 @@ class Camera
   public Point getPointOnFocalPlane( Vector rayDirection )
   {
     float tz = -m_focalLength / rayDirection.Z();    
-    Point pOnFocalPlane = new Point( c_origin, rayDirection, tz );
+    Point pOnFocalPlane = new Point( m_position, rayDirection, tz );
     return pOnFocalPlane;
   }
 
@@ -83,7 +97,7 @@ class Camera
     {
       Point point = new Point(sample.getX(), sample.getY(), 0);
       Vector rayDirection = directionInCameraSpaceTowards( point );
-      r = new Ray( c_origin, rayDirection, true );
+      r = new Ray( m_position, rayDirection, true );
 
       Point deltaXOrig = new Point(0, 0, 0);
       Vector right = new Vector( ( 2.0 * m_fovTan / m_film.getDim().width() ), 0, 0 );
@@ -166,7 +180,10 @@ class Film
   {
     m_screenDim = screenDim;
     m_screenColor = new Color[ m_screenDim.height() ][ m_screenDim.width() ];
-
+  }
+  
+  public void clear()
+  {
     for (int i = 0; i < m_screenDim.height(); i++)
     {
       for (int j = 0; j < m_screenDim.width(); j++)

@@ -1,3 +1,5 @@
+Scene g_scene;
+
 class SceneBuilder
 {
   Scene m_scene;
@@ -8,6 +10,7 @@ class SceneBuilder
   SceneBuilder()
   {
     m_scene = new Scene();
+    g_scene = m_scene;
     m_verticesCached = new ArrayList<Point>();
     m_textureCoordinates = new ArrayList<Point>();
   }

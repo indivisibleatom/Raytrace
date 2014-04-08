@@ -37,6 +37,7 @@ void keyPressed() {
     case '8':  gCurrentFile = new SceneBuilder(); gCurrentFile.buildScene("t08.cli"); break;
     case '9':  gCurrentFile = new SceneBuilder(); gCurrentFile.buildScene("t09.cli"); break;
     case 'q':  exit(); break;
+    case 'w':  g_scene.getCamera().moveForward();
   }
 }
 
@@ -48,6 +49,7 @@ void keyPressed() {
 //  Note: Function "splitToken()" is only available in processing 1.25 or higher.
 
 //  Draw frames.  Should be left empty.
-void draw() {
+void draw() 
+{
 }
 

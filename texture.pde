@@ -49,7 +49,7 @@ class ImageTexture
     return (col);
   }
   
-  PVector color_valueAniso (PVector uvw) 
+  /*PVector color_valueAniso (PVector uv, PVector xy) 
   { 
     int i,j;
     int ii,jj;
@@ -58,20 +58,27 @@ class ImageTexture
     PVector c00,c10,c01,c11;
     PVector c0,c1,ca,cb,c;
     
-    float u = uvw.x;
-    float v = uvw.y;
-    float uv_width = uvw.z;
+    float u = uv.x;
+    float v = uv.y;
+    float uv_widthX = xy.x;
+    float uv_heightX = xy.y;
     
     // calculate the mipmap level to use, based on
     // the width of the pixel's footprint
     
-    if (uv_width < 1e-8) uv_width = 1e-8;
-    float lev = levels - 1 + log (uv_width) / log (2.0);
-    if (lev < 0) lev = 0;
-    if (lev >= levels-1) lev = levels - 1.01;
+    if (uv_widthX < 1e-8) uv_widthX = 1e-8;
+    if (uv_widthY < 1e-8) uv_widthY = 1e-8;
+    float levX = levels - 1 + log (uv_widthX) / log (2.0);
+    float levY = levels - 1 + log (uv_widthY) / log (2.0);
+    if (levX < 0) levX = 0;
+    if (levY < 0) levY = 0;
+    if (levX >= levels-1) levX = levels - 1.01;
+    if (levY >= levels-1) levY = levels - 1.01;
     
-    int level = int (lev);
-    float level_fract = lev - level;
+    int levelX = int (levX);
+    int levelY = int (levY)
+    float level_fractX = levX - levelX;
+    float level_fractY = levY - levelY;
     
     // clamp the texture coordinates
     if (u < 0) u = 0;
@@ -80,8 +87,8 @@ class ImageTexture
     if (v > 1) v = 1;
     
     // determine fractional position between texels
-    ufloat = u * image_pyramid[level].width;
-    vfloat = (1 - v) * image_pyramid[level].height;
+    ufloat = u * image_pyramid[levelX].width;
+    vfloat = (1 - v) * image_pyramid[levelX].height;
     i = (int) (ufloat);
     j = (int) (vfloat);
     s = ufloat - i;
@@ -130,7 +137,7 @@ class ImageTexture
     c = PVector.lerp (ca, cb, level_fract);
     
     return (c);
-  }
+  }*/
   
   // Return the color from a mipmap, based on texture coordinates and filter width.
   // The filter width is a distance in texture space.

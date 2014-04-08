@@ -80,7 +80,21 @@ class Scene
   public void raytrace()
   {
     long startTime = System.currentTimeMillis();
+    m_camera.getFilm().clear();
     m_sceneManager.buildScene();
+    long createTime = System.currentTimeMillis();
+    print( "Diagnostic self log : Time taken for tree creation " + (createTime - startTime)/1000.0 + "seconds\n");
+    m_renderer.render( this );
+    long endTime = System.currentTimeMillis();
+    print( "Diagnostic self log : Time for rendering " + (endTime - createTime)/1000.0 + "seconds\n");
+    print( "Count of logged info " + count + "\n");
+    redraw();
+  }
+  
+  public void reRender()
+  {
+    long startTime = System.currentTimeMillis();
+    m_camera.getFilm().clear();
     long createTime = System.currentTimeMillis();
     print( "Diagnostic self log : Time taken for tree creation " + (createTime - startTime)/1000.0 + "seconds\n");
     m_renderer.render( this );
