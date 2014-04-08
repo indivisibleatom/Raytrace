@@ -37,6 +37,9 @@ class Box implements Shape
           m_extent2.set(i, temp);
         }
       }
+      
+      m_extent1.debugPrint();
+      m_extent2.debugPrint();
 
       calculateAxisAligned();
     }
@@ -268,9 +271,9 @@ class Box implements Shape
     return tExtents;
   }
   
-  public float getTextureDifferential( Ray r, IntersectionInfo info )
+  public float[] getTextureDifferentials( Ray r, IntersectionInfo info )
   {
-    return -1; //TODO msati3: Implement for Box
+    return null; //TODO msati3: Implement for Box
   }
  
   public ShapeIntersectionInfo getIntersectionInfo( Ray ray, float tMin, float tMax )
@@ -476,9 +479,9 @@ class BoundingBox implements LightedPrimitive
     return null;
   }
   
-  public float getTextureDifferential( Ray r, IntersectionInfo info )
+  public float[] getTextureDifferentials( Ray r, IntersectionInfo info )
   {
-    return -1;
+    return null;
   }
 }
 

@@ -322,7 +322,7 @@ class Ray
   {
     m_deltaOrig = new Point[2];
     m_deltaDir = new Vector[2];
-    m_deltaOrig[0] = dx; m_deltaOrig[1] = dy;
+    m_deltaOrig[0] = clonePt(dx); m_deltaOrig[1] = clonePt(dy);
     m_deltaDir[0] = dDirX; m_deltaDir[1] = dDirY;
   }
   
@@ -337,6 +337,7 @@ class Ray
         delPTDelDX.set( i, m_deltaOrig[0].get(i) + t * m_deltaDir[0].get(i) );
         delPTDelDY.set( i, m_deltaOrig[1].get(i) + t * m_deltaDir[1].get(i) );
       }
+
       float delTDelX = -delPTDelDX.dot(normal) / m_dir.dot(normal);
       float delTDelY = -delPTDelDY.dot(normal) / m_dir.dot(normal);
       //float delTDelX = 0;
@@ -344,10 +345,10 @@ class Ray
       
       for (int i = 0; i < 3; i++)
       {
+        //print( (delPTDelDX.get(i) + delTDelX * m_dir.get(i)) + " " + (delPTDelDY.get(i) + delTDelY * m_dir.get(i)) + "    ");
         m_deltaOrig[0].set( i, delPTDelDX.get(i) + delTDelX * m_dir.get(i) );
         m_deltaOrig[1].set( i, delPTDelDY.get(i) + delTDelY * m_dir.get(i) );
       }
-      //print(t + " " + m_deltaOrig[0].X() + " " + m_deltaOrig[0].Y() + " " + m_deltaOrig[0].Z() + "    "); 
     }
   }
   

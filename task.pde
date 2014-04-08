@@ -33,7 +33,7 @@ class SamplerRenderingTask implements Task
       Ray shadowRay = light.getRay( info.point() );
       shadowRay.setTime( ray.getTime() );
       
-      //if ( m_scene.intersects( shadowRay ) == null )
+      if ( m_scene.intersects( shadowRay ) == null )
       {
         float cosine = info.normal().dot( shadowRay.getDirection() );
         if ( cosine < 0 ) //Dual sided lighting
@@ -52,11 +52,14 @@ class SamplerRenderingTask implements Task
         if ( primitiveMaterial.fHasTexture() )
         {
           if ( ray.getDelta(0) != null )
-          {            
-            info.textureCoord().set(2, info.primitive().getTextureDifferential( ray, info ));
-            //print("Here" + info.textureCoord().get(2));
+          {
+            float[] differentials = info.primitive().getTextureDifferentials( ray, info );
+            diffuseColor = primitiveMaterial.getTextureColor( info.textureCoord(), differentials[0], differentials[1] );
           }
-          diffuseColor = primitiveMaterial.getTextureColor( info.textureCoord() );
+          else
+          {
+            diffuseColor = primitiveMaterial.getTextureColor( info.textureCoord(), 0, 0 );
+          }
         }
         else
         {

@@ -40,7 +40,7 @@ class Transformation
     m_inverse = m_transformation.get();
     m_inverse.invert();
     m_invTranspose = m_inverse.get();
-    m_invTranspose.invert();
+    m_invTranspose.transpose();
   }
   
   void clone( Transformation other )

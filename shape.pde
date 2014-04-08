@@ -3,7 +3,7 @@ interface Shape
   public Box getBoundingBox();
   public boolean intersects( Ray ray, float tMin, float tMax );
   public ShapeIntersectionInfo getIntersectionInfo( Ray ray, float tMin, float tMax );
-  public float getTextureDifferential( Ray r, IntersectionInfo info );
+  public float[] getTextureDifferentials( Ray r, IntersectionInfo info );
 }
 
 class Sphere implements Shape
@@ -123,9 +123,9 @@ class Sphere implements Shape
     return intersectsCanonical( rayLocal, tMin, tMax );
   }
   
-  public float getTextureDifferential( Ray r, IntersectionInfo info )
+  public float[] getTextureDifferentials( Ray r, IntersectionInfo info )
   {
-    return -1;
+    return null;
   }
 
   public ShapeIntersectionInfo getIntersectionInfo( Ray ray, float tMin, float tMax )
@@ -246,10 +246,11 @@ class NonCanonSphere implements Shape
     }
   }
   
-  public float getTextureDifferential( Ray ray, IntersectionInfo info )
+  public float[] getTextureDifferentials( Ray ray, IntersectionInfo info )
   {
     Point intersectionPoint = info.point();
     Point uv = info.textureCoord();
+    float[] retVal = new float[2]; 
     uv.setZ(0);
 
     Point shiftedX = clonePt( intersectionPoint );
@@ -273,12 +274,8 @@ class NonCanonSphere implements Shape
     float m2 = v2.getMagnitude();
     m2 = abs(m2);
     if  ( m2 > 1 ) m2 = 2 - m2;
-    
-    //if ( m1 > 1 || m2 > 1 )
-    {
-      //print( info.t() + " " + m1 + " " + m2 + "    ");
-    }
-    return m1 > m2 ? m1 : m2;
+    retVal[0] = m1; retVal[1] = m2;
+    return retVal;
   }
 
   public Box getBoundingBox()
@@ -391,9 +388,9 @@ class MovingSphere implements Shape
     }
   }
 
-  public float getTextureDifferential( Ray r, IntersectionInfo info )
+  public float[] getTextureDifferentials( Ray r, IntersectionInfo info )
   {
-    return -1;
+    return null;
   }
 
   public Box getBoundingBox()
@@ -504,10 +501,11 @@ class Triangle implements Shape
     return tIntersection;
   }
   
-  public float getTextureDifferential( Ray ray, IntersectionInfo info )
+  public float[] getTextureDifferentials( Ray ray, IntersectionInfo info )
   {
     Point uv = info.textureCoord();
     uv.setZ(0);
+    float[] retVal = new float[2];
     Vector deltaX = new Vector( new Point(0,0,0), ray.getDeltaX() );
     Vector deltaY = new Vector( new Point(0,0,0), ray.getDeltaY() );
     
@@ -542,7 +540,9 @@ class Triangle implements Shape
     m2 = abs(m2);
     if  ( m2 > 1 ) m2 = 2 - m2;
 
-    return m1 > m2 ? m1 : m2;
+    retVal[0] = m1;
+    retVal[1] = m2;
+    return retVal;
   }
 
   public boolean intersects( Ray ray, float tMin, float tMax )

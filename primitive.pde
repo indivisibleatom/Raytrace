@@ -8,7 +8,7 @@ interface LightedPrimitive extends Primitive
 {
   public Material getMaterial();
   public Box getBoundingBox();
-  public float getTextureDifferential( Ray r, IntersectionInfo info );
+  public float[] getTextureDifferentials( Ray r, IntersectionInfo info );
 }
 
 class GeometricPrimitive implements LightedPrimitive
@@ -50,9 +50,9 @@ class GeometricPrimitive implements LightedPrimitive
     return new IntersectionInfo( this, shapeInfo );
   }
   
-  public float getTextureDifferential( Ray r, IntersectionInfo info )
+  public float[] getTextureDifferentials( Ray r, IntersectionInfo info )
   {
-    return m_shape.getTextureDifferential( r, info );
+    return m_shape.getTextureDifferentials( r, info );
   }
   
   public Material getMaterial() { return m_material; }
@@ -103,9 +103,9 @@ class InstancePrimitive implements LightedPrimitive
     return new IntersectionInfo( this, intersectionInfo );
   }
   
-  public float getTextureDifferential( Ray r, IntersectionInfo info )
+  public float[] getTextureDifferentials( Ray r, IntersectionInfo info )
   {
-    return m_primitive.getTextureDifferential( r, info );
+    return m_primitive.getTextureDifferentials( r, info );
   }
   
   public Material getMaterial()

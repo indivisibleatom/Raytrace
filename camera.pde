@@ -124,12 +124,12 @@ class Camera
         Vector rayDirection1 = directionInCameraSpaceTowards( point1 ); 
         Vector rayDirection2 = directionInCameraSpaceTowards( point2 );
         Vector deltaRayDirection = cloneVec( rayDirection1 );
+        Vector deltaRayDirection1 = cloneVec( rayDirection2 );
+        rayDirection.normalize();
         
         deltaRayDirection.normalize();  
-        rayDirection.normalize();
         deltaRayDirection.subtract( rayDirection );
         
-        Vector deltaRayDirection1 = cloneVec( rayDirection2 );
         deltaRayDirection1.normalize();  
         deltaRayDirection1.subtract( rayDirection );
         

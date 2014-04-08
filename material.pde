@@ -39,4 +39,14 @@ class Material
     PVector colorLookUp = m_texture.color_value( lookUpCoord );
     return new Color( colorLookUp.x,colorLookUp.y, colorLookUp.z ); 
   }
+  
+  public Color getTextureColor( Point textureCoord, float footPrintX, float footPrintY )
+  {
+    PVector lookUpCoord = new PVector( textureCoord.X(), textureCoord.Y(), textureCoord.Z() );
+    PVector footPrint = new PVector( footPrintX, footPrintY );
+    lookUpCoord.z = footPrintX > footPrintY ? footPrintX : footPrintY ;
+    //PVector colorLookUp = m_texture.color_valueAniso( lookUpCoord,  footPrint );
+    PVector colorLookUp = m_texture.color_value( lookUpCoord );
+    return new Color( colorLookUp.x,colorLookUp.y, colorLookUp.z ); 
+  }
 }
