@@ -250,12 +250,13 @@ class NonCanonSphere implements Shape
   {
     Point intersectionPoint = info.point();
     Point uv = info.textureCoord();
+    uv.setZ(0);
 
     Point shiftedX = clonePt( intersectionPoint );
     Point shiftedY = clonePt( intersectionPoint );
     Point deltaX = ray.getDeltaX();
     Point deltaY = ray.getDeltaY();
-    float delta = 0.1;
+    float delta = 0.01;
     shiftedX.set( shiftedX.X() + delta * deltaX.X(), shiftedX.Y() + delta * deltaX.Y(), shiftedX.Z() + delta * deltaX.Z() );
     Point uvDeltaX = getTextureCoords( shiftedX );
     shiftedY.set( shiftedY.X() + delta * deltaY.X(), shiftedY.Y() + delta * deltaY.Y(), shiftedY.Z() + delta * deltaY.Z() );
@@ -505,7 +506,41 @@ class Triangle implements Shape
   
   public float getTextureDifferential( Ray ray, IntersectionInfo info )
   {
-    return 0.2 * ray.getDelta(1).getMagnitude() * ( 2 * tan(PI/3) / 600 );
+    Point uv = info.textureCoord();
+    uv.setZ(0);
+    Vector deltaX = new Vector( new Point(0,0,0), ray.getDeltaX() );
+    Vector deltaY = new Vector( new Point(0,0,0), ray.getDeltaY() );
+    
+    Vector La = new Vector( m_vertices[1], m_vertices[2] );
+    Vector P = new Vector( new Point(0,0,0), m_vertices[0] );
+    float dot = P.dot(La);
+    La.scale( 1/dot );
+    
+    Vector Lb = new Vector( m_vertices[2], m_vertices[0] );
+    P = new Vector( new Point(0,0,0), m_vertices[1] );
+    dot = P.dot(Lb);
+    Lb.scale( 1/dot );
+    
+    Vector Lc = new Vector( m_vertices[0], m_vertices[1] );
+    P = new Vector( new Point(0,0,0), m_vertices[2] );
+    dot = P.dot(Lc);
+    Lc.scale( 1/dot );
+    
+    Point DtDx = new Point( La.dot(deltaX), Lb.dot(deltaX), Lc.dot(deltaX), m_textureCoords[0], m_textureCoords[1], m_textureCoords[2] );
+    Point DtDy = new Point( La.dot(deltaY), Lb.dot(deltaY), Lc.dot(deltaY), m_textureCoords[0], m_textureCoords[1], m_textureCoords[2] );
+    
+    float m1 = DtDx.getMagnitude();
+    m1 = abs(m1);
+    if  ( m1 > 1 ) m1 = 2 - m1;
+    float m2 = DtDy.getMagnitude();
+    m2 = abs(m2);
+    if  ( m2 > 1 ) m2 = 2 - m2;
+    
+    //if ( m1 > 1 || m2 > 1 )
+    {
+      //print( info.t() + " " + m1 + " " + m2 + "    ");
+    }
+    return m1 > m2 ? m1 : m2;
   }
 
   public boolean intersects( Ray ray, float tMin, float tMax )

@@ -110,6 +110,7 @@ class Camera
         Vector rayDirection1 = directionInCameraSpaceTowards( point1 ); 
         Vector rayDirection2 = directionInCameraSpaceTowards( point2 );
         Vector deltaRayDirection = cloneVec( rayDirection1 );
+        
         deltaRayDirection.normalize();  
         rayDirection.normalize();
         deltaRayDirection.subtract( rayDirection );
@@ -126,8 +127,8 @@ class Camera
         denom = 1/pow(rayDirection1.dot(rayDirection1), 1.5);
         deltaXDir1.scale( denom );
         float deltaX = deltaXDir1.getMagnitude();*/
-        float deltaD = deltaXDir.getMagnitude();
-        print(sample.getX() + " " + deltaRayDirection.getMagnitude() + " " + deltaD + "\n");
+        //float deltaD = deltaXDir.getMagnitude();
+        //print(sample.getX() + " " + deltaRayDirection.getMagnitude() + " " + deltaD + "\n");
       //}
 
       r.setDifferentials( deltaXOrig, deltaXOrig, deltaRayDirection, deltaRayDirection1 );

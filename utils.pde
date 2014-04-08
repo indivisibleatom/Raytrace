@@ -53,6 +53,15 @@ class Point
     this(r.getOrigin(), r.getDirection(), t);
   }
   
+  Point( float a, float b, float c, Point p1, Point p2, Point p3 )
+  {
+    m_p = new float[3];
+    for (int i = 0; i < 3; i++)
+    {
+      m_p[i] = a*p1.get(i) + b*p2.get(i) + c*p3.get(i);
+    }
+  }
+  
   public float X() { return m_p[0]; }
   public float Y() { return m_p[1]; }
   public float Z() { return m_p[2]; }
@@ -328,8 +337,10 @@ class Ray
         delPTDelDX.set( i, m_deltaOrig[0].get(i) + t * m_deltaDir[0].get(i) );
         delPTDelDY.set( i, m_deltaOrig[1].get(i) + t * m_deltaDir[1].get(i) );
       }
-      float delTDelX = -delPTDelDX.dot(normal) / m_dir.dot(normal);
-      float delTDelY = -delPTDelDY.dot(normal) / m_dir.dot(normal);
+      //float delTDelX = -delPTDelDX.dot(normal) / m_dir.dot(normal);
+      //float delTDelY = -delPTDelDY.dot(normal) / m_dir.dot(normal);
+      float delTDelX = 0;
+      float delTDelY = 0;
       
       for (int i = 0; i < 3; i++)
       {
