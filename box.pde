@@ -294,7 +294,7 @@ class Box implements Shape
   {
     return null; //TODO msati3: Implement for Box
   }
- 
+  
   public ShapeIntersectionInfo getIntersectionInfo( Ray ray, float tMin, float tMax )
   {
     BoxIntersectionInfoInternal info = internalIntersect(ray);
@@ -496,6 +496,11 @@ class BoundingBox implements LightedPrimitive
   public Material getMaterial()
   {
     return null;
+  }
+  
+  public Shape getShape()
+  {
+    return m_box;
   }
   
   public float[] getTextureDifferentials( Ray r, IntersectionInfo info )

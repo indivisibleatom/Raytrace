@@ -7,6 +7,7 @@ interface Primitive
 interface LightedPrimitive extends Primitive
 {
   public Material getMaterial();
+  public Shape getShape();
   public Box getBoundingBox();
   public float[] getTextureDifferentials( Ray r, IntersectionInfo info );
 }
@@ -56,6 +57,7 @@ class GeometricPrimitive implements LightedPrimitive
   }
   
   public Material getMaterial() { return m_material; }
+  public Shape getShape() { return m_shape; }
 }
 
 //Stores a reference to the actual primitive and a reference to a transform to take
@@ -99,6 +101,7 @@ class InstancePrimitive implements LightedPrimitive
 
     Point point = m_transform.localToWorld( localInfo.point() );
     Vector normal = m_transform.localToWorldNormal( localInfo.normal() );
+
     ShapeIntersectionInfo intersectionInfo = new ShapeIntersectionInfo( point, normal, localInfo.textureCoord(), localInfo.t()*scale, localInfo.fDualSided() );
     return new IntersectionInfo( this, intersectionInfo );
   }
@@ -111,6 +114,11 @@ class InstancePrimitive implements LightedPrimitive
   public Material getMaterial()
   {
     return m_primitive.getMaterial(); 
+  }
+  
+  public Shape getShape()
+  {
+    return m_primitive.getShape();
   }
   
   public Box getBoundingBox()

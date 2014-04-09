@@ -1009,6 +1009,11 @@ class KDTree implements LightedPrimitive
     return null;
   }
   
+  public Shape getShape()
+  {
+    return null;
+  }
+  
   public float[] getTextureDifferentials( Ray r, IntersectionInfo info )
   {
     return null;

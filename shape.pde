@@ -194,11 +194,14 @@ class NonCanonSphere implements Shape
     Vector intersectToOrigin = new Vector( onSphere, m_center );
     intersectToOrigin.normalize();
       
-    float u = 0.5 + atan2(intersectToOrigin.Y(), intersectToOrigin.X())/(2*PI);
-    float v = 0.5 - asin(intersectToOrigin.Z())/PI;
+    float u = atan2(intersectToOrigin.Y(), intersectToOrigin.X())/(2*PI);
+    float v = 0.5 + asin(intersectToOrigin.Z())/PI;
+    u = abs(u); u = u < 1 ? u : 1;
+    v = abs(v); v = v < 1 ? v : 1;    
     return new Point(u,v,0);
   }
   
+
   public ShapeIntersectionInfo getIntersectionInfo( Ray ray, float tMin, float tMax )
   {
     Vector OA = new Vector( m_center, ray.getOrigin() );
@@ -392,7 +395,7 @@ class MovingSphere implements Shape
   {
     return null;
   }
-
+  
   public Box getBoundingBox()
   {
     return m_boundingBox;
@@ -544,7 +547,7 @@ class Triangle implements Shape
     retVal[1] = m2;
     return retVal;
   }
-
+  
   public boolean intersects( Ray ray, float tMin, float tMax )
   {
     Point textureCoord = null;
