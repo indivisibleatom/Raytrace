@@ -186,7 +186,7 @@ class NonCanonSphere implements Shape
       minT = root2;
     }
 
-    if ( minT < 0 || minT < tMin || minT > tMax )
+    if ( minT < c_epsilon || minT < tMin || minT > tMax )
     {
       return false;
     }
@@ -198,8 +198,8 @@ class NonCanonSphere implements Shape
     Vector intersectToOrigin = new Vector( onSphere, m_center );
     intersectToOrigin.normalize();
       
-    float u = atan2(intersectToOrigin.Y(), intersectToOrigin.X())/(2*PI);
-    float v = 0.5 + asin(intersectToOrigin.Z())/PI;
+    float u = (0.5 - atan2(-intersectToOrigin.Y(), -intersectToOrigin.X())/(2*PI));
+    float v = 1 - acos(intersectToOrigin.Z())/PI;
     u = abs(u); u = u <= 1 ? u : 1;
     v = abs(v); v = v <= 1 ? v : 1;    
     return new Point(u,v,0);
@@ -238,7 +238,7 @@ class NonCanonSphere implements Shape
         minT = root2;
       }
 
-      if ( minT < 0 || minT < tMin || minT > tMax )
+      if ( minT < c_epsilon || minT < tMin || minT > tMax )
       {
         return null;
       }

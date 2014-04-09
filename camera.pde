@@ -87,7 +87,7 @@ class Camera
 
   public Ray getRayToEye( Point pointFrom )
   {
-    return new Ray( pointFrom, c_origin );
+    return new Ray( pointFrom, m_position );
   }
 
   public Ray getRay( Sample sample )

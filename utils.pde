@@ -1,4 +1,4 @@
-float c_epsilon = 0.00001;
+float c_epsilon = 0.0001;
 int count = 0;
 
 public static float invSqrt(float x)
@@ -314,7 +314,7 @@ class Ray
     float projection = 2*direction.dot( normal );
     scaledNormal.scale( projection );
     direction.subtract( scaledNormal );
-    Point displacedPoint = new Point( point, direction, 2*c_epsilon );
+    Point displacedPoint = new Point( point, direction, c_epsilon );
     return new Ray( displacedPoint, direction );
   }
   
