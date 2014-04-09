@@ -352,6 +352,32 @@ class Ray
     }
   }
   
+  /*void updateDifferentialsReflection( Vector normal )
+  {
+    if (m_deltaOrig != null)
+    { 
+      Vector delPTDelDX =  new Vector(0,0,0);
+      Vector delPTDelDY = new Vector(0,0,0);
+      for (int i = 0; i < 3; i++)
+      {
+        delPTDelDX.set( i, m_deltaOrig[0].get(i) + t * m_deltaDir[0].get(i) );
+        delPTDelDY.set( i, m_deltaOrig[1].get(i) + t * m_deltaDir[1].get(i) );
+      }
+
+      float delTDelX = -delPTDelDX.dot(normal) / m_dir.dot(normal);
+      float delTDelY = -delPTDelDY.dot(normal) / m_dir.dot(normal);
+      //float delTDelX = 0;
+      //float delTDelY = 0;
+      
+      for (int i = 0; i < 3; i++)
+      {
+        //print( (delPTDelDX.get(i) + delTDelX * m_dir.get(i)) + " " + (delPTDelDY.get(i) + delTDelY * m_dir.get(i)) + "    ");
+        m_deltaOrig[0].set( i, delPTDelDX.get(i) + delTDelX * m_dir.get(i) );
+        m_deltaOrig[1].set( i, delPTDelDY.get(i) + delTDelY * m_dir.get(i) );
+      }
+    }
+  }*/
+  
   void setTime( float time )
   {
     m_time = time;

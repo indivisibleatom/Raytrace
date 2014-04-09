@@ -194,10 +194,10 @@ class NonCanonSphere implements Shape
     Vector intersectToOrigin = new Vector( onSphere, m_center );
     intersectToOrigin.normalize();
       
-    float u = atan2(intersectToOrigin.Y(), intersectToOrigin.X())/(2*PI);
+    float u = atan2(intersectToOrigin.Y(), intersectToOrigin.X())/(2*PI) - 0.5;
     float v = 0.5 + asin(intersectToOrigin.Z())/PI;
-    u = abs(u); u = u < 1 ? u : 1;
-    v = abs(v); v = v < 1 ? v : 1;    
+    u = abs(u); u = u <= 1 ? u : 1;
+    v = abs(v); v = v <= 1 ? v : 1;    
     return new Point(u,v,0);
   }
   
