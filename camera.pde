@@ -117,27 +117,7 @@ class Camera
       deltaXDir.scale( denom );
       deltaYDir.scale( denom );
 
-      //if ( ( sample.getY() == 300 || sample.getY() == 100 ) && sample.getX() > 290 && sample.getX() < 310 )
-      //{
-        Point point1 = new Point(sample.getX() + 1, sample.getY(), 0);
-        Point point2 = new Point(sample.getX(), sample.getY() + 1, 0);
-        Vector rayDirection1 = directionInCameraSpaceTowards( point1 ); 
-        Vector rayDirection2 = directionInCameraSpaceTowards( point2 );
-        Vector deltaRayDirection = cloneVec( rayDirection1 );
-        Vector deltaRayDirection1 = cloneVec( rayDirection2 );
-        rayDirection.normalize();
-        
-        deltaRayDirection.normalize();  
-        deltaRayDirection.subtract( rayDirection );
-        
-        deltaRayDirection1.normalize();  
-        deltaRayDirection1.subtract( rayDirection );
-        
-      //}
-
-      //r.setDifferentials( deltaXOrig, deltaXOrig, deltaRayDirection, deltaRayDirection1 );
       r.setDifferentials( deltaXOrig, deltaXOrig, deltaXDir, deltaYDir );
-      //r.debugPrintDifferentials();
     }
     else
     {

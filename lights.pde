@@ -14,8 +14,6 @@ class PointLight implements Light
   {
     m_position = position;
     m_color = col;
-    m_position.debugPrint();
-    m_color.debugPrint();
   }
 
   public LightedPrimitive intersects( Ray ray, float tMin, float tMax )

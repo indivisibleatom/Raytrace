@@ -4,6 +4,7 @@ interface Shape
   public boolean intersects( Ray ray, float tMin, float tMax );
   public ShapeIntersectionInfo getIntersectionInfo( Ray ray, float tMin, float tMax );
   public float[] getTextureDifferentials( Ray r, IntersectionInfo info );
+  public Vector[] getNormalDifferentials( Ray r, IntersectionInfo info );
 }
 
 class Sphere implements Shape
@@ -123,6 +124,11 @@ class Sphere implements Shape
     return intersectsCanonical( rayLocal, tMin, tMax );
   }
   
+  public Vector[] getNormalDifferentials( Ray r, IntersectionInfo info )
+  {
+    return null;
+  }
+  
   public float[] getTextureDifferentials( Ray r, IntersectionInfo info )
   {
     return null;
@@ -146,8 +152,6 @@ class NonCanonSphere implements Shape
     m_radius2 = radius * radius;
     m_center = center;
   
-    print("Creating non-canon sphere " + radius + " ");
-    center.debugPrint();
     m_boundingBox = new Box( new Point(m_center.X() - radius, m_center.Y() - radius, m_center.Z() - radius), new Point(m_center.X() + radius, m_center.Y() + radius, m_center.Z() + radius), null );
   }
 
@@ -194,7 +198,7 @@ class NonCanonSphere implements Shape
     Vector intersectToOrigin = new Vector( onSphere, m_center );
     intersectToOrigin.normalize();
       
-    float u = atan2(intersectToOrigin.Y(), intersectToOrigin.X())/(2*PI) - 0.5;
+    float u = atan2(intersectToOrigin.Y(), intersectToOrigin.X())/(2*PI);
     float v = 0.5 + asin(intersectToOrigin.Z())/PI;
     u = abs(u); u = u <= 1 ? u : 1;
     v = abs(v); v = v <= 1 ? v : 1;    
@@ -260,7 +264,7 @@ class NonCanonSphere implements Shape
     Point shiftedY = clonePt( intersectionPoint );
     Point deltaX = ray.getDeltaX();
     Point deltaY = ray.getDeltaY();
-    float delta = 0.01;
+    float delta = 0.1;
     shiftedX.set( shiftedX.X() + delta * deltaX.X(), shiftedX.Y() + delta * deltaX.Y(), shiftedX.Z() + delta * deltaX.Z() );
     Point uvDeltaX = getTextureCoords( shiftedX );
     shiftedY.set( shiftedY.X() + delta * deltaY.X(), shiftedY.Y() + delta * deltaY.Y(), shiftedY.Z() + delta * deltaY.Z() );
@@ -279,6 +283,33 @@ class NonCanonSphere implements Shape
     if  ( m2 > 1 ) m2 = 2 - m2;
     retVal[0] = m1; retVal[1] = m2;
     return retVal;
+  }
+  
+  public Vector[] getNormalDifferentials( Ray ray, IntersectionInfo info )
+  {
+    Point intersectionPoint = info.point();
+    Vector normal = new Vector( m_center, info.point() );
+    normal.normalize();
+    
+    Point shiftedX = clonePt( intersectionPoint );
+    Point shiftedY = clonePt( intersectionPoint );
+    Point deltaX = ray.getDeltaX();
+    Point deltaY = ray.getDeltaY();
+    float delta = 0.1;
+    shiftedX.set( shiftedX.X() + delta * deltaX.X(), shiftedX.Y() + delta * deltaX.Y(), shiftedX.Z() + delta * deltaX.Z() );
+    shiftedY.set( shiftedY.X() + delta * deltaY.X(), shiftedY.Y() + delta * deltaY.Y(), shiftedY.Z() + delta * deltaY.Z() );
+    
+    Vector deltaNormalX = new Vector( m_center, shiftedX );
+    deltaNormalX.normalize();
+    Vector deltaNormalY = new Vector( m_center, shiftedY );
+    deltaNormalY.normalize();
+
+    Vector[] retVec = new Vector[2];
+    retVec[0] = cloneVec( normal ); retVec[0].subtract( deltaNormalX );
+    retVec[0].scale(1.0/delta);
+    retVec[1] = cloneVec( normal ); retVec[1].subtract( deltaNormalY );
+    retVec[1].scale(1.0/delta);
+    return retVec;    
   }
 
   public Box getBoundingBox()
@@ -390,7 +421,12 @@ class MovingSphere implements Shape
       return new ShapeIntersectionInfo( intersectionPoint, normal, null, minT, false ); //Texture mapping of moving sphere not supported right now
     }
   }
-
+  
+  public Vector[] getNormalDifferentials( Ray r, IntersectionInfo info )
+  {
+    return  null;
+  }
+  
   public float[] getTextureDifferentials( Ray r, IntersectionInfo info )
   {
     return null;
@@ -502,6 +538,11 @@ class Triangle implements Shape
       textureCoord.set( textureCoords[0], textureCoords[1], textureCoords[2] );
     }
     return tIntersection;
+  }
+  
+  public Vector[] getNormalDifferentials( Ray r, IntersectionInfo info )
+  {
+    return null;
   }
   
   public float[] getTextureDifferentials( Ray ray, IntersectionInfo info )

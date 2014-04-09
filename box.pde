@@ -54,8 +54,6 @@ class Box implements Shape
         extents[i] = transformation.localToWorld( extents[i] );
       }
       fromVertices( extents );
-      m_extent1.debugPrint();
-      m_extent2.debugPrint();
     }
     m_surfaceArea = -1;
   }
@@ -288,6 +286,11 @@ class Box implements Shape
       tExtents[0] = 0;
     }
     return tExtents;
+  }
+  
+  public Vector[] getNormalDifferentials( Ray r, IntersectionInfo info )
+  {
+    return null;
   }
   
   public float[] getTextureDifferentials( Ray r, IntersectionInfo info )

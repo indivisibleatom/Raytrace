@@ -88,6 +88,7 @@ class SamplerRenderingTask implements Task
     if ( primitiveMaterial.specular() != null && depth < MAX_DEPTH )
     {
        Ray reflectedRay = ray.reflect( info.normal(), info.point() );
+       reflectedRay.setDifferentialsReflection( ray, info );
        reflectedRayColor = cloneCol( computeRadiance( reflectedRay, depth+1 ) );
        reflectedRayColor.scale( primitiveMaterial.reflectConst() );
     }

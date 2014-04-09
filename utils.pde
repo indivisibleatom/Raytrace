@@ -314,7 +314,7 @@ class Ray
     float projection = 2*direction.dot( normal );
     scaledNormal.scale( projection );
     direction.subtract( scaledNormal );
-    Point displacedPoint = new Point( point, direction, 3*c_epsilon );
+    Point displacedPoint = new Point( point, direction, 2*c_epsilon );
     return new Ray( displacedPoint, direction );
   }
   
@@ -352,31 +352,40 @@ class Ray
     }
   }
   
-  /*void updateDifferentialsReflection( Vector normal )
+  void setDifferentialsReflection( Ray beforeReflect, IntersectionInfo info )
   {
-    if (m_deltaOrig != null)
+    if (beforeReflect.m_deltaOrig != null)
     { 
-      Vector delPTDelDX =  new Vector(0,0,0);
-      Vector delPTDelDY = new Vector(0,0,0);
-      for (int i = 0; i < 3; i++)
-      {
-        delPTDelDX.set( i, m_deltaOrig[0].get(i) + t * m_deltaDir[0].get(i) );
-        delPTDelDY.set( i, m_deltaOrig[1].get(i) + t * m_deltaDir[1].get(i) );
-      }
+      m_deltaOrig = new Point[2];
+      m_deltaDir = new Vector[2];
+      m_deltaDir[0] = cloneVec( beforeReflect.m_deltaDir[0] );
+      m_deltaDir[1] = cloneVec( beforeReflect.m_deltaDir[1] );
+      m_deltaOrig[0] = clonePt( beforeReflect.m_deltaOrig[0] );
+      m_deltaOrig[1] = clonePt( beforeReflect.m_deltaOrig[1] );
+      float dDotN = beforeReflect.m_dir.dot( info.normal() );
 
-      float delTDelX = -delPTDelDX.dot(normal) / m_dir.dot(normal);
-      float delTDelY = -delPTDelDY.dot(normal) / m_dir.dot(normal);
-      //float delTDelX = 0;
-      //float delTDelY = 0;
+      Vector[] normalDifferentials = info.primitive().getShape().getNormalDifferentials( this, info );
+      Vector dDotNDNDX = cloneVec( normalDifferentials[0] );
+      dDotNDNDX.scale( dDotN );
+      float delDDXDotN = m_deltaDir[0].dot( info.normal() );
+      float dDotDNDX = beforeReflect.m_dir.dot( normalDifferentials[0] );
+      Vector delDDotNDXN = cloneVec( info.normal() );
+      delDDotNDXN.scale( delDDXDotN + dDotDNDX );
+      dDotNDNDX.add( delDDotNDXN );       
+      dDotNDNDX.scale( 2 );
+      m_deltaDir[0].subtract( dDotNDNDX ); 
       
-      for (int i = 0; i < 3; i++)
-      {
-        //print( (delPTDelDX.get(i) + delTDelX * m_dir.get(i)) + " " + (delPTDelDY.get(i) + delTDelY * m_dir.get(i)) + "    ");
-        m_deltaOrig[0].set( i, delPTDelDX.get(i) + delTDelX * m_dir.get(i) );
-        m_deltaOrig[1].set( i, delPTDelDY.get(i) + delTDelY * m_dir.get(i) );
-      }
+      Vector dDotNDNDY = cloneVec( normalDifferentials[1] );
+      dDotNDNDY.scale( dDotN );
+      float delDDYDotN = m_deltaDir[1].dot( info.normal() );
+      float dDotDNDY = beforeReflect.m_dir.dot( normalDifferentials[1] );
+      Vector delDDotNDYN = cloneVec( info.normal() );
+      delDDotNDYN.scale( delDDYDotN + dDotDNDY );
+      dDotNDNDY.add( delDDotNDYN );       
+      dDotNDNDY.scale( 2 );
+      m_deltaDir[1].subtract( dDotNDNDX );    
     }
-  }*/
+  }
   
   void setTime( float time )
   {
