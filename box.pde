@@ -25,39 +25,42 @@ class Box implements Shape
     {
       m_transformation = new Transformation();
       m_transformation.apply(transformation);
+
+      m_extent1 = point1;
+      m_extent2 = point2;
+      
+      float width = point2.X() - point1.X();
+      float height = point2.Y() - point1.Y();
+      float depth = point2.Z() - point1.Z();      
+      
+      Point[] extents = new Point[8];
+      extents[6] = clonePt(m_extent2);
+      extents[7] = clonePt(m_extent1);
+      for (int i = 0; i < 6; i++)
+      {
+        extents[i] = clonePt( m_extent1 );
+      }
+      extents[0].setZ( m_extent2.Z() );
+      extents[1].setZ( m_extent2.Z() ); extents[1].setX( m_extent2.X() );
+      extents[2].setX( m_extent2.X() );
+      extents[3].setZ( m_extent2.Z() ); extents[3].setY( m_extent2.Y() );
+      extents[4].setY( m_extent2.Y() ); extents[4].setX( m_extent2.X() );
+      extents[5].setY( m_extent2.Y() );
+      
       m_extent1 = transformation.localToWorld( point1 );
       m_extent2 = transformation.localToWorld( point2 );
-      
-      m_extent1.debugPrint();
-      m_extent2.debugPrint();
-
-      calculateAxisAligned();
-
-      /*for (int i = 0; i < 3; i++)
+      for (int i = 0; i < 8; i++)
       {
-        if ( m_extent1.get(i) > m_extent2.get(i) )
-        {
-          float temp = m_extent1.get(i); 
-          m_extent1.set(i, m_extent2.get(i));
-          m_extent2.set(i, temp);
-        }
-      }*/
-      
-      /*m_extent1.setX( -1.5 );
-      m_extent2.setX( 1.5 );
-      m_extent1.setY( -1.5 );
-      m_extent2.setY( 1.5 );*/
-      //= m_boundingBox.m_extent1;
-      //m_extent2 = m_boundingBox.m_extent2;
-      
+        extents[i] = transformation.localToWorld( extents[i] );
+      }
+      fromVertices( extents );
       m_extent1.debugPrint();
       m_extent2.debugPrint();
     }
     m_surfaceArea = -1;
   }
   
-  //creates a bounding box from a collection of points
-  Box( Point[] vertices )
+  private void fromVertices( Point[] vertices )
   {
     int[] minIndex = new int[3]; //An index of min for each coordinate
     int[] maxIndex = new int[3]; //An index of max for each coordinate
@@ -85,6 +88,12 @@ class Box implements Shape
     m_extent2 = new Point( vertices[maxIndex[0]].X(), vertices[maxIndex[1]].Y(), vertices[maxIndex[2]].Z() );
     m_boundingBox = this;
     m_surfaceArea = -1;
+  }
+  
+  //creates a bounding box from a collection of points
+  Box( Point[] vertices )
+  {
+    fromVertices( vertices );
   }
   
   private void calculateAxisAligned()
