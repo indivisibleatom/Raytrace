@@ -44,9 +44,24 @@ class Material
   {
     PVector lookUpCoord = new PVector( textureCoord.X(), textureCoord.Y(), textureCoord.Z() );
     PVector footPrint = new PVector( footPrintX, footPrintY );
-    lookUpCoord.z = footPrintX > footPrintY ? footPrintX : footPrintY ;
-    //PVector colorLookUp = m_texture.color_valueAniso( lookUpCoord,  footPrint );
-    PVector colorLookUp = m_texture.color_value( lookUpCoord );
+    PVector colorLookUp;
+    if ( g_scene.fMipMapEnabled() )
+    {
+      if ( g_scene.fAnisotropic() )
+      {
+        colorLookUp = m_texture.color_valueAniso( lookUpCoord,  footPrint );
+      }
+      else
+      {
+        lookUpCoord.z = footPrintX < footPrintY ? footPrintX : footPrintY ;
+        colorLookUp = m_texture.color_value( lookUpCoord );
+      }
+    }
+    else
+    {
+      lookUpCoord.z = 0;
+      colorLookUp = m_texture.color_value( lookUpCoord );
+    }
     return new Color( colorLookUp.x,colorLookUp.y, colorLookUp.z ); 
   }
 }

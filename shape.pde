@@ -257,7 +257,7 @@ class NonCanonSphere implements Shape
     Point shiftedY = clonePt( intersectionPoint );
     Point deltaX = ray.getDeltaX();
     Point deltaY = ray.getDeltaY();
-    float delta = 0.01;
+    float delta = 0.1;
     shiftedX.set( shiftedX.X() + delta * deltaX.X(), shiftedX.Y() + delta * deltaX.Y(), shiftedX.Z() + delta * deltaX.Z() );
     Point uvDeltaX = getTextureCoords( shiftedX );
     shiftedY.set( shiftedY.X() + delta * deltaY.X(), shiftedY.Y() + delta * deltaY.Y(), shiftedY.Z() + delta * deltaY.Z() );
@@ -440,7 +440,7 @@ class Triangle implements Shape
     return m_boundingBox;
   }
   
-  private float[] getTextureCoordScaled( float u, float v, Ray r )
+  private float[] getTextureCoordScaled( float u, float v )
   {
     float[] textureCoordinates = new float[3];  
     
@@ -495,7 +495,7 @@ class Triangle implements Shape
     {
       u /= det;
       v /= det;
-      float textureCoords[] = getTextureCoordScaled( u, v, ray );
+      float textureCoords[] = getTextureCoordScaled( u, v );
       textureCoord.set( textureCoords[0], textureCoords[1], textureCoords[2] );
     }
     return tIntersection;
@@ -535,10 +535,10 @@ class Triangle implements Shape
     
     float m1 = DtDx.getMagnitude();
     m1 = abs(m1);
-    if  ( m1 > 1 ) m1 = 2 - m1;
+    if  ( m1 > 1 ) m1 = m1 - 1;
     float m2 = DtDy.getMagnitude();
     m2 = abs(m2);
-    if  ( m2 > 1 ) m2 = 2 - m2;
+    if  ( m2 > 1 ) m2 = m2 - 1;
 
     retVal[0] = m1;
     retVal[1] = m2;

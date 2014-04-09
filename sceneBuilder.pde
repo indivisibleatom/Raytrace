@@ -285,6 +285,17 @@ class SceneBuilder
       {
         buildScene(token[1]);
       }
+      else if (token[0].equals("mipmap"))
+      {
+        if (token[1].equals("off"))
+        {
+          m_scene.enableMipMap(false);
+        }
+        else
+        {
+          m_scene.enableMipMap(true);
+        }
+      }
       else if (token[0].equals("reset_timer")) 
       {
         timer = millis();

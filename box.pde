@@ -28,7 +28,12 @@ class Box implements Shape
       m_extent1 = transformation.localToWorld( point1 );
       m_extent2 = transformation.localToWorld( point2 );
       
-      for (int i = 0; i < 3; i++)
+      m_extent1.debugPrint();
+      m_extent2.debugPrint();
+
+      calculateAxisAligned();
+
+      /*for (int i = 0; i < 3; i++)
       {
         if ( m_extent1.get(i) > m_extent2.get(i) )
         {
@@ -36,12 +41,17 @@ class Box implements Shape
           m_extent1.set(i, m_extent2.get(i));
           m_extent2.set(i, temp);
         }
-      }
+      }*/
+      
+      /*m_extent1.setX( -1.5 );
+      m_extent2.setX( 1.5 );
+      m_extent1.setY( -1.5 );
+      m_extent2.setY( 1.5 );*/
+      //= m_boundingBox.m_extent1;
+      //m_extent2 = m_boundingBox.m_extent2;
       
       m_extent1.debugPrint();
       m_extent2.debugPrint();
-
-      calculateAxisAligned();
     }
     m_surfaceArea = -1;
   }

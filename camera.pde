@@ -24,13 +24,13 @@ class Camera
   
   public void moveForward()
   {
-    m_position.setZ( m_position.Z() - 0.1 );
+    m_position.setZ( m_position.Z() - 1.0 );
     g_scene.reRender();
   }
   
   public void moveBackward()
   {
-    m_position.setZ( m_position.Z() + 0.1 );
+    m_position.setZ( m_position.Z() + 1.0 );
     g_scene.reRender();
   }
 
@@ -133,20 +133,10 @@ class Camera
         deltaRayDirection1.normalize();  
         deltaRayDirection1.subtract( rayDirection );
         
-        /*Ray ray = new Ray( c_origin, rayDirection, true );
-        Vector right1 = new Vector( (sample.getX() + 1 - m_film.getDim().width()/2) * ( 2 * m_fovTan / m_film.getDim().width() ), 0, 0 );
-        Vector scaledXDirRay1 = cloneVec( rayDirection1 ); 
-        scaledXDirRay1.scale( rayDirection1.dot(deltaXDir1) );
-        deltaXDir1.subtract( scaledXDirRay1 );
-        denom = 1/pow(rayDirection1.dot(rayDirection1), 1.5);
-        deltaXDir1.scale( denom );
-        float deltaX = deltaXDir1.getMagnitude();*/
-        //float deltaD = deltaXDir.getMagnitude();
-        //print(sample.getX() + " " + deltaRayDirection.getMagnitude() + " " + deltaD + "\n");
       //}
 
-      r.setDifferentials( deltaXOrig, deltaXOrig, deltaRayDirection, deltaRayDirection1 );
-      //r.setDifferentials( deltaXOrig, deltaXOrig, deltaXDir, deltaYDir );
+      //r.setDifferentials( deltaXOrig, deltaXOrig, deltaRayDirection, deltaRayDirection1 );
+      r.setDifferentials( deltaXOrig, deltaXOrig, deltaXDir, deltaYDir );
       //r.debugPrintDifferentials();
     }
     else

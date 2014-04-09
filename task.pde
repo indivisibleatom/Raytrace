@@ -77,6 +77,7 @@ class SamplerRenderingTask implements Task
           specularColor.add( primitiveMaterial.specular() );
           float cosineHalf = pow( info.normal().dot( halfVector ), primitiveMaterial.power() ); ;
           specularColor.scale( cosineHalf );        
+          specularColor = combineColor( specularColor, light.getColor() );
         }
 
         pixelColor.add( diffuseColor );

@@ -97,7 +97,7 @@ class Transformation
   public void apply( Transformation other )
   {
     m_transformation.apply( other.m_transformation );
-    m_hasScale = other.m_hasScale;
+    m_hasScale |= other.m_hasScale;
     setInverse();
   }
   
@@ -111,6 +111,10 @@ class Transformation
     float[] local = { pointLocal.X(), pointLocal.Y(), pointLocal.Z(), 1 };
     float[] world = new float[4];
     m_transformation.mult( local, world );
+    for (int i = 0; i < 4; i++)
+    {
+      world[i]/=world[3];
+    }
     return new Point( world );
   }
   
@@ -129,6 +133,10 @@ class Transformation
     float[] world = { pointWorld.X(), pointWorld.Y(), pointWorld.Z(), 1 };
     float[] local = new float[4];
     m_inverse.mult( world, local );
+    for (int i = 0; i < 4; i++)
+    {
+      local[i]/=local[3];
+    }
     return new Point( local );
   }
   

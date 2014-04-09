@@ -38,6 +38,7 @@ void keyPressed() {
     case '9':  gCurrentFile = new SceneBuilder(); gCurrentFile.buildScene("t09.cli"); break;
     case 'q':  exit(); break;
     case 'w':  g_scene.getCamera().moveForward();
+    case 'a':  g_scene.toggleAnisotropic();
   }
 }
 

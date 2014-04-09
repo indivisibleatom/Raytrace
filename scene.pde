@@ -7,8 +7,11 @@ class Scene
   private SceneManager m_sceneManager;
   private LightManager m_lightManager;
   private Renderer m_renderer;
-  Transformation m_currentTransformation;
-  Stack<Transformation> m_matrixStack;
+  private boolean m_fAnisotropic;
+  private boolean m_fMipMapEnabled;
+  
+  private Transformation m_currentTransformation;
+  private Stack<Transformation> m_matrixStack;
 
   Scene()
   {
@@ -20,6 +23,9 @@ class Scene
     m_currentTransformation = new Transformation();
     m_matrixStack = new Stack<Transformation>();
     m_matrixStack.push( m_currentTransformation );
+    
+    m_fAnisotropic = false;
+    m_fMipMapEnabled = false;
   }
   
   public Camera getCamera()
@@ -188,6 +194,27 @@ class Scene
   public void onPop()
   {
     m_currentTransformation = m_matrixStack.pop();
+  }
+  
+  public void toggleAnisotropic()
+  {
+    m_fAnisotropic = !m_fAnisotropic;
+    reRender();
+  }
+  
+  public boolean fAnisotropic()
+  {
+    return m_fAnisotropic;
+  }
+  
+  public void enableMipMap(boolean fEnable)
+  {
+    m_fMipMapEnabled = fEnable;
+  }
+  
+  public boolean fMipMapEnabled()
+  {
+    return m_fMipMapEnabled;
   }
 }
 

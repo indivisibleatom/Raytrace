@@ -14,6 +14,8 @@ class PointLight implements Light
   {
     m_position = position;
     m_color = col;
+    m_position.debugPrint();
+    m_color.debugPrint();
   }
 
   public LightedPrimitive intersects( Ray ray, float tMin, float tMax )
@@ -39,6 +41,7 @@ class PointLight implements Light
   public Ray getRay( Point pointFrom )
   {
     Vector direction = new Vector( pointFrom, m_position );
+    direction.normalize();
     Point displacedPoint = new Point( pointFrom, direction, c_epsilon );
     return new Ray( displacedPoint, direction );
   }
