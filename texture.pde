@@ -42,7 +42,6 @@ class ImageTexture
       image_pyramid[i] = new PImage (w, h, RGB);
       image_pyramid[i].copy (image_pyramid[i-1], 0, 0, w, h, 0, 0, w, h);
       image_pyramid[i].resize (w/2, h/2);
-      image_pyramid[i].save("C:/Users/Mukul/Desktop/ray_tracer/temp/MipMap"+i);
       w /= 2;
       h /= 2;
     }
@@ -53,7 +52,6 @@ class ImageTexture
 
     ripMaps[0][0] = new PImage(w,h,RGB);
     ripMaps[0][0].copy (image, 0, 0, w, h, 0, 0, w, h);
-    ripMaps[0][0].save("C:/Users/Mukul/Desktop/ray_tracer/temp/RipMap"+0+0);
     for (i = 0; i < levels; i++) 
     {
       w = image.width;
@@ -62,7 +60,6 @@ class ImageTexture
         ripMaps[i][0] = new PImage(w,h,RGB);
         ripMaps[i][0].copy (ripMaps[i-1][0], 0, 0, w, h, 0, 0, w, h);
         ripMaps[i][0].resize(w, h/2);
-        ripMaps[i][0].save("C:/Users/Mukul/Desktop/ray_tracer/temp/RipMap"+i+0);
         if ( i > 1 )
         {
           h /= 2;
@@ -73,7 +70,6 @@ class ImageTexture
         ripMaps[i][j] = new PImage (w, h, RGB);
         ripMaps[i][j].copy (ripMaps[i][j-1], 0, 0, w, h, 0, 0, w, h);
         ripMaps[i][j].resize (w/2, h);
-        ripMaps[i][j].save("C:/Users/Mukul/Desktop/ray_tracer/temp/RipMap"+i+j);
         w /= 2;
       }
     }
