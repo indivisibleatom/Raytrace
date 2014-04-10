@@ -24,7 +24,7 @@ class Scene
     m_matrixStack = new Stack<Transformation>();
     m_matrixStack.push( m_currentTransformation );
     
-    m_fAnisotropic = false;
+    m_fAnisotropic = true;
     m_fMipMapEnabled = false;
   }
   

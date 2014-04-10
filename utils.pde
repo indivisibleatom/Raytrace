@@ -337,6 +337,9 @@ class Ray
         delPTDelDX.set( i, m_deltaOrig[0].get(i) + t * m_deltaDir[0].get(i) );
         delPTDelDY.set( i, m_deltaOrig[1].get(i) + t * m_deltaDir[1].get(i) );
       }
+      //print(m_deltaOrig[0].X() + " " + m_deltaOrig[0].Y() + " " + m_deltaOrig[0].Z() + " " + m_deltaOrig[1].X() + " " + m_deltaOrig[1].Y() + " " + m_deltaOrig[1].Z() + "    ");
+      //print(delPTDelDX.X() + " " + delPTDelDX.Y() + " " + delPTDelDX.Z() + " " + delPTDelDY.X() + " " + delPTDelDY.Y() + " " + delPTDelDY.Z() + "    ");
+      //print(m_dir.X() + " " + m_dir.Y() + " " + m_dir.Z() + "     ");
 
       float delTDelX = -delPTDelDX.dot(normal) / m_dir.dot(normal);
       float delTDelY = -delPTDelDY.dot(normal) / m_dir.dot(normal);
@@ -345,11 +348,12 @@ class Ray
       
       for (int i = 0; i < 3; i++)
       {
-        //print( (delPTDelDX.get(i) + delTDelX * m_dir.get(i)) + " " + (delPTDelDY.get(i) + delTDelY * m_dir.get(i)) + "    ");
         m_deltaOrig[0].set( i, delPTDelDX.get(i) + delTDelX * m_dir.get(i) );
         m_deltaOrig[1].set( i, delPTDelDY.get(i) + delTDelY * m_dir.get(i) );
       }
     }
+    //print(m_deltaDir[0].X() + " " + m_deltaDir[0].Y() + " " + m_deltaDir[0].Z() + " " + m_deltaDir[1].X() + " " + m_deltaDir[1].Y() + " " + m_deltaDir[1].Z() + "    ");
+    //print(m_deltaOrig[0].X() + " " + m_deltaOrig[0].Y() + " " + m_deltaOrig[0].Z() + " " + m_deltaOrig[1].X() + " " + m_deltaOrig[1].Y() + " " + m_deltaOrig[1].Z() + "    ");
   }
   
   void setDifferentialsReflection( Ray beforeReflect, IntersectionInfo info )

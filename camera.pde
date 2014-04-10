@@ -95,13 +95,12 @@ class Camera
     Ray r;
     if ( m_aperture == 0 )
     {
-      Point point = new Point(sample.getX(), sample.getY(), 0);
+      Point point = new Point(sample.getX(), m_film.getDim().height() - sample.getY() - 1, 0);
       Vector rayDirection = directionInCameraSpaceTowards( point );
-      r = new Ray( m_position, rayDirection, true );
 
       Point deltaXOrig = new Point(0, 0, 0);
       Vector right = new Vector( ( 2.0 * m_fovTan / m_film.getDim().width() ), 0, 0 );
-      Vector up = new Vector( 0, ( 2.0 * m_fovTan / m_film.getDim().height() ), 0 );
+      Vector up = new Vector( 0, -( 2.0 * m_fovTan / m_film.getDim().height() ), 0 );
       float denom = 1/pow(rayDirection.dot(rayDirection), 1.5);
       Vector dDotRight = cloneVec( rayDirection ); 
       dDotRight.scale( rayDirection.dot(right) );
@@ -116,7 +115,8 @@ class Camera
       deltaYDir.subtract( dDotUp );
       deltaXDir.scale( denom );
       deltaYDir.scale( denom );
-
+      
+      r = new Ray( m_position, rayDirection, true );
       r.setDifferentials( deltaXOrig, deltaXOrig, deltaXDir, deltaYDir );
     }
     else
@@ -169,7 +169,7 @@ class Film
 
   public void setRadiance( Sample sample, Color col )
   {
-    m_screenColor[m_screenDim.height() - sample.getPixelY() - 1][sample.getPixelX()].addUnclamped(col);
+    m_screenColor[sample.getPixelY()][sample.getPixelX()].addUnclamped(col);
   }
 
   public void scaleExposure(int numSamples)

@@ -120,7 +120,6 @@ class ImageTexture
     
     int levelX = int (levX);
     int levelY = int (levY);
-    //print(levelX + " " + levelY + "    ");
 
     float level_fractX = levX - levelX;
     float level_fractY = levY - levelY;
@@ -182,6 +181,7 @@ class ImageTexture
     
     // blend between levels
     c = PVector.lerp (ca, cb, level_fract);
+    //if ( uv_heightY > uv_widthX )
     
     return (c);
   }

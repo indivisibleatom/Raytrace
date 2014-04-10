@@ -553,24 +553,6 @@ class Triangle implements Shape
     Vector deltaX = new Vector( new Point(0,0,0), ray.getDeltaX() );
     Vector deltaY = new Vector( new Point(0,0,0), ray.getDeltaY() );
     
-    /*Vector La = new Vector( m_vertices[1], m_vertices[2] );
-    Vector P = new Vector( new Point(0,0,0), m_vertices[0] );
-    float dot = P.dot(La);
-    La.scale( 1/dot );
-    
-    Vector Lb = new Vector( m_vertices[2], m_vertices[0] );
-    P = new Vector( new Point(0,0,0), m_vertices[1] );
-    dot = P.dot(Lb);
-    Lb.scale( 1/dot );
-    
-    Vector Lc = new Vector( m_vertices[0], m_vertices[1] );
-    P = new Vector( new Point(0,0,0), m_vertices[2] );
-    dot = P.dot(Lc);
-    Lc.scale( 1/dot );
-    
-    Point DtDx = new Point( La.dot(deltaX), Lb.dot(deltaX), Lc.dot(deltaX), m_textureCoords[0], m_textureCoords[1], m_textureCoords[2] );
-    Point DtDy = new Point( La.dot(deltaY), Lb.dot(deltaY), Lc.dot(deltaY), m_textureCoords[0], m_textureCoords[1], m_textureCoords[2] );*/
-    
     Vector e1 = new Vector( m_textureCoords[0], m_textureCoords[1] );
     Vector e2 = new Vector( m_textureCoords[0], m_textureCoords[2] );
     
@@ -578,9 +560,11 @@ class Triangle implements Shape
     Point DtDy = new Point( deltaY.dot( e1 ), deltaY.dot( e2 ), 0 );
     
     float m1 = DtDx.getMagnitude();
+    float m2 = DtDy.getMagnitude();
+    
+    //print(m1 + " " + m2 + " " + deltaX.X() + " " + deltaX.Y() + " " + deltaX.Z() + " " + deltaY.X() + " " + deltaY.Y() + " " + deltaY.Z() + " " + deltaX.getMagnitude() + " " + deltaY.getMagnitude() + "    ");
     m1 = abs(m1);
     if  ( m1 > 1 ) m1 = m1 - 1;
-    float m2 = DtDy.getMagnitude();
     m2 = abs(m2);
     if  ( m2 > 1 ) m2 = m2 - 1;
 
