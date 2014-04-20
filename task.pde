@@ -25,6 +25,7 @@ class SamplerRenderingTask implements Task
     }
     Material primitiveMaterial = info.primitive().getMaterial();
     Color pixelColor = cloneCol( primitiveMaterial.ambient() );
+    Vector normal = info.normal();
     
     ray.updateDifferentialsTransfer( info.t(), info.normal() );
     for (int i = 0; i < lightManager.getNumLights(); i++)
@@ -34,8 +35,36 @@ class SamplerRenderingTask implements Task
       shadowRay.setTime( ray.getTime() );
       
       if ( m_scene.intersects( shadowRay ) == null )
-      {
-        float cosine = info.normal().dot( shadowRay.getDirection() );
+      { 
+        Color diffuseColor = null;
+        if ( primitiveMaterial.fHasTexture() ) //TODO msati3: Move the checks for texture, etc inside the material
+        {
+          float[] differentials = new float[2];
+          if ( ray.getDelta(0) != null )
+          {
+            differentials = info.primitive().getTextureDifferentials( ray, info );
+          }
+          else
+          {
+            differentials[0] = 0;
+            differentials[1] = 0;
+          }
+
+          diffuseColor = primitiveMaterial.getTextureColor( info, differentials[0], differentials[1] );
+          Vector deltaNormal = primitiveMaterial.getDeltaNormal( info );
+          if ( deltaNormal != null )
+          {
+            normal = cloneVec( info.normal() );
+            normal.add( deltaNormal );
+            normal.normalize();
+          }
+        }
+        else
+        {
+          diffuseColor = combineColor( primitiveMaterial.diffuse(), light.getColor() );
+        }
+
+        float cosine = normal.dot( shadowRay.getDirection() );
         if ( cosine < 0 ) //Dual sided lighting
         {
           if ( info.fDualSided() )
@@ -47,24 +76,7 @@ class SamplerRenderingTask implements Task
             cosine = 0;
           }
         }
-  
-        Color diffuseColor = null;
-        if ( primitiveMaterial.fHasTexture() )
-        {
-          if ( ray.getDelta(0) != null )
-          {
-            float[] differentials = info.primitive().getTextureDifferentials( ray, info );
-            diffuseColor = primitiveMaterial.getTextureColor( info.textureCoord(), differentials[0], differentials[1] );
-          }
-          else
-          {
-            diffuseColor = primitiveMaterial.getTextureColor( info.textureCoord(), 0, 0 );
-          }
-        }
-        else
-        {
-          diffuseColor = combineColor( primitiveMaterial.diffuse(), light.getColor() );
-        }        
+
         diffuseColor.scale( cosine );
   
         Color specularColor = new Color(0,0,0);

@@ -334,6 +334,12 @@ class Box implements Shape
   {
     return m_extent1.get(index);   
   }
+  
+    
+  public float getRadialDistance( Point point )
+  {
+    return 0;
+  }  
 
   public float surfaceArea()
   {

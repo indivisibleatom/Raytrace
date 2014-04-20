@@ -5,6 +5,7 @@ interface Shape
   public ShapeIntersectionInfo getIntersectionInfo( Ray ray, float tMin, float tMax );
   public float[] getTextureDifferentials( Ray r, IntersectionInfo info );
   public Vector[] getNormalDifferentials( Ray r, IntersectionInfo info );
+  public float getRadialDistance( Point point );
 }
 
 class Sphere implements Shape
@@ -133,6 +134,11 @@ class Sphere implements Shape
   {
     return null;
   }
+  
+  public float getRadialDistance( Point point )
+  {
+    return 0;
+  }
 
   public ShapeIntersectionInfo getIntersectionInfo( Ray ray, float tMin, float tMax )
   {
@@ -205,6 +211,11 @@ class NonCanonSphere implements Shape
     return new Point(u,v,0);
   }
   
+  public float getRadialDistance( Point onSphere )
+  {
+    float radius = sqrt( (m_center.Y() - onSphere.Y()) * (m_center.Y() - onSphere.Y()) + (m_center.Z() - onSphere.Z()) * (m_center.Z() - onSphere.Z()) );
+    return radius;
+  }
 
   public ShapeIntersectionInfo getIntersectionInfo( Ray ray, float tMin, float tMax )
   {
@@ -245,11 +256,14 @@ class NonCanonSphere implements Shape
 
       Point intersectionPoint = new Point( ray, minT );
       Vector normal = new Vector( m_center, intersectionPoint );
+      Point pointLocal = new Point ( new Point(0,0,0), normal, 1 );
       normal.normalize();
 
       Point uv = getTextureCoords( intersectionPoint );
       
-      return new ShapeIntersectionInfo( intersectionPoint, normal, uv, minT, false ); //Texture mapping of non canon sphere not supported right now
+      ShapeIntersectionInfo ret = new ShapeIntersectionInfo( intersectionPoint, normal, uv, minT, false ); //Texture mapping of non canon sphere not supported right now
+      ret.setPointLocal( pointLocal );
+      return ret;
     }
   }
   
@@ -432,6 +446,11 @@ class MovingSphere implements Shape
     return null;
   }
   
+  public float getRadialDistance( Point point )
+  {
+    return 0;
+  }  
+
   public Box getBoundingBox()
   {
     return m_boundingBox;
@@ -544,7 +563,12 @@ class Triangle implements Shape
   {
     return null;
   }
-  
+
+  public float getRadialDistance( Point point )
+  {
+    return 0;
+  }  
+
   public float[] getTextureDifferentials( Ray ray, IntersectionInfo info )
   {
     Point uv = info.textureCoord();

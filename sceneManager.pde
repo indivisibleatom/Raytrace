@@ -60,6 +60,11 @@ class SceneManager
     m_currentMaterial.setTexture( imageTexture );
   }
   
+  public void setMaterialProceduralTexture( ProceduralTexture texture )
+  {
+    m_currentMaterial.setProceduralTexture( texture );
+  }
+  
   public void setMaterial( Color ambient, Color diffuse, Color shiny, float power, float kReflect )
   {
     m_currentMaterial = new Material( ambient, diffuse, shiny, power, kReflect );

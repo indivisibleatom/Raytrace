@@ -507,6 +507,14 @@ class Color
     return ((r&0x0ff)<<16)|((g&0x0ff)<<8)|(b&0x0ff); 
   }
   
+  public void add(float x, float y, float z)
+  {
+    m_c[0] += x;
+    m_c[1] += y;
+    m_c[2] += z;
+    clamp();
+  }
+  
   public void add(Color other)
   {
     m_c[0] += other.m_c[0];
@@ -515,6 +523,14 @@ class Color
     clamp();
   }
   
+  public void blend(Color first, Color other, float t)
+  {
+    m_c[0] = (1-t)*first.m_c[0] + t*other.m_c[0];
+    m_c[1] = (1-t)*first.m_c[1] + t*other.m_c[1];
+    m_c[2] = (1-t)*first.m_c[2] + t*other.m_c[2];
+    clamp();
+  }
+
   public void addUnclamped(Color other)
   {
     m_c[0] += other.m_c[0];

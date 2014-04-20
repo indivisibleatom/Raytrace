@@ -162,6 +162,30 @@ class Scene
     return m_sceneManager.getCurrentMaterial();
   }
   
+  public void perlinNoiseWithScale( float scale )
+  {
+    ProceduralTexture texture = new PerlinProceduralTexture( scale );
+    m_sceneManager.setMaterialProceduralTexture( texture );
+  }
+
+  public void setWoodTexture()
+  {
+    ProceduralTexture texture = new WoodTexture();
+    m_sceneManager.setMaterialProceduralTexture( texture );
+  }
+
+  public void setMarbleTexture()
+  {
+    ProceduralTexture texture = new MarbleTexture();
+    m_sceneManager.setMaterialProceduralTexture( texture );
+  }
+  
+  public void setStoneTexture()
+  {
+    ProceduralTexture texture = new StoneTexture();
+    m_sceneManager.setMaterialProceduralTexture( texture );
+  }
+
   //Matrix stack commands
   public Transformation getCurrentTransformation()
   {

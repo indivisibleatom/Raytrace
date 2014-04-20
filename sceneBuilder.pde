@@ -296,6 +296,26 @@ class SceneBuilder
           m_scene.enableMipMap(true);
         }
       }
+      else if (token[0].equals("noise"))
+      {
+        m_scene.perlinNoiseWithScale(Float.parseFloat(token[1]));
+      }
+      else if (token[0].equals("wood"))
+      {
+        m_scene.setWoodTexture();
+      }
+      else if (token[0].equals("marble"))
+      {
+        m_scene.setMarbleTexture();
+      }
+      else if (token[0].equals("stone"))
+      {
+        if ( gWorleyNoise == null )
+        {
+          gWorleyNoise = new WorleyNoise( 1 );
+        }
+        m_scene.setStoneTexture();
+      }
       else if (token[0].equals("reset_timer")) 
       {
         timer = millis();

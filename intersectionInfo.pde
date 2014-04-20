@@ -1,6 +1,7 @@
 class ShapeIntersectionInfo
 {
   private Point m_point;
+  private Point m_pointLocal;
   private Vector m_normal;
   private float m_t;
   private boolean m_fDualSided;
@@ -13,9 +14,16 @@ class ShapeIntersectionInfo
     m_t = t;
     m_fDualSided = fDualSided;
     m_textureCoordinate = textureCoord;
+    m_pointLocal = null;
+  }
+  
+  void setPointLocal( Point pointLocal )
+  {
+    m_pointLocal = pointLocal;
   }
   
   public Point point() { return m_point; }
+  public Point pointLocal() { return m_pointLocal; }
   public Vector normal() { return m_normal; }
   public float t() { return m_t; }
   public boolean fDualSided() { return m_fDualSided; }
@@ -38,6 +46,7 @@ class IntersectionInfo
 
   public LightedPrimitive primitive() { return m_primitive; }
   public Point point() { return m_shapeInfo.point(); }
+  public Point pointLocal() { return m_shapeInfo.pointLocal(); }
   public Vector normal() { return m_shapeInfo.normal(); }
   public Point textureCoord() { return m_shapeInfo.textureCoord(); }
   public float t() { return m_shapeInfo.t(); }

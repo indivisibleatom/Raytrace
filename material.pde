@@ -6,6 +6,7 @@ class Material
   private float m_power;
   private float m_reflect;
   private ImageTexture m_texture;
+  private ProceduralTexture m_procTexture;
 
   Material( Color ambient, Color diffuse )
   {
@@ -20,6 +21,7 @@ class Material
     m_power = power;
     m_reflect = reflect;
     m_texture = null; 
+    m_procTexture = null;
   }
   
   void setTexture( ImageTexture texture )
@@ -27,12 +29,18 @@ class Material
     m_texture = texture; 
   }
   
+  void setProceduralTexture( ProceduralTexture texture )
+  {
+   m_procTexture = texture;
+  }
+  
   public Color diffuse() { return m_diffuse; }
   public Color ambient() { return m_ambient; } 
   public Color specular() { return m_specular; }
   public float power() { return m_power; }
   public float reflectConst() { return m_reflect; }
-  public boolean fHasTexture() { return m_texture != null; }
+  public boolean fHasTexture() { return (m_texture != null || m_procTexture != null); }
+  
   public Color getTextureColor( Point textureCoord )
   {
     PVector lookUpCoord = new PVector( textureCoord.X(), textureCoord.Y(), textureCoord.Z() );
@@ -40,28 +48,45 @@ class Material
     return new Color( colorLookUp.x,colorLookUp.y, colorLookUp.z ); 
   }
   
-  public Color getTextureColor( Point textureCoord, float footPrintX, float footPrintY )
+  public Color getTextureColor( IntersectionInfo info , float footPrintX, float footPrintY )
   {
-    PVector lookUpCoord = new PVector( textureCoord.X(), textureCoord.Y(), textureCoord.Z() );
-    PVector footPrint = new PVector( footPrintX, footPrintY );
-    PVector colorLookUp;
-    if ( g_scene.fMipMapEnabled() )
+    if ( m_texture != null )
     {
-      if ( g_scene.fAnisotropic() )
+      Point textureCoord = info.textureCoord();
+      PVector lookUpCoord = new PVector( textureCoord.X(), textureCoord.Y(), textureCoord.Z() );
+      PVector footPrint = new PVector( footPrintX, footPrintY );
+      PVector colorLookUp;
+      if ( g_scene.fMipMapEnabled() )
       {
-        colorLookUp = m_texture.color_valueAniso( lookUpCoord,  footPrint );
+        if ( g_scene.fAnisotropic() )
+        {
+          colorLookUp = m_texture.color_valueAniso( lookUpCoord,  footPrint );
+        }
+        else
+        {
+          lookUpCoord.z = footPrintX < footPrintY ? footPrintX : footPrintY ;
+          colorLookUp = m_texture.color_value( lookUpCoord );
+        }
       }
       else
       {
-        lookUpCoord.z = footPrintX < footPrintY ? footPrintX : footPrintY ;
+        lookUpCoord.z = 0;
         colorLookUp = m_texture.color_value( lookUpCoord );
       }
+      return new Color( colorLookUp.x,colorLookUp.y, colorLookUp.z );
     }
     else
     {
-      lookUpCoord.z = 0;
-      colorLookUp = m_texture.color_value( lookUpCoord );
+      return m_procTexture.getColor( info ); 
     }
-    return new Color( colorLookUp.x,colorLookUp.y, colorLookUp.z ); 
+  }
+  
+  public Vector getDeltaNormal( IntersectionInfo info )
+  {
+    if ( m_procTexture != null )
+    {
+      return m_procTexture.getDNormal( info );
+    }
+    return null;
   }
 }

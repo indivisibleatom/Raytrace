@@ -10,7 +10,7 @@ int screen_height = 600;
 
 // the current active file name
 SceneBuilder gCurrentFile;
-
+WorleyNoise gWorleyNoise = null;
 
 // Some initializations for the scene.
 
