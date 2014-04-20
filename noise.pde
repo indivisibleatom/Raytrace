@@ -193,7 +193,7 @@ class WorleyNoise
     return 9;
   }
   
-  private void evaluateAt( Point p, int cubeX, int cubeY, int cubeZ, int scale, WorleyResult currentResult )
+  private synchronized void evaluateAt( Point p, int cubeX, int cubeY, int cubeZ, int scale, WorleyResult currentResult )
   {
    int seed = hash( cubeX, cubeY, cubeZ );
 
@@ -201,7 +201,6 @@ class WorleyNoise
     float rand = random(0,1);
     int numPoints = getNumFeaturePoints( rand );
     Point featurePoint;
-    print(cubeX + " " + cubeY + " " + cubeZ + " " + seed + " " + rand + " " + numPoints + "   ");
 
     int id = currentResult.ID();
     float minDist = currentResult.distance1();
@@ -244,7 +243,7 @@ class WorleyNoise
     WorleyResult res = new WorleyResult( -1, Float.MAX_VALUE, Float.MAX_VALUE ); 
     evaluateAt( p, cubeXInit, cubeYInit, cubeZInit, scale, res );
     
-    /*for (int i = -1; i <= 1; i++)
+    for (int i = -1; i <= 1; i++)
     {
       for (int j = -1; j <= 1; j++)
       {
@@ -256,7 +255,7 @@ class WorleyNoise
           }
         }
       }
-    }*/
+    }
     return res;
   }
 }
