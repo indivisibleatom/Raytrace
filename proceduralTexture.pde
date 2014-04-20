@@ -118,6 +118,12 @@ class StoneTexture implements ProceduralTexture
   StoneTexture()
   {
     m_colors = new Color[5];
+    /*m_colors[0] = new Color(0.8, 0.5, 0);
+    m_colors[1] = new Color(0.8, 0.5, 0);
+    m_colors[2] = new Color(0.8, 0.5, 0);
+    m_colors[3] = new Color(0.8, 0.5, 0);
+    m_colors[4] = new Color(0.8, 0.5, 0);*/
+    
     m_colors[0] = new Color(0.8, 0.5, 0);
     m_colors[1] = new Color(0.9, 0.2, 0.2);
     m_colors[2] = new Color(0.5, 0.5, 0);
@@ -139,9 +145,12 @@ class StoneTexture implements ProceduralTexture
       float scalePerlin = 100;
       colorValue += ( noise_3d( scalePerlin * point.X(), scalePerlin * point.Y(), scalePerlin * point.Z() ) ) / 4;
       return new Color(colorValue,colorValue,colorValue);*/
+    } 
+    else
+    {
+      int colIndex = (abs(result.ID()) * 53) % 5;
+      return cloneCol( m_colors[colIndex] );
     }
-    int colIndex = (abs(result.ID()) * 53) % 5;
-    return cloneCol( m_colors[colIndex] );
   }
 
   public Vector getDNormal( IntersectionInfo info )

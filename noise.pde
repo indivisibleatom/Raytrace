@@ -160,7 +160,7 @@ class WorleyNoise
   WorleyNoise(float pointDensity)
   {
     populatePoissonLookUp( pointDensity );
-    m_modulo = (int)pow(2, 20);
+    m_modulo = (int)pow(2, 32);
   }
   
   private void populatePoissonLookUp( float pointDensity )
@@ -178,7 +178,7 @@ class WorleyNoise
   
   private int hash( int x, int y, int z )
   {
-    return ((541 * x + 79 * y + 31 * z)%m_modulo);
+    return (abs(541 * x + 79 * y + 31 * z))%m_modulo;
   }
   
   private int getNumFeaturePoints( float random )
@@ -201,6 +201,7 @@ class WorleyNoise
     float rand = random(0,1);
     int numPoints = getNumFeaturePoints( rand );
     Point featurePoint;
+    print(cubeX + " " + cubeY + " " + cubeZ + " " + seed + " " + rand + " " + numPoints + "   ");
 
     int id = currentResult.ID();
     float minDist = currentResult.distance1();
@@ -225,6 +226,8 @@ class WorleyNoise
         minDist2 = minDist;
         minDist = dist;
         id = seed + i;
+        if ( id == 1000021 )
+          print("Here");
       }
       else if ( dist < minDist2 )
       {
@@ -241,7 +244,7 @@ class WorleyNoise
     WorleyResult res = new WorleyResult( -1, Float.MAX_VALUE, Float.MAX_VALUE ); 
     evaluateAt( p, cubeXInit, cubeYInit, cubeZInit, scale, res );
     
-    for (int i = -1; i <= 1; i++)
+    /*for (int i = -1; i <= 1; i++)
     {
       for (int j = -1; j <= 1; j++)
       {
@@ -253,7 +256,7 @@ class WorleyNoise
           }
         }
       }
-    }
+    }*/
     return res;
   }
 }
