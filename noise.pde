@@ -208,17 +208,16 @@ class WorleyNoise
 
     for ( int i = 0; i < numPoints; i++ )
     {
-      float x = random(0,1);
-      float y = random(0,1);
-      float z = random(0,1);
+      float x = random(1);
+      float y = random(1);
+      float z = random(1);
       featurePoint = new Point(0,0,0);
       featurePoint.set( (cubeX + x)/scale, (cubeY + y)/scale, (cubeZ + z)/scale );
       Vector dVec = new Vector( featurePoint, p );
       float dist = dVec.getMagnitude();
-      if ( dist < 0.001 )
+      if ( abs(dist - minDist) < 0.01 )
       {
         minDist2 = minDist;
-        minDist = 0;
         id = 1000021; 
       }
       else if ( dist < minDist )
@@ -242,15 +241,15 @@ class WorleyNoise
     WorleyResult res = new WorleyResult( -1, Float.MAX_VALUE, Float.MAX_VALUE ); 
     evaluateAt( p, cubeXInit, cubeYInit, cubeZInit, scale, res );
     
-    for (int i = -1; i < 1; i++)
+    for (int i = -1; i <= 1; i++)
     {
-      for (int j = -1; j < 1; j++)
+      for (int j = -1; j <= 1; j++)
       {
-        for (int k = -1; k < 1; k++)
+        for (int k = -1; k <= 1; k++)
         {
           if ( ! (i == 0 && j == 0 && k == 0) )
           {
-            evaluateAt( p, cubeXInit - i, cubeYInit - j, cubeZInit - k, scale, res );
+            evaluateAt( p, cubeXInit + i, cubeYInit + j, cubeZInit + k, scale, res );
           }
         }
       }

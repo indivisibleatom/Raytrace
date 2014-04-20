@@ -128,16 +128,17 @@ class StoneTexture implements ProceduralTexture
   public Color getColor( IntersectionInfo info )
   {
     Point point = info.pointLocal();
-    int scale = 5;
+    int scale = 3;
 
     WorleyResult result = gWorleyNoise.valueAt( point, scale );
     
     if ( result.ID() == 1000021 )
     {
-      float colorValue = 0.5;
+      return new Color(0,0,0);
+      /*float colorValue = 0.5;
       float scalePerlin = 100;
       colorValue += ( noise_3d( scalePerlin * point.X(), scalePerlin * point.Y(), scalePerlin * point.Z() ) ) / 4;
-      return new Color(colorValue,colorValue,colorValue);
+      return new Color(colorValue,colorValue,colorValue);*/
     }
     int colIndex = (abs(result.ID()) * 53) % 5;
     return cloneCol( m_colors[colIndex] );
