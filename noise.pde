@@ -200,7 +200,7 @@ class WorleyNoise
     randomSeed( seed );
     float rand = random(0,1);
     int numPoints = getNumFeaturePoints( rand );
-    Point[] points = new Point[numPoints];
+    Point featurePoint;
 
     int id = currentResult.ID();
     float minDist = currentResult.distance1();
@@ -211,21 +211,19 @@ class WorleyNoise
       float x = random(0,1);
       float y = random(0,1);
       float z = random(0,1);
-      points[i] = new Point(0,0,0);
-      points[i].set( (cubeX + x)/scale, (cubeY + y)/scale, (cubeZ + z)/scale );
-      Vector dVec = new Vector( points[i], p );
+      featurePoint = new Point(0,0,0);
+      featurePoint.set( (cubeX + x)/scale, (cubeY + y)/scale, (cubeZ + z)/scale );
+      Vector dVec = new Vector( featurePoint, p );
       float dist = dVec.getMagnitude();
-      if ( abs(dist - minDist) < 0.02 )
+      if ( dist < 0.001 )
       {
+        minDist2 = minDist;
         minDist = 0;
         id = 1000021; 
       }
       else if ( dist < minDist )
       {
-        if ( minDist2 == Float.MAX_VALUE )
-        {
-          minDist2 = dist;
-        }
+        minDist2 = minDist;
         minDist = dist;
         id = seed + i;
       }
@@ -241,7 +239,6 @@ class WorleyNoise
   public WorleyResult valueAt( Point p, int scale )
   {
     int cubeXInit = (int)Math.floor(scale*p.X()); int cubeYInit = (int)Math.floor(scale*p.Y()); int cubeZInit = (int)Math.floor(scale*p.Z());
-    print(p.X() + " " + p.Y() + " " + p.Z() + " " + cubeXInit + " " + cubeYInit + " " + cubeZInit + "    ");
     WorleyResult res = new WorleyResult( -1, Float.MAX_VALUE, Float.MAX_VALUE ); 
     evaluateAt( p, cubeXInit, cubeYInit, cubeZInit, scale, res );
     
