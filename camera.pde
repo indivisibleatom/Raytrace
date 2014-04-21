@@ -146,12 +146,14 @@ class Film
   private Rect m_screenDim;
   private Color[][] m_screenColor;
   private DepthMap m_depthMap;
+  PImage m_backingImage;
 
   Film( Rect screenDim )
   {
     m_screenDim = screenDim;
     m_screenColor = new Color[ m_screenDim.height() ][ m_screenDim.width() ];
     m_depthMap = new DepthMap( screenDim );
+    m_backingImage = new PImage( m_screenDim.width(), m_screenDim.height() );
   }
   
   public void clear()
@@ -208,11 +210,11 @@ class Film
         Color col = m_screenColor[i][j];
         if ( col != null )
         {
-          stroke( col.R(), col.G(), col.B() );
-          point( j, i );
+          m_backingImage.set( j, i, col.getIntColor() );
         }
       }
     }
+    image(m_backingImage, 0, 0);
   }
 }
 

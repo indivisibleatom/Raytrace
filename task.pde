@@ -113,7 +113,7 @@ class SamplerRenderingTask implements Task
         {
           Ray viewRay = m_scene.getCamera().getRayToEye( info.point() );
           Vector halfVector = cloneVec( shadowRay.getDirection() );
-      5    halfVector.add( viewRay.getDirection() );
+          halfVector.add( viewRay.getDirection() );
           halfVector.normalize();
           specularColor.add( primitiveMaterial.specular() );
           float cosineHalf = pow( info.normal().dot( halfVector ), primitiveMaterial.power() ); ;
