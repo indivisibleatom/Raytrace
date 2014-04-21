@@ -145,11 +145,13 @@ class Film
 {
   private Rect m_screenDim;
   private Color[][] m_screenColor;
+  private DepthMap m_depthMap;
 
   Film( Rect screenDim )
   {
     m_screenDim = screenDim;
     m_screenColor = new Color[ m_screenDim.height() ][ m_screenDim.width() ];
+    m_depthMap = new DepthMap( screenDim );
   }
   
   public void clear()
@@ -172,6 +174,11 @@ class Film
     m_screenColor[sample.getPixelY()][sample.getPixelX()].addUnclamped(col);
   }
 
+  public void setDepthValue( Sample sample, float value )
+  {
+    m_depthMap.setValue( sample.getPixelY(), sample.getPixelX(), value );
+  }
+
   public void scaleExposure(int numSamples)
   {
     float scale = 1.0/numSamples;
@@ -183,10 +190,17 @@ class Film
       }
     }
   }
+  
+  public void modulateColor( int row, int column, float value )
+  {
+    m_screenColor[row][column].scale( value );
+  }
 
   public void draw()
   {
     background (0, 0, 0);
+    print("Here\n");
+    m_depthMap.postProcess(this);
     for (int i = 0; i < m_screenDim.height(); i++)
     {
       for (int j = 0; j < m_screenDim.width(); j++)

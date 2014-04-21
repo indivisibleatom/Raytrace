@@ -78,7 +78,8 @@ class WoodTexture implements ProceduralTexture
 
   public Vector getDNormal( IntersectionInfo info )
   {
-    return null;
+    Point point = info.point();
+    return dNoise( point.X(), point.Y(), point.Z() );
   }
 }
 

@@ -4,6 +4,18 @@ interface Task extends Runnable
 
 int MAX_DEPTH = 10; //Max depth of recursive ray-tracing
 
+class RadianceResult
+{
+  Color radiance;
+  float depthValue;
+  
+  RadianceResult( Color rad, float dValue )
+  {
+    radiance = rad;
+    depthValue = dValue;
+  } 
+}
+
 class SamplerRenderingTask implements Task
 {
   private Scene m_scene;
@@ -15,17 +27,19 @@ class SamplerRenderingTask implements Task
     m_sampler = sampler.getSubsampler( numTasks, taskNum );
   }
    
-  private Color computeRadiance( Ray ray, int depth )
+  private RadianceResult computeRadiance( Ray ray, int depth )
   {
+    float depthValue = Float.MAX_VALUE; 
     LightManager lightManager = m_scene.getLightManager();
     IntersectionInfo info = m_scene.getIntersectionInfo( ray );
     if ( info == null ) // Can be the case when the t value is negative
     {
-      return lightManager.getAmbient();
+      return new RadianceResult( lightManager.getAmbient(), depthValue );
     }
     Material primitiveMaterial = info.primitive().getMaterial();
     Color pixelColor = cloneCol( primitiveMaterial.ambient() );
     Vector normal = info.normal();
+    depthValue = info.point().Z();
     
     ray.updateDifferentialsTransfer( info.t(), info.normal() );
     for (int i = 0; i < lightManager.getNumLights(); i++)
@@ -101,11 +115,11 @@ class SamplerRenderingTask implements Task
     {
        Ray reflectedRay = ray.reflect( info.normal(), info.point() );
        reflectedRay.setDifferentialsReflection( ray, info );
-       reflectedRayColor = cloneCol( computeRadiance( reflectedRay, depth+1 ) );
+       reflectedRayColor = cloneCol( computeRadiance( reflectedRay, depth+1 ).radiance );
        reflectedRayColor.scale( primitiveMaterial.reflectConst() );
     }
     pixelColor.add( reflectedRayColor );
-    return pixelColor;
+    return new RadianceResult( pixelColor, depthValue );
   }
   
   public void run()
@@ -116,8 +130,10 @@ class SamplerRenderingTask implements Task
       do
       {
         Ray ray = m_scene.getCamera().getRay(sample);
-        Color radiance = computeRadiance(ray, 0);
+        RadianceResult result = computeRadiance(ray, 0);
+        Color radiance = result.radiance;
         m_scene.getCamera().getFilm().setRadiance(sample, radiance);
+        m_scene.getCamera().getFilm().setDepthValue(sample, result.depthValue);        
         sample = m_sampler.getNextSample();    
       } while ( sample != null );
     }catch(Exception ex)
