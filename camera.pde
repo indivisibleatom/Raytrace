@@ -146,6 +146,8 @@ class Film
   private Rect m_screenDim;
   private Color[][] m_screenColor;
   private DepthMap m_depthMap;
+  private NormalMap m_normalMap;
+  private SilhouettePostProcessor m_silhouettePostProcessor;
   PImage m_backingImage;
 
   Film( Rect screenDim )
@@ -153,6 +155,8 @@ class Film
     m_screenDim = screenDim;
     m_screenColor = new Color[ m_screenDim.height() ][ m_screenDim.width() ];
     m_depthMap = new DepthMap( screenDim );
+    m_normalMap = new NormalMap( screenDim );
+    m_silhouettePostProcessor = new SilhouettePostProcessor( this, m_depthMap, m_normalMap );
     m_backingImage = new PImage( m_screenDim.width(), m_screenDim.height() );
   }
   
@@ -180,6 +184,12 @@ class Film
   {
     m_depthMap.setValue( sample.getPixelY(), sample.getPixelX(), value );
   }
+  
+  public void setNormalValue( Sample sample, Vector value )
+  {
+    m_normalMap.setValue( sample.getPixelY(), sample.getPixelX(), value );
+  }
+
 
   public void scaleExposure(int numSamples)
   {
@@ -202,7 +212,7 @@ class Film
   {
     background (0, 0, 0);
     print("Here\n");
-    m_depthMap.postProcess(this);
+    m_silhouettePostProcessor.postProcess();
     for (int i = 0; i < m_screenDim.height(); i++)
     {
       for (int j = 0; j < m_screenDim.width(); j++)

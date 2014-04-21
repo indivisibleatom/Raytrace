@@ -1,5 +1,8 @@
 Color kBlue = new Color(0,0,1);
 Color kYellow = new Color(1,1,0);
+Color kBlack = new Color(0,0,0);
+float alpha = 0.2;
+float beta = 0.6;
 
 interface Task extends Runnable
 {
@@ -11,11 +14,13 @@ class RadianceResult
 {
   Color radiance;
   float depthValue;
+  Vector normalValue;
   
-  RadianceResult( Color rad, float dValue )
+  RadianceResult( Color rad, float dValue, Vector nValue )
   {
     radiance = rad;
     depthValue = dValue;
+    normalValue = nValue;
   } 
 }
 
@@ -33,16 +38,19 @@ class SamplerRenderingTask implements Task
   private RadianceResult computeRadiance( Ray ray, int depth )
   {
     float depthValue = Float.MAX_VALUE; 
+    Vector normalValue = new Vector( Float.MAX_VALUE, Float.MAX_VALUE, Float.MAX_VALUE );
     LightManager lightManager = m_scene.getLightManager();
     IntersectionInfo info = m_scene.getIntersectionInfo( ray );
     if ( info == null ) // Can be the case when the t value is negative
     {
-      return new RadianceResult( lightManager.getAmbient(), depthValue );
+      return new RadianceResult( lightManager.getAmbient(), depthValue, normalValue );
     }
     Material primitiveMaterial = info.primitive().getMaterial();
     Color pixelColor = cloneCol( primitiveMaterial.ambient() );
     Vector normal = info.normal();
+    
     depthValue = info.point().Z();
+    normalValue = info.normal();
     
     ray.updateDifferentialsTransfer( info.t(), info.normal() );
     for (int i = 0; i < lightManager.getNumLights(); i++)
@@ -51,7 +59,7 @@ class SamplerRenderingTask implements Task
       Ray shadowRay = light.getRay( info.point() );
       shadowRay.setTime( ray.getTime() );
       
-      if ( m_scene.intersects( shadowRay ) == null )
+      if ( true /*m_scene.intersects( shadowRay ) == null*/ )
       { 
         Color diffuseColor = null;
         if ( primitiveMaterial.fHasTexture() ) //TODO msati3: Move the checks for texture, etc inside the material
@@ -100,8 +108,12 @@ class SamplerRenderingTask implements Task
         {
           float value1 = (1 + cosine)/2;
           float value2 = (1 - value1);
-          Color kCool = cloneCol( kBlue );
-          Color kWarm = cloneCol( kYellow );
+          Color kCool = cloneCol( kBlack );
+          kCool.scale( alpha );
+          kCool.add( kBlue );
+          Color kWarm = cloneCol( kBlack );
+          kWarm.scale( beta );
+          kWarm.add( kYellow );
           kCool.scale( value1 );
           kWarm.scale( value2 );
           diffuseColor = kCool;
@@ -134,7 +146,7 @@ class SamplerRenderingTask implements Task
        reflectedRayColor.scale( primitiveMaterial.reflectConst() );
     }
     pixelColor.add( reflectedRayColor );
-    return new RadianceResult( pixelColor, depthValue );
+    return new RadianceResult( pixelColor, depthValue, normalValue );
   }
   
   public void run()
@@ -149,6 +161,7 @@ class SamplerRenderingTask implements Task
         Color radiance = result.radiance;
         m_scene.getCamera().getFilm().setRadiance(sample, radiance);
         m_scene.getCamera().getFilm().setDepthValue(sample, result.depthValue);        
+        m_scene.getCamera().getFilm().setNormalValue(sample, result.normalValue);
         sample = m_sampler.getNextSample();    
       } while ( sample != null );
     }catch(Exception ex)
