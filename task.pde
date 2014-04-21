@@ -1,3 +1,6 @@
+Color kBlue = new Color(0,0,1);
+Color kYellow = new Color(1,1,0);
+
 interface Task extends Runnable
 {
 }
@@ -92,13 +95,25 @@ class SamplerRenderingTask implements Task
         }
 
         diffuseColor.scale( cosine );
+        
+        if ( true )
+        {
+          float value1 = (1 + cosine)/2;
+          float value2 = (1 - value1);
+          Color kCool = cloneCol( kBlue );
+          Color kWarm = cloneCol( kYellow );
+          kCool.scale( value1 );
+          kWarm.scale( value2 );
+          diffuseColor = kCool;
+          diffuseColor.add( kWarm );
+        }
   
         Color specularColor = new Color(0,0,0);
         if ( primitiveMaterial.specular() != null )
         {
           Ray viewRay = m_scene.getCamera().getRayToEye( info.point() );
           Vector halfVector = cloneVec( shadowRay.getDirection() );
-          halfVector.add( viewRay.getDirection() );
+      5    halfVector.add( viewRay.getDirection() );
           halfVector.normalize();
           specularColor.add( primitiveMaterial.specular() );
           float cosineHalf = pow( info.normal().dot( halfVector ), primitiveMaterial.power() ); ;
