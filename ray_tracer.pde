@@ -39,7 +39,9 @@ void keyPressed() {
     case 'q':  exit(); break;
     case 'w':  g_scene.getCamera().moveForward(); break;
     case 's':  g_scene.getCamera().moveBackward(); break;
-    case 'a':  g_scene.toggleAnisotropic();
+    case 'a':  g_scene.getCamera().rotateLeft(); break;
+    case 'd':  g_scene.getCamera().rotateRight(); break;
+    case 'z':  g_scene.toggleAnisotropic();
   }
 }
 

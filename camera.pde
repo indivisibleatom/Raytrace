@@ -34,6 +34,14 @@ class Camera
     g_scene.reRender();
   }
 
+  public void rotateLeft()
+  {
+  }
+  
+  public void rotateRight()
+  {
+  }
+
   public void setLensParams( float aperture, float distance )
   {
     m_focalLength = distance;
@@ -211,8 +219,10 @@ class Film
   public void draw()
   {
     background (0, 0, 0);
-    print("Here\n");
-    m_silhouettePostProcessor.postProcess();
+    if ( g_scene.fNPR() )
+    {
+      m_silhouettePostProcessor.postProcess();
+    }
     for (int i = 0; i < m_screenDim.height(); i++)
     {
       for (int j = 0; j < m_screenDim.width(); j++)

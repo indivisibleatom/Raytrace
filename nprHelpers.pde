@@ -1,5 +1,5 @@
-float depthThreshHoldDiff = 0.4;
-float normalThreshHoldDiff = 0.1;
+float depthThreshHoldDiff = 1.0;
+float normalThreshHoldDiff = 0.04;
 
 class NormalMap
 {
@@ -23,7 +23,7 @@ class NormalMap
   {
     float retVal = 0;
     for (int i = -1; i <= 1; i++)
-    {  
+    {
       for (int j = -1; j <= 1; j++)
       {
         if ( row+i >= 0 && row+i < m_height && col+j >= 0 && col+j < m_width )

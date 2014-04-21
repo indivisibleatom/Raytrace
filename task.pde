@@ -59,7 +59,7 @@ class SamplerRenderingTask implements Task
       Ray shadowRay = light.getRay( info.point() );
       shadowRay.setTime( ray.getTime() );
       
-      if ( true /*m_scene.intersects( shadowRay ) == null*/ )
+      if ( m_scene.fNPR() || m_scene.intersects( shadowRay ) == null )
       { 
         Color diffuseColor = null;
         if ( primitiveMaterial.fHasTexture() ) //TODO msati3: Move the checks for texture, etc inside the material
@@ -104,7 +104,7 @@ class SamplerRenderingTask implements Task
 
         diffuseColor.scale( cosine );
         
-        if ( true )
+        if ( m_scene.fNPR() )
         {
           float value1 = (1 + cosine)/2;
           float value2 = (1 - value1);

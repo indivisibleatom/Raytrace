@@ -327,6 +327,10 @@ class SceneBuilder
         float seconds = diff / 1000.0;
         println ("Timer = " + seconds);
       }
+      else if (token[0].equals("npr"))
+      {
+        m_scene.setNPR();
+      }
       else if (token[0].equals("write")) 
       {
         // save the current image to a .png file

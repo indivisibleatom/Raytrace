@@ -1,43 +1,44 @@
-# reflective sphere on checkerboard
-
-mipmap off
+# big bunny, in acceleration structure
 
 fov 60
-point_light  -2 3 0  1 1 1
-point_light  3 1 0  .5 .5 .5
-background 0.4 0.4 0.7
 
-shiny  0 0 0  .2 .2 .2  1 1 1  40  .9
-sphere 0.5  0.5 -0.5 -3
+# blue background
 
-diffuse   0.8 0.8 0.8   0 0 0
-image_texture  checkerboard_small.png
+background 0.2 0.2 1
+npr
 
-push
+# light sources 
 
-translate 0 -1 -4
-scale 6 6 6
-rotate 90  1 0 0
-translate -0.5 -0.5 0
+point_light  3 4  0  .8 .8 .8
+point_light -3 4  0  .2 .2 .2
+
+# these two triangles acts as a ground plane
+
+diffuse  .8 .8 .8  .2 .2 .2
 
 begin
-texture_coord 0 0
-vertex  0 0 0
-texture_coord 0 1
-vertex  0 1 0
-texture_coord 1 0
-vertex   1 0 0
+vertex -100 -1 -100
+vertex  100 -1 -100
+vertex  100 -1  100
 end
 
 begin
-texture_coord 1 0
-vertex  1 0 0
-texture_coord 1 1
-vertex  1 1 0
-texture_coord 0 1
-vertex  0 1 0
+vertex  100 -1  100
+vertex -100 -1  100
+vertex -100 -1 -100
 end
 
-pop
+# the bunny
 
-write t05.png
+translate 0 0 -3
+
+diffuse  .8 .8 .8  .2 .2 .2 
+
+begin_list
+read bun69k.cli
+end_accel
+
+reset_timer
+write t09.png
+print_timer
+

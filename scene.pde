@@ -9,6 +9,7 @@ class Scene
   private Renderer m_renderer;
   private boolean m_fAnisotropic;
   private boolean m_fMipMapEnabled;
+  private boolean m_fNPR;
   
   private Transformation m_currentTransformation;
   private Stack<Transformation> m_matrixStack;
@@ -26,6 +27,7 @@ class Scene
     
     m_fAnisotropic = true;
     m_fMipMapEnabled = false;
+    m_fNPR = false;
   }
   
   public Camera getCamera()
@@ -240,6 +242,16 @@ class Scene
   {
     return m_fMipMapEnabled;
   }
+  
+  public void setNPR()
+  {
+    m_fNPR = true;
+  }
+  
+  public boolean fNPR()
+  {
+    return m_fNPR;
+  } 
 }
 
 
