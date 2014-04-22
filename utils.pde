@@ -507,6 +507,14 @@ class Color
     return ((r&0x0ff)<<16)|((g&0x0ff)<<8)|(b&0x0ff); 
   }
   
+  public void set(float x, float y, float z)
+  {
+    m_c[0] = x;
+    m_c[1] = y;
+    m_c[2] = z;
+    clamp();
+  }
+  
   public void add(float x, float y, float z)
   {
     m_c[0] += x;

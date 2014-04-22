@@ -103,6 +103,7 @@ class InstancePrimitive implements LightedPrimitive
     Vector normal = m_transform.localToWorldNormal( localInfo.normal() );
 
     ShapeIntersectionInfo intersectionInfo = new ShapeIntersectionInfo( point, normal, localInfo.textureCoord(), localInfo.t()*scale, localInfo.fDualSided() );
+    intersectionInfo.setPointLocal( localInfo.pointLocal() );
     return new IntersectionInfo( this, intersectionInfo );
   }
   

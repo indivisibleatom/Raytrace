@@ -106,18 +106,19 @@ class SamplerRenderingTask implements Task
         
         if ( m_scene.fNPR() )
         {
-          float value1 = (1 + cosine)/2;
+          quantize( diffuseColor, 5 );
+          /*float value1 = (1 + cosine)/2;
           float value2 = (1 - value1);
-          Color kCool = cloneCol( kBlack );
+          Color kCool = cloneCol( primitiveMaterial.diffuse() );
           kCool.scale( alpha );
           kCool.add( kBlue );
-          Color kWarm = cloneCol( kBlack );
+          Color kWarm = cloneCol( primitiveMaterial.diffuse() );
           kWarm.scale( beta );
           kWarm.add( kYellow );
           kCool.scale( value1 );
           kWarm.scale( value2 );
           diffuseColor = kCool;
-          diffuseColor.add( kWarm );
+          diffuseColor.add( kWarm );*/
         }
   
         Color specularColor = new Color(0,0,0);
@@ -171,5 +172,14 @@ class SamplerRenderingTask implements Task
         print("Exception during SamplerRenderingTask::run!!\n");
       }
     }
+  }
+  
+  private void quantize( Color col, int numQuantizations )
+  {
+    float r = col.R();  float g = col.G();  float b = col.B();
+    float rI = floor(r * numQuantizations );
+    float gI = floor(g * numQuantizations );
+    float bI = floor(b * numQuantizations );
+    col.set( rI/numQuantizations, gI/numQuantizations, bI/numQuantizations );     
   }
 }
