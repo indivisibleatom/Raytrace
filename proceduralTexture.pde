@@ -63,7 +63,7 @@ class WoodTexture implements ProceduralTexture
     float ringSize = 0.04*radius;
     float divide = radiusRing / ringSize;
     int numRing = (int)divide;
-    float tVal = (( numRing + 0.5 ) - divide);
+    float tVal = 2 * abs(( numRing + 0.5 ) - divide);
     if ( point.X() >= 0 )
     {
       numRing = 10 + ( 10 - numRing );
@@ -100,7 +100,7 @@ class MarbleTexture implements ProceduralTexture
     float scale = 100;
     Point point = info.pointLocal();
     float retVal = 0;
-    while ( scale >= 1 )
+    while ( scale >= 2 )
     {
       float noise = noise_3d( point.X() * scale, point.Y() * scale, point.Z() * scale ) / scale;
       retVal += noise;

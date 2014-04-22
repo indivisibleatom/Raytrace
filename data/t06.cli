@@ -1,17 +1,25 @@
-# reflective sphere on checkerboard, with mipmaps
+# textured spheres with noise
 
-mipmap on
+rays_per_pixel 1
+npr
 
 fov 60
-point_light  -2 3 0  1 1 1
-point_light  3 1 0  .5 .5 .5
-background 0.4 0.4 0.7
+background .4 .4 .7
+#point_light -3 5 5  .5 .5 .5
+point_light 5 3 3   1 1 1
 
-shiny  0 0 0  .2 .2 .2  1 1 1  40  .9
-sphere 0.5  0.5 -0.5 -3
 
-diffuse   0.8 0.8 0.8   0 0 0
-image_texture  checkerboard_small.png
+diffuse   0.8 0.8 0.0   0.2 0.2 0.2
+#noise 5
+
+sphere .8  -1 -.2 -4
+
+diffuse   0.0 0.0 1.0   0.2 0.2 0.2
+#noise 20
+
+sphere .8  1 -.2 -4
+
+diffuse   0.8 0.8 0.8   0.2 0.2 0.2
 
 push
 
@@ -40,4 +48,5 @@ end
 
 pop
 
-write t06.png
+
+write t01.png
