@@ -106,8 +106,8 @@ class SamplerRenderingTask implements Task
         
         if ( m_scene.fNPR() )
         {
-          quantize( diffuseColor, 5 );
-          /*float value1 = (1 + cosine)/2;
+          //quantize( diffuseColor, 5 );
+          float value1 = (1 + cosine)/2;
           float value2 = (1 - value1);
           Color kCool = cloneCol( primitiveMaterial.diffuse() );
           kCool.scale( alpha );
@@ -115,10 +115,10 @@ class SamplerRenderingTask implements Task
           Color kWarm = cloneCol( primitiveMaterial.diffuse() );
           kWarm.scale( beta );
           kWarm.add( kYellow );
-          kCool.scale( value1 );
-          kWarm.scale( value2 );
+          kCool.scale( value2 );
+          kWarm.scale( value1 );
           diffuseColor = kCool;
-          diffuseColor.add( kWarm );*/
+          diffuseColor.add( kWarm );
         }
   
         Color specularColor = new Color(0,0,0);
@@ -134,8 +134,8 @@ class SamplerRenderingTask implements Task
           specularColor = combineColor( specularColor, light.getColor() );
         }
 
-        pixelColor.add( diffuseColor );
-        pixelColor.add( specularColor );
+        pixelColor.addUnclamped( diffuseColor );
+        pixelColor.addUnclamped( specularColor );
       }
     }
     Color reflectedRayColor = new Color(0,0,0);
@@ -146,7 +146,7 @@ class SamplerRenderingTask implements Task
        reflectedRayColor = cloneCol( computeRadiance( reflectedRay, depth+1 ).radiance );
        reflectedRayColor.scale( primitiveMaterial.reflectConst() );
     }
-    pixelColor.add( reflectedRayColor );
+    pixelColor.addUnclamped( reflectedRayColor );
     return new RadianceResult( pixelColor, depthValue, normalValue );
   }
   

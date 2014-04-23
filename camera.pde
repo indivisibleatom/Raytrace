@@ -6,7 +6,7 @@ class Camera
   private float m_aperture;
   private float m_fovTan;
   private boolean m_shutterEnabled;
-  private Point m_position; 
+  private Point m_position;
 
   //Increments in ray direction in camera spaer per pixel movement in file space
   private float m_xDir;
@@ -206,14 +206,14 @@ class Film
     {
       for (int j = 0; j < m_screenDim.width(); j++)
       {
-        m_screenColor[i][j].scale(scale);
+        m_screenColor[i][j].scaleUnclamped(scale);
       }
     }
   }
   
   public void modulateColor( int row, int column, float value )
   {
-    m_screenColor[row][column].scale( value );
+    m_screenColor[row][column].scaleUnclamped( value );
   }
 
   public void draw()
@@ -223,6 +223,41 @@ class Film
     {
       m_silhouettePostProcessor.postProcess();
     }
+    float maxTotal = -Float.MIN_VALUE;
+    float minTotal = Float.MAX_VALUE;
+    
+    //HDR Rescaling
+    for (int i = 0; i < m_screenDim.height(); i++)
+    {
+      for (int j = 0; j < m_screenDim.width(); j++)
+      {
+        Color col = m_screenColor[i][j];
+        float max = max( col.R(), col.G() ); max = max( max, col.B() );
+        float min = min( col.R(), col.G() ); min = min( max, col.B() );
+
+        if ( maxTotal < max )
+        {
+          maxTotal = max;
+        }
+        if ( minTotal > min )
+        {
+          minTotal = min;
+        }
+      }
+    }
+    float scale = 1.0/(maxTotal - minTotal);
+    Color sub = new Color( minTotal, minTotal, minTotal );
+    for (int i = 0; i < m_screenDim.height(); i++)
+    {
+      for (int j = 0; j < m_screenDim.width(); j++)
+      {
+        Color col = m_screenColor[i][j];
+        col.subUnclamped( sub );
+        col.scale( scale );
+      }
+    }
+
+    
     for (int i = 0; i < m_screenDim.height(); i++)
     {
       for (int j = 0; j < m_screenDim.width(); j++)

@@ -531,6 +531,14 @@ class Color
     clamp();
   }
   
+  public void sub(Color other)
+  {
+    m_c[0] -= other.m_c[0];
+    m_c[1] -= other.m_c[1];
+    m_c[2] -= other.m_c[2];
+    clamp();
+  }
+  
   public void blend(Color first, Color other, float t)
   {
     m_c[0] = (1-t)*first.m_c[0] + t*other.m_c[0];
@@ -545,7 +553,21 @@ class Color
     m_c[1] += other.m_c[1];
     m_c[2] += other.m_c[2];
   }
+
+  public void subUnclamped(Color other)
+  {
+    m_c[0] -= other.m_c[0];
+    m_c[1] -= other.m_c[1];
+    m_c[2] -= other.m_c[2];
+  }
   
+  public void scaleUnclamped(float scale)
+  {
+    m_c[0] *= scale;
+    m_c[1] *= scale;
+    m_c[2] *= scale;
+  }
+ 
   public void scale(float scale)
   {
     m_c[0] *= scale;

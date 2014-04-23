@@ -77,7 +77,7 @@ class WoodTexture implements ProceduralTexture
     {
       Color blendedColor = new Color(0, 0, 0);
       blendedColor.blend( darkRing, lightRing, tVal );
-      //blendedColor.add( scaledNoiseX, scaledNoiseY, scaledNoiseZ );
+      blendedColor.add( scaledNoiseX, scaledNoiseY, scaledNoiseZ );
       return blendedColor;
     }
   }
