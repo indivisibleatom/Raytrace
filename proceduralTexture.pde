@@ -100,9 +100,9 @@ class MarbleTexture implements ProceduralTexture
     float scale = 100;
     Point point = info.pointLocal();
     float retVal = 0;
-    while ( scale >= 2 )
+    while ( scale >= 1 )
     {
-      float noise = noise_3d( point.X() * scale, point.Y() * scale, point.Z() * scale ) / scale;
+      float noise = (1 + noise_3d( point.X() * scale, point.Y() * scale, point.Z() * scale ) / scale) / 2;
       retVal += noise;
       scale /= 2;
     }
@@ -114,7 +114,7 @@ class MarbleTexture implements ProceduralTexture
     Point point = info.pointLocal();
     float xCoordinate = point.X();
 
-    float sin = 1-sin( 20*(xCoordinate + turbulence( info )) );
+    float sin = 1-sin( 30*(xCoordinate + turbulence( info )) );
     return new Color(sin, sin, sin);
   }
 

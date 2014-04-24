@@ -1,5 +1,7 @@
 import java.util.*;
 
+float g_exposureScale = 1;
+
 //Profiling information
 class Scene
 {
@@ -10,6 +12,8 @@ class Scene
   private boolean m_fAnisotropic;
   private boolean m_fMipMapEnabled;
   private boolean m_fNPR;
+  private boolean m_fHDR;
+  private boolean m_fCellShaded;
   
   private Transformation m_currentTransformation;
   private Stack<Transformation> m_matrixStack;
@@ -25,9 +29,10 @@ class Scene
     m_matrixStack = new Stack<Transformation>();
     m_matrixStack.push( m_currentTransformation );
     
-    m_fAnisotropic = true;
+    m_fAnisotropic = false;
     m_fMipMapEnabled = false;
     m_fNPR = false;
+    m_fHDR = false;
   }
   
   public Camera getCamera()
@@ -84,13 +89,14 @@ class Scene
   {
     m_sceneManager.commitAccel();
   }
-  
+   
   public void raytrace()
   {
     long startTime = System.currentTimeMillis();
     m_camera.getFilm().clear();
     m_sceneManager.buildScene();
     long createTime = System.currentTimeMillis();
+    
     print( "Diagnostic self log : Time taken for tree creation " + (createTime - startTime)/1000.0 + "seconds\n");
     m_renderer.render( this );
     long endTime = System.currentTimeMillis();
@@ -251,7 +257,28 @@ class Scene
   public boolean fNPR()
   {
     return m_fNPR;
-  } 
+  }
+ 
+ public void setHDR()
+ {
+   m_fHDR = true;
+ }
+ 
+ public boolean fHDR()
+ {
+   return m_fHDR;
+ }
+
+ public void setCellShaded()
+ {
+   m_fCellShaded = true;
+ }
+ 
+ public boolean fCellShaded()
+ {
+   return m_fCellShaded;
+ }
 }
+
 
 

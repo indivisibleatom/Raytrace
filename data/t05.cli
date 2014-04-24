@@ -10,7 +10,7 @@ npr
 # light sources 
 
 point_light  3 4  0  .8 .8 .8
-point_light -3 4  0  .2 .2 .2
+#point_light -3 4  0  .2 .2 .2
 
 # these two triangles acts as a ground plane
 

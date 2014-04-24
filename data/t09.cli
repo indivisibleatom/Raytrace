@@ -1,21 +1,22 @@
 # textured spheres with noise
 
 rays_per_pixel 1
-npr
+#npr
+hdr
 
 fov 60
 background .4 .4 .7
-point_light -3 5 5  .5 .5 .5
-#point_light 5 3 3   1 1 1
+point_light -3 5 5  1 1 1
+point_light 5 3 3   1 1 1
 
 
-diffuse   0.8 0.8 0.8   0.2 0.2 0.2
-noise 5
+diffuse   0.8 0.8 0.0   0.2 0.2 0.2
+#noise 5
 
 sphere .8  -1 -.2 -4
 
- iffuse   0.8 0.8 0.8   0.2 0.2 0.2
-noise 20
+diffuse   0.0 0.0 1.0   0.2 0.2 0.2
+#noise 20
 
 sphere .8  1 -.2 -4
 
@@ -48,5 +49,4 @@ end
 
 pop
 
-
-write t01.png
+write t09.png

@@ -7,6 +7,7 @@ class Camera
   private float m_fovTan;
   private boolean m_shutterEnabled;
   private Point m_position;
+  private ArrayList<Film> m_developedPictures;
 
   //Increments in ray direction in camera spaer per pixel movement in file space
   private float m_xDir;
@@ -20,6 +21,7 @@ class Camera
     m_aperture = 0;
     m_shutterEnabled = false;
     m_position = new Point(0,0,0);
+    m_developedPictures = new ArrayList<Film>();
   }
   
   public void moveForward()
@@ -227,33 +229,31 @@ class Film
     float minTotal = Float.MAX_VALUE;
     
     //HDR Rescaling
-    for (int i = 0; i < m_screenDim.height(); i++)
+    if ( g_scene.fHDR() )
     {
-      for (int j = 0; j < m_screenDim.width(); j++)
+      float avgIntensity = 0;
+      for (int i = 0; i < m_screenDim.height(); i++)
       {
-        Color col = m_screenColor[i][j];
-        float max = max( col.R(), col.G() ); max = max( max, col.B() );
-        float min = min( col.R(), col.G() ); min = min( max, col.B() );
-
-        if ( maxTotal < max )
+        for (int j = 0; j < m_screenDim.width(); j++)
         {
-          maxTotal = max;
-        }
-        if ( minTotal > min )
-        {
-          minTotal = min;
+          Color col = m_screenColor[i][j];
+          float intensity = col.intensity();
+          avgIntensity += log( c_epsilon + intensity );
         }
       }
-    }
-    float scale = 1.0/(maxTotal - minTotal);
-    Color sub = new Color( minTotal, minTotal, minTotal );
-    for (int i = 0; i < m_screenDim.height(); i++)
-    {
-      for (int j = 0; j < m_screenDim.width(); j++)
+      print(avgIntensity);
+      avgIntensity = exp( avgIntensity / (m_screenDim.height() * m_screenDim.width()) );
+      print(avgIntensity);
+      Color sub = new Color( minTotal, minTotal, minTotal );
+      for (int i = 0; i < m_screenDim.height(); i++)
       {
-        Color col = m_screenColor[i][j];
-        col.subUnclamped( sub );
-        col.scale( scale );
+        for (int j = 0; j < m_screenDim.width(); j++)
+        {
+          Color col = m_screenColor[i][j];
+          float intensity = 0.36 * col.intensity() / avgIntensity;
+          float intensityDiffScale = ( intensity / (intensity + 1) );
+          col.scale( intensityDiffScale );
+        }
       }
     }
 

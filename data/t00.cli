@@ -2,11 +2,11 @@
 
 rays_per_pixel 1
 npr
-hdr
+cell
 
 fov 60
 background .4 .4 .7
-point_light -3 5 5  .5 .5 .5
+#point_light -3 5 5  .5 .5 .5
 point_light 5 3 3   1 1 1
 
 
@@ -40,11 +40,11 @@ end
 
 begin
 texture_coord 1 0
-vertex  1 0 0
+vertex  0 1 0
 texture_coord 1 1
 vertex  1 1 0
 texture_coord 0 1
-vertex  0 1 0
+vertex  1 0 0
 end
 
 pop

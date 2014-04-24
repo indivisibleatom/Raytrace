@@ -576,6 +576,17 @@ class Color
     clamp();
   }
   
+  public float intensity()
+  {
+    return (m_c[0]*0.265068 + m_c[1]*0.67023428 + m_c[2]*0.06409157);
+  }
+  
+  public Color chroma()
+  {
+    float intensity = intensity();
+    return new Color( m_c[0]/intensity, m_c[1]/intensity, m_c[2]/intensity );
+  }
+    
   void debugPrint()
   {
     print("Begin Col : \n");

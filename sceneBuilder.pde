@@ -331,6 +331,15 @@ class SceneBuilder
       {
         m_scene.setNPR();
       }
+      else if (token[0].equals("cell"))
+      {
+        m_scene.setNPR();
+        m_scene.setCellShaded();
+      }
+      else if (token[0].equals("hdr"))
+      {
+        m_scene.setHDR();
+      }
       else if (token[0].equals("write")) 
       {
         // save the current image to a .png file
